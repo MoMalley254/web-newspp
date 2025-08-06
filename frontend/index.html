@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="./styles/styles.css">
+    <title>E-Newspp</title>
+</head>
+<body>
+   <section class="top">
+        <div class="titles">
+            <!-- <h1>E-Newspp</h1> -->
+            <h2>Magazine Title</h2>
+        </div>
+        <!-- controls top -->
+        <div class="controls-top">
+            <button id="btn-hide-controls" aria-label="Hide Controls">
+               <i class="material-icons">keyboard_double_arrow_left</i>
+            </button>
+
+            <div class="top-show-controls">
+                <button id="btn-fullscreen" aria-label="Full Screen">
+                <i class="material-icons">fullscreen</i>
+            </button>
+
+            <button id="btn-zoom-in" aria-label="Zoom In">
+                <i class="material-icons">zoom_in</i>
+            </button>
+
+            <button id="btn-zoom-slider" aria-label="Zoom Slider">
+                <i class="material-icons">tune</i>
+            </button>
+
+            <button id="btn-zoom-out" aria-label="Zoom Out">
+                <i class="material-icons">zoom_out</i>
+            </button>
+
+            <button id="btn-skip-backward" aria-label="Skip Page Backward">
+                <i class="material-icons">skip_previous</i>
+            </button>
+
+            <button id="btn-prev-page" aria-label="Previous Page">
+                <i class="material-icons">navigate_before</i>
+            </button>
+
+            <button id="btn-next-page" aria-label="Next Page">
+                <i class="material-icons">navigate_next</i>
+            </button>
+
+            <button id="btn-skip-forward" aria-label="Skip Page Forward">
+                <i class="material-icons">skip_next</i>
+            </button>
+
+            <button id="btn-share" aria-label="Share">
+                <i class="material-icons">share</i>
+            </button>
+
+            <button id="btn-search" aria-label="Search">
+                <i class="material-icons">search</i>
+            </button>
+
+            <button id="btn-menu" aria-label="Menu">
+                <i class="material-icons">menu</i>
+            </button>
+            </div>
+
+
+        </div>
+   </section>
+
+   <section id="articlesSection" class="content" data-articles="1" data-article-names="People_Daily.html">
+    <div class="loading-articles" >
+        <h2 class="loader">Loading articles<span class="dots"></span></h2>
+        <p class="found-articles">Found <span class="article-count"></span> articles</p>
+    </div>
+        
+    <div id="article-thumbnails" ></div>
+    <div class="content-wrapper">
+        <div class="loading-article-content">
+            <h2 class="loader">Loading <span class="article-name"></span> content <span class="dots"></span></h2>
+        </div>
+        <div id="contentContainer">
+            <div id="thumbnailsSideView"></div>
+            <div id="article"></div>
+        </div>
+    </div>
+    
+
+   </section>
+    
+    <script src="./scripts/script.js"></script>
+</body>
+</html>

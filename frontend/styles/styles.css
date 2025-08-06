@@ -1,0 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300..700;1,300..700&family=Crimson+Pro:ital,wght@0,200..900;1,200..900&display=swap');
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5 {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+}
+
+p, a, span, i {
+    font-family: "Crimson Pro", serif;
+    font-weight: normal;
+    color: white;
+}
+
+body {
+    background: linear-gradient(to bottom right,  #232370, #4f0a8c);
+    background-attachment: fixed;
+
+}
+
+/* Top Controls */
+.top {
+    z-index: 999;
+    top: 0;
+    position: fixed;
+}
+
+.top .titles {
+    height: 7vh;
+    margin-top: -0.8vh;
+    width: 100vw;
+    background:  #232370;
+    justify-content: center;
+}
+
+.top h1 {
+    margin: 10px 0;
+}
+
+.top .titles h2 {
+    margin-top: 5px;
+    font-size: 35px;
+}
+
+.controls-top {
+    height: 7vh;
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    justify-items: center;
+}
+
+.controls-top .top-show-controls {
+    flex: 9;
+    display: flex;
+    justify-content: space-evenly;
+    transition: transform 800ms ease-in-out;
+    background: linear-gradient(to bottom right,  #232370, #4f0a8c);
+} 
+
+.top-show-controls.hide {
+  transform: translateX(calc(-100vw)); 
+}
+
+.controls-top button {
+    position: relative;
+    background-color: transparent;
+    font-size: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 500ms ease-in-out, color 500ms ease-in-out, transform 500ms ease-in-out;
+    padding: 8px 12px; 
+    border: none;
+}
+
+.controls-top #btn-hide-controls {
+    flex: 1;
+    transition: opacity 400ms ease;
+    background:  #232370;
+    border-radius: 0;
+}
+
+.controls-top button:hover {
+    /* background-color: white; */
+}
+
+/* Tooltip styling */
+.controls-top button::after {
+    content: attr(aria-label);
+    position: absolute;
+    top: 100%; /* place above the button */
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background-color: #4f0a8c;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+    z-index: 10;
+  /* small arrow */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.controls-top button:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-12px);
+    pointer-events: auto;
+}
+
+.controls-top button i {
+    transition: color 500ms ease-in-out, transform 500ms ease-in-out;
+    font-size: 30px;
+}
+
+.controls-top .top-show-controls button:hover i {
+    /* color: #232370; */
+    transform: scale(1.17); 
+}
+
+#btn-hide-controls {
+  position: sticky;
+  left: 0;
+  z-index: 100;
+}
+
+/* Content */
+.content {
+    margin-top: 15vh;
+    height: 80vh;
+    width: 100vw;
+    /* background-color: white; */
+    text-align: center;
+    overflow-x: hidden;
+}
+
+.loading-articles {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    justify-self: center;      
+    font-weight: bold;
+    font-family: "Cormorant Garamond", serif;
+}
+
+.loading-articles h2 {
+    text-align: center;
+    margin-top: 20vh;
+    margin-left: 35vw;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 60px; 
+}
+
+.loading-articles p {
+    margin-top: 30px;
+    font-size: 30px; 
+}
+
+.dots::after {
+  content: '';
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+  border-radius: 50%;
+  background-color: #555;
+  animation: blinkDots 1.5s infinite;
+  position: relative;
+}
+
+.dots::after {
+  content: '•';
+  animation-name: blinkDots;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  font-size: 2rem;
+  color: #555;
+  position: relative;
+}
+
+@keyframes blinkDots {
+  0%, 20% {
+    color: transparent;
+  }
+  50% {
+    color: #555;
+  }
+  100% {
+    color: transparent;
+  }
+}
+
+.found-articles {
+    /* opacity: 0; */
+    transition: all 400ms ease-in;
+}
+
+#article-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(3, 29%);
+    grid-template-rows: repeat(2, 45%);
+}
+
+.article-thumbnail {
+    height: 10vh;
+    cursor: pointer;
+    padding: 10px;
+    margin: 30px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.article-thumbnail:hover {
+  background-color: #e0e0ff;
+}
+
+#contentContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+#thumbnailsSideView {
+    position: fixed;
+    width: 30vw;
+    height: 100%;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(1, 100%);
+    grid-template-rows: repeat(2, 45%);
+}
+
+#thumbnailsSideView  .article-thumbnail {
+    width: 28vw;
+    height: 7vh;
+    cursor: pointer;
+    padding: 5px;
+    margin: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f9f9f9;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+#article {
+    right: 0;
+    /* height: 75vh; */
+    width: 75vw;
+    /* overflow: scroll; */
+    overflow-y: scroll;
+}
+
+.hide {
+    transform: translateX(calc(-200vw));
+}
+
+.loading-article-content {
+    display: none;
+    margin-top: 30vh;
+}
+
+
+
+
