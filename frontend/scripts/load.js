@@ -11,7 +11,6 @@ const thumbnailsContainer = document.getElementById('article-thumbnails'); // co
 const thumbnailsSideView = document.getElementById('thumbnailsSideView');
 
 const pagesCount = document.querySelector('.page-counts');
-const totalPagesSpan = document.getElementById('total-pages');
 
 let dotCount = 0;
 let foundArticles = 0;
@@ -108,10 +107,11 @@ function showArticleContent(articleHTML, actualArticleName) {
   articleContainer.id = 'flipbook';
 
   try {
+    removeOldScript();
+
     const parser = new DOMParser();
     const doc = parser.parseFromString(articleHTML, 'text/html');
-    const pageContent = doc.body; // or use a specific selector, e.g., doc.querySelector('#pff')
-    let totalPages = 0;
+    const pageContent = doc.body; 
 
     if (pageContent) {
       // Insert content asynchronously to let browser update the UI (show loader)
@@ -137,11 +137,7 @@ function showArticleContent(articleHTML, actualArticleName) {
           newPage.appendChild(newPageImg);
 
           articleContainer.appendChild(newPage);
-          totalPages++;
-
         })
-
-        totalPagesSpan.textContent = totalPages;
 
 
         // articleContainer.innerHTML = pageContent.innerHTML;
@@ -175,11 +171,25 @@ function showArticleContent(articleHTML, actualArticleName) {
   }
 }
 
+function removeOldScript() {
+  return new Promise((resolve, reject) => {
+    const oldScript = document.getElementById('flipJsFile');
+    if (oldScript) {
+      oldScript.remove(); // ✅ Cleanly removes the script tag from DOM
+      console.log('🗑️ flip.js removed from DOM');
+    }
+  });
+}
+
 function loadFlipScript() {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = './scripts/flip.js';
-    script.onload = resolve;
+    script.id = 'flipJsFile';
+    script.onload = () => {
+      console.log("✅ flip.js loaded");
+      initTurnjs(); // Call function after it's loaded
+    };
     script.onerror = reject;
     document.body.appendChild(script);
   });

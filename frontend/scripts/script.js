@@ -38,8 +38,8 @@ function enlarge(state) {
         content.style.height = '85vh';
 
         if (flipbookContainer) {
-            flipbookContainer.style.marginLeft = '18vw';
-            flipbook.turn('size', '80vw', '85vh');
+            flipbookContainer.style.marginLeft = '15vw';
+            // flipbook.turn('size', '80vw', '85vh');
         }
         
 
@@ -53,7 +53,7 @@ function enlarge(state) {
 
         if (flipbookContainer) {
             flipbookContainer.style.marginLeft = '20vw';
-            flipbook.turn('size', '70vw', '75vh');
+            // flipbook.turn('size', '70vw', '75vh');
         }
         
 
