@@ -12,6 +12,8 @@ const thumbnailsSideView = document.getElementById('thumbnailsSideView');
 
 const pagesCount = document.querySelector('.page-counts');
 
+const magazineTitle = document.getElementById('magazineTitle');
+
 let dotCount = 0;
 let foundArticles = 0;
 
@@ -162,6 +164,7 @@ function showArticleContent(articleHTML, actualArticleName) {
 
     contentContainer.appendChild(articleContainer);
     thumbnailsSideView.style.display = 'block';
+    magazineTitle.textContent = actualArticleName;
     pagesCount.style.display = 'block';
 
     //Load flip.js
