@@ -375,10 +375,6 @@ body {
     -webkit-user-drag: none;
 }
 
-.turn-page {
-  transition-duration: 0.5s !important; /* Make it 1 second instead of default (~0.6s) */
-}
-
 
 
 

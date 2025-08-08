@@ -12,6 +12,7 @@ $flipbook.turn({
   height: height,
   autoCenter: true,
 //   display: 'single',
+	duration: 2000
 });
 
 // totalPagesSpan.
