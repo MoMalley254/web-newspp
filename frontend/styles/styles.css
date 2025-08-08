@@ -28,6 +28,7 @@ body {
 }
 
 .content-body {
+    background: linear-gradient(to bottom right,  #232370, #4f0a8c);
     transition: all 500ms ease;
     opacity: 0;
 }
