@@ -31,31 +31,31 @@ hideMenuBtn.addEventListener('click', (e) => {
     
 });
 
-// function enlarge(state) {
-//     if (state) {
-//         content.style.marginTop = '7vh';
-//         content.style.height = '90vh';
+function enlarge(state) {
+    if (state) {
+        content.style.marginTop = '10vh';
+        content.style.height = '85vh';
 
-//         flipbookSpace.forEach((page) => {
-//             page.style.height = '85vh';  
-//             page.style.width = '80vw'; 
-//         }) 
-//     } else {
-//         content.style.marginTop = '15vh';
-//         content.style.height = '80vh';
+        // flipbookSpace.forEach((page) => {
+        //     page.style.height = '85vh';  
+        //     page.style.width = '80vw'; 
+        // }) 
+    } else {
+        content.style.marginTop = '15vh';
+        content.style.height = '80vh';
 
-//         flipbookSpace.forEach((page) => {
-//             page.style.height = '75vh';  
-//             page.style.width = '70vw';
-//         })
-//     }
-//     // Resize Turn.js
-//     const flipbook = $('#flipbook');
-//     const width = flipbook.width();
-//     const height = flipbook.height();
+        // flipbookSpace.forEach((page) => {
+        //     page.style.height = '75vh';  
+        //     page.style.width = '70vw';
+        // })
+    }
+    // Resize Turn.js
+    // const flipbook = $('#flipbook');
+    // const width = flipbook.width();
+    // const height = flipbook.height();
 
-//     flipbook.turn('size', width, height);
-// }
+    // flipbook.turn('size', width, height);
+}
 
 
 
