@@ -358,7 +358,7 @@ body {
     position: relative;
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    transition: height 0.4s ease, width 0.4s ease;
+    transition: margin 0.4s ease;
 }
 
 /* Each page */
