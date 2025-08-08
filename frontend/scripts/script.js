@@ -1,7 +1,6 @@
 const hideMenuBtn = document.getElementById('btn-hide-controls');
 const topControls = document.querySelector('.top-show-controls');
 const content = document.querySelector('.content');
-const flipbookSpace = document.querySelectorAll('.turn-page');
 
 hideMenuBtn.addEventListener('click', (e) => {
 
@@ -32,9 +31,17 @@ hideMenuBtn.addEventListener('click', (e) => {
 });
 
 function enlarge(state) {
+    const flipbookContainer = document.querySelector('#flipbook');
+    const flipbook = $('#flipbook');
     if (state) {
         content.style.marginTop = '10vh';
         content.style.height = '85vh';
+
+        if (flipbookContainer) {
+            flipbookContainer.style.marginLeft = '18vw';
+            flipbook.turn('size', '80vw', '85vh');
+        }
+        
 
         // flipbookSpace.forEach((page) => {
         //     page.style.height = '85vh';  
@@ -44,17 +51,22 @@ function enlarge(state) {
         content.style.marginTop = '15vh';
         content.style.height = '80vh';
 
+        if (flipbookContainer) {
+            flipbookContainer.style.marginLeft = '20vw';
+            flipbook.turn('size', '70vw', '75vh');
+        }
+        
+
         // flipbookSpace.forEach((page) => {
         //     page.style.height = '75vh';  
         //     page.style.width = '70vw';
         // })
     }
     // Resize Turn.js
-    // const flipbook = $('#flipbook');
     // const width = flipbook.width();
     // const height = flipbook.height();
 
-    // flipbook.turn('size', width, height);
+    
 }
 
 
