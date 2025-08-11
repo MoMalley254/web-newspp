@@ -163,7 +163,7 @@ function showArticleContent(articleHTML, actualArticleName) {
     }
 
     contentContainer.appendChild(articleContainer);
-    thumbnailsSideView.style.display = 'block';
+    if (!detectDeviceType()) thumbnailsSideView.style.display = 'block';    
     magazineTitle.textContent = actualArticleName;
     pagesCount.style.display = 'block';
 
@@ -173,6 +173,23 @@ function showArticleContent(articleHTML, actualArticleName) {
     });
   }
 }
+
+function detectDeviceType() {
+  const ua = navigator.userAgent;
+
+  if (/tablet|ipad|playbook|silk/i.test(ua)) {
+    return false;
+  }
+
+  if (
+    /Mobile|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 
 function removeOldScript() {
   return new Promise((resolve, reject) => {
