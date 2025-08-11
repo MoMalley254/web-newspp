@@ -17,8 +17,8 @@ function initTurnjs() {
     width: width,
     height: height,
     autoCenter: true,
-    display: "double",
-    duration: 2000,
+    display: !isMobile ? "double" : "single",
+    duration: !isMobile ? 2000 : 1000,
     inclination: 5000,
     gradients: true, // 👈 Enables gradient effect
     acceleration: true, // 👈 Use hardware acceleration for smoother peel

@@ -17,6 +17,24 @@ const magazineTitle = document.getElementById('magazineTitle');
 let dotCount = 0;
 let foundArticles = 0;
 
+const isMobile = detectDeviceType();
+
+function detectDeviceType() {
+  const ua = navigator.userAgent;
+
+  if (/tablet|ipad|playbook|silk/i.test(ua)) {
+    return false;
+  }
+
+  if (
+    /Mobile|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 // Animate loading dots
 const dotsInterval = setInterval(() => {
   dotCount = (dotCount + 1) % 4;
@@ -163,7 +181,7 @@ function showArticleContent(articleHTML, actualArticleName) {
     }
 
     contentContainer.appendChild(articleContainer);
-    if (!detectDeviceType()) thumbnailsSideView.style.display = 'block';    
+    if (!isMobile) thumbnailsSideView.style.display = 'block';    
     magazineTitle.textContent = actualArticleName;
     pagesCount.style.display = 'block';
 
@@ -173,23 +191,6 @@ function showArticleContent(articleHTML, actualArticleName) {
     });
   }
 }
-
-function detectDeviceType() {
-  const ua = navigator.userAgent;
-
-  if (/tablet|ipad|playbook|silk/i.test(ua)) {
-    return false;
-  }
-
-  if (
-    /Mobile|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
 
 function removeOldScript() {
   return new Promise((resolve, reject) => {
