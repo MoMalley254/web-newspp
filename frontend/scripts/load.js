@@ -119,6 +119,7 @@ async function fetchPromises() {
 }
 
 function showArticleContent(articleHTML, actualArticleName) {
+  showThumbnails();
   const loadingArticleContent = document.querySelector('.loading-article-content');
   loadingArticleContent.style.display = 'block';
   loadingArticleContent.querySelector('.article-name').textContent = actualArticleName;
@@ -181,7 +182,7 @@ function showArticleContent(articleHTML, actualArticleName) {
     }
 
     contentContainer.appendChild(articleContainer);
-    if (!isMobile) thumbnailsSideView.style.display = 'block';    
+    thumbnailsSideView.style.display = 'flex';    
     magazineTitle.textContent = actualArticleName;
     pagesCount.style.display = 'block';
 

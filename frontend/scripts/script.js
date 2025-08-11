@@ -5,6 +5,9 @@ const content = document.querySelector('.content');
 const fullScreenBtn = document.getElementById('btn-fullscreen');
 const fullScreenContent = document.querySelector('.content-body');
 
+const sectionsBtn = document.getElementById('btn-menu');
+const blackOverlay = document.querySelector('.blackOverlay');
+
 hideMenuBtn.addEventListener('click', (e) => {
 
     // Fade out current icon
@@ -41,7 +44,7 @@ function enlarge(state) {
         content.style.height = '85vh';
 
         if (flipbookContainer) {
-            flipbookContainer.style.marginLeft = isMobile ? '' : '15vw';
+            flipbookContainer.style.marginLeft = isMobile ? '' : '5vw';
             // flipbook.turn('size', '80vw', '85vh');
         }
         
@@ -55,7 +58,7 @@ function enlarge(state) {
         content.style.height = '80vh';
 
         if (flipbookContainer) {
-            flipbookContainer.style.marginLeft = isMobile ? '' : '20vw';
+            flipbookContainer.style.marginLeft = isMobile ? '' : '9vw';
             // flipbook.turn('size', '70vw', '75vh');
         }
         
@@ -104,6 +107,25 @@ document.addEventListener('fullscreenchange', () => {
         fullScreenBtn.setAttribute('aria-label', 'Full Screen');
     }
 });
+
+sectionsBtn.addEventListener('click', (e) => {
+    showThumbnails();
+    
+});
+
+function showThumbnails() {
+    if (thumbnailsSideView.classList.contains('hideThumbNails')) {
+        thumbnailsSideView.classList.remove('hideThumbNails');
+        blackOverlay.style.transform = 'translateX(calc(0vw))';
+        sectionsBtn.innerHTML = `<i class="material-icons">close</i>`;
+        sectionsBtn.setAttribute('aria-label', 'Hide Articles');
+    } else {
+        thumbnailsSideView.classList.add('hideThumbNails');
+        blackOverlay.style.transform = 'translateX(calc(100vw))';
+        sectionsBtn.innerHTML = `<i class="material-icons">segment</i>`;
+        sectionsBtn.setAttribute('aria-label', 'Show Articles');
+    }
+}
 
 
 

@@ -398,19 +398,62 @@ body {
 }
 
 #thumbnailsSideView {
-    /* opacity: 0; */
+    z-index: 999;
     position: absolute;
-    width: 20vw;
-    height: 100%;
+    width: 100vw;
+    height: 30vh;
+    bottom: 10vh;
     left: 0;
-    display: none;
-    /* grid-template-columns: repeat(1, 15vw);
-    grid-template-rows: repeat(2, 45%);  */
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto; 
+    overflow-y: hidden;
+    white-space: nowrap; /* Prevent children from wrapping */
+    scroll-behavior: smooth;
+    scrollbar-color: rgba(100, 100, 100, 0.5) transparent; /* thumb color, then track */
+    scrollbar-width: thin;
+    /* Add transition for smooth movement */
+    /* transform: translateY(0); */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 1;
 }
 
-#thumbnailsSideView  .article-thumbnail {
+#thumbnailsSideView::-webkit-scrollbar {
+    height: 8px; /* or width, for vertical */
+}
+
+#thumbnailsSideView::-webkit-scrollbar-track {
+    background: transparent; /* Hides the track background */
+}
+
+#thumbnailsSideView::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.5); /* semi-transparent thumb */
+    border-radius: 4px;
+}
+
+.hideThumbNails {
+    transform: translateY(calc(100vh));
+    opacity: 0;
+}
+
+.blackOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 900;
+    background-color: rgba(0, 0, 0, 0.412);
+    opacity: 1;
+    margin-top: 15vh;
+    height: 85vh;
+    width: 100vw;
+    transition: transform 0.4ms ease-in-out;
+    transform: translateX(calc(100vw));
+}
+
+#thumbnailsSideView .article-thumbnail {
+    flex: 0 0 auto; /* Prevent items from shrinking or wrapping */
     width: 15vw;
-    height: 7vh;
+    height: 12vw;
     cursor: pointer;
     padding: 5px;
     margin: 10px;
@@ -432,10 +475,11 @@ body {
 
 #flipbook {
     z-index: 97;
-    margin-left: 20vw;
+    margin-left: 9vw;
+    margin-right: 9vw;
     margin-top: 2vh;
     height: 75vh;
-    width: 70vw;
+    width: 80vw;
     position: relative;
     overflow: hidden;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
@@ -484,7 +528,14 @@ body {
     }
 
     #thumbnailsSideView {
-        display: none;
+        height: 30vh;
+        bottom: 0vh;
+        left: 0;
+    }
+
+    #thumbnailsSideView .article-thumbnail {
+        width: 30vw;
+        height: 28vw;
     }
 
     #flipbook {
@@ -501,6 +552,12 @@ body {
         object-fit: contain;
         user-select: none;
         -webkit-user-drag: none;
+    }
+
+    .blackOverlay {
+        margin-top: 20vh;
+        height: 80vh;
+        width: 100vw;
     }
 }
 
