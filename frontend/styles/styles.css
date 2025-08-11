@@ -25,6 +25,7 @@ body {
     background: linear-gradient(to bottom right,  #232370, #4f0a8c);
     background-attachment: fixed;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .content-body {
@@ -370,8 +371,28 @@ body {
 
 #article-thumbnails {
     display: grid;
-    grid-template-columns: repeat(3, 29%);
-    grid-template-rows: repeat(2, 45%);
+    grid-template-columns: repeat(4, 23%);
+    /* grid-template-rows: repeat(2, 45%); */
+    overflow-x: auto; 
+    overflow-y: hidden;
+    white-space: nowrap; /* Prevent children from wrapping */
+    scroll-behavior: smooth;
+    scrollbar-color: rgba(100, 100, 100, 0.5) transparent; /* thumb color, then track */
+    scrollbar-width: thin;
+    height: 70vh;
+}
+
+#article-thumbnails::-webkit-scrollbar {
+    height: 8px; /* or width, for vertical */
+}
+
+#article-thumbnails::-webkit-scrollbar-track {
+    background: transparent; /* Hides the track background */
+}
+
+#article-thumbnails::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 100, 100, 0.5); /* semi-transparent thumb */
+    border-radius: 4px;
 }
 
 .article-thumbnail {
@@ -384,6 +405,8 @@ body {
     background: #f9f9f9;
     user-select: none;
     transition: background-color 0.2s ease;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
 }
 
 .article-thumbnail:hover {
@@ -510,7 +533,8 @@ body {
     #article-thumbnails {
         display: grid;
         grid-template-columns: repeat(3, 33%);
-        grid-template-rows: repeat(2, 45%);
+        /* grid-template-rows: repeat(2, 45%); */
+        height: 80vh;
     }
 
     .article-thumbnail {
