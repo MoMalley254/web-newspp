@@ -349,6 +349,25 @@ body {
     transition: all 400ms ease-in;
 }
 
+@media (max-width: 768px) {
+    .content {
+        margin-top: 17vh;
+        height: 80vh;
+        width: 100vw;
+    }
+
+    .loading-articles h2 {
+        margin-top: 40vh;
+        margin-left: 15vw;
+        font-size: 40px; 
+    }
+
+    .loading-articles p {
+        margin-top: 30px;
+        font-size: 30px; 
+    }
+}
+
 #article-thumbnails {
     display: grid;
     grid-template-columns: repeat(3, 29%);
