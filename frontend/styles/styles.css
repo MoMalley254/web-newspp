@@ -214,6 +214,67 @@ body {
     display: none;
 }
 
+@media (max-width: 767px) {
+    .top .titles h2 {
+        margin-top: 10px;
+        font-size: 20px;
+    }
+
+    .top .titles {
+        height: 5vh;
+        margin-top: 0vh;
+    }
+
+    .controls-top .top-show-controls {
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: repeat(3, 20%);
+        grid-template-rows: repeat(2, 40%);
+        gap: 10px;
+        /* justify-content: space-evenly; */
+    } 
+
+    .controls-top button {
+        font-size: 10px;
+        padding: 8px 8px; 
+    }
+
+    .controls-top button i {
+        font-size: 20px;
+    }
+
+    .controls-top .btn-skip-backward,
+    .controls-top .btn-prev-page,
+    .controls-top .btn-next-page,
+    .controls-top .btn-skip-forward {
+        display: none;
+    }
+
+    .controls-top #btn-hide-controls::after {
+        content: attr(aria-label);
+        position: absolute;
+        bottom: 100%; /* place above the button */
+        left: 100%;
+        transform: translateX(-50%) translateY(-8px);
+        color: white;
+        padding: 8px 8px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 14px;
+        z-index: 9999;
+    }
+
+    .controls-bottom {
+        width: 100vw;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        justify-items: center;
+        margin: -2vh 1vw 0 1vw;
+        position: fixed;
+    }
+}
+
 /* Content */
 .content {
     margin-top: 15vh;
