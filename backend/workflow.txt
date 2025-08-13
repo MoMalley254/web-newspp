@@ -1,0 +1,19 @@
+1.Flutter desktop
+1a.UI
+b.Login
+c.Homescreen
+d.Upload screen
+e.Manage screen
+
+2.Nodejs server
+2a.setup
+b.Auth
+c.Multer upload
+d.Db save
+e.Db send
+f.
+
+3.Flutter Logic
+3a.Auth logic
+b.Convert logic
+c.Upload logic
