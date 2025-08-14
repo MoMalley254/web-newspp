@@ -10,6 +10,8 @@ class NewArticleScreen extends StatefulWidget {
 class _NewArticleScreenState extends State<NewArticleScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Container(
+      child: Text('This is a new article screen'),
+    );
   }
 }

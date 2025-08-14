@@ -89,10 +89,7 @@ class _MainScreenState extends State<MainScreen> {
           const SizedBox(height: 20),
           Expanded(
             child: Center(
-              child: Text(
-                "Dashboard Content Goes Here",
-                style: GoogleFonts.poppins(color: Colors.white70, fontSize: 18),
-              ),
+              child: _currentScreen.screen
             ),
           ),
         ],
