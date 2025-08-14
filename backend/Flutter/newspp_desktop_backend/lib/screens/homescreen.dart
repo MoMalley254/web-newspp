@@ -14,9 +14,38 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text('This is a home screen'),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double totalWidth = constraints.maxWidth;
+
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Left section - 60%
+              Container(
+                width: totalWidth * 0.6,
+                color: Colors.blue,
+                child: Center(child: currentArticles(context)),
+              ),
+
+              // Right section - 20%
+              Container(
+                width: totalWidth * 0.35,
+                color: Colors.red,
+                child: Center(child: articlesBeingProcessed(context)),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
-  
+  Widget currentArticles(BuildContext context) {
+    return Container(child: Text('Current articles'));
+  }
+
+  Widget articlesBeingProcessed(BuildContext context) {
+    return Container(child: Text('Processing articles'));
+  }
 }
