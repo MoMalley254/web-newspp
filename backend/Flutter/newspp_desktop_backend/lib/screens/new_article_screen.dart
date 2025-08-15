@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/widgets/forms/new_article_form.dart';
 
 class NewArticleScreen extends StatefulWidget {
@@ -10,6 +11,7 @@ class NewArticleScreen extends StatefulWidget {
 }
 
 class _NewArticleScreenState extends State<NewArticleScreen> {
+  final convertHelper = Pdf2HtmlConverter();
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -51,10 +53,14 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
       padding: const EdgeInsets.all(20),
       child: NewArticleForm(
         onFormValid: (formData) {
-          print('Form data $formData');
+          processMagazine(formData);
         },
       ),
     );
+  }
+
+  Future<void> processMagazine(Map<String, dynamic> formData) async {
+    bool prepareExe = await convertHelper.prepareExecutable();
   }
 
   Widget createHelpSide(BuildContext context) {

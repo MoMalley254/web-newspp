@@ -12,6 +12,8 @@ dependencies:
   google_fonts: ^6.3.0
   file_picker: ^10.3.1
   toastification: ^3.0.3
+  path: ^1.9.1
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
@@ -23,6 +25,6 @@ flutter:
 
   uses-material-design: true
 
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/bin/windows/pdf2htmlex/data/
+    - assets/bin/windows/pdf2htmlex/pdf2htmlEX.exe
