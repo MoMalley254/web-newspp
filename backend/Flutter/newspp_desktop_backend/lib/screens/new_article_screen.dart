@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
+import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:newspp_desktop_backend/widgets/forms/new_article_form.dart';
 
 class NewArticleScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class NewArticleScreen extends StatefulWidget {
 
 class _NewArticleScreenState extends State<NewArticleScreen> {
   final convertHelper = Pdf2HtmlConverter();
+  final toastHelper = ToastService();
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -60,7 +62,13 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
   }
 
   Future<void> processMagazine(Map<String, dynamic> formData) async {
+    toastHelper.showProcessingtoast('Preparing Magazine Converter', 5);
     bool prepareExe = await convertHelper.prepareExecutable();
+    prepareExe
+        ? toastHelper.showSuccesstoast('Converter ready')
+        : toastHelper.showErrortoast(
+          'Converter is not ready please retry or contact support',
+        );
   }
 
   Widget createHelpSide(BuildContext context) {
