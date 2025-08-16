@@ -62,13 +62,13 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
   }
 
   Future<void> processMagazine(Map<String, dynamic> formData) async {
+    print('Form data $formData');
     toastHelper.showProcessingtoast('Preparing Magazine Converter', 5);
-    bool prepareExe = await convertHelper.prepareExecutable();
-    prepareExe
-        ? toastHelper.showSuccesstoast('Converter ready')
-        : toastHelper.showErrortoast(
-          'Converter is not ready please retry or contact support',
-        );
+    Map<String, dynamic> prepareExe = await convertHelper.convertToHtml(
+      pdfPath: formData['pdf'].path,
+      pdfName: formData['pdf'].name,
+      outputDir: 'C:/Users/user/Desktop/output',
+    );
   }
 
   Widget createHelpSide(BuildContext context) {

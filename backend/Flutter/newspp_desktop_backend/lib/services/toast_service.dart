@@ -37,4 +37,22 @@ class ToastService {
       autoCloseDuration: Duration(seconds: toastDuration),
     );
   }
+
+  showClickableSuccesstoast(
+    String toastMessage,
+    int toastDuration,
+    VoidCallback clickFunction,
+  ) {
+    toastification.show(
+      title: Text('$toastMessage.'),
+      type: ToastificationType.success,
+      style: ToastificationStyle.fillColored,
+      autoCloseDuration: Duration(seconds: toastDuration),
+      callbacks: ToastificationCallbacks(
+        onTap: (toastItem) {
+          clickFunction();
+        },
+      ),
+    );
+  }
 }

@@ -18,11 +18,22 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final List<ScreenItem> _screens = [
     ScreenItem(title: 'Dashboard', screen: HomeScreen(), icon: Icons.dashboard),
-    ScreenItem(title: 'New Article', screen: NewArticleScreen(), icon: Icons.add),
-    ScreenItem(title: 'Statistics', screen: StatisticsScreen(), icon: Icons.auto_graph),
-    ScreenItem(title: 'Settings', screen: SettingsScreen(), icon: Icons.settings),
+    ScreenItem(
+      title: 'New Article',
+      screen: NewArticleScreen(),
+      icon: Icons.add,
+    ),
+    ScreenItem(
+      title: 'Statistics',
+      screen: StatisticsScreen(),
+      icon: Icons.auto_graph,
+    ),
+    ScreenItem(
+      title: 'Settings',
+      screen: SettingsScreen(),
+      icon: Icons.settings,
+    ),
   ];
-
 
   int _currentScreenIndex = 0;
   ScreenItem get _currentScreen => _screens[_currentScreenIndex];
@@ -60,7 +71,9 @@ class _MainScreenState extends State<MainScreen> {
                   onMenuSelected: (menu) {
                     setState(() {
                       print('New menu $menu');
-                      _currentScreenIndex = _screens.indexWhere((screen) => screen.title == menu);
+                      _currentScreenIndex = _screens.indexWhere(
+                        (screen) => screen.title == menu,
+                      );
                     });
                   },
                 ),
@@ -83,20 +96,11 @@ class _MainScreenState extends State<MainScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TopBarWidget(
-            screenTitle: _currentScreen.title,
-          ),
+          TopBarWidget(screenTitle: _currentScreen.title),
           const SizedBox(height: 20),
-          Expanded(
-            child: Center(
-              child: _currentScreen.screen
-            ),
-          ),
+          Expanded(child: Center(child: _currentScreen.screen)),
         ],
       ),
     );
   }
 }
-
-
-
