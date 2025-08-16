@@ -69,6 +69,16 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
       pdfName: formData['pdf'].name,
       outputDir: 'C:/Users/user/Desktop/output',
     );
+
+    if (!prepareExe['status']) {
+      return;
+    }
+
+    String htmlPath = prepareExe['htmlPath'];
+    print('HTML file path $htmlPath');
+    // Map<String, dynamic> parseHtml = await convertHelper.extractTextFromHtml(
+    //   htmlPath,
+    // );
   }
 
   Widget createHelpSide(BuildContext context) {

@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:html/dom.dart';
+import 'package:html/parser.dart' as html_parser;
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:tesseract_ocr/tesseract_ocr.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Pdf2HtmlConverter {
@@ -135,7 +138,7 @@ class Pdf2HtmlConverter {
         10,
         () => openConvertedHtml(htmlPath),
       );
-      return {'status': true};
+      return {'status': true, 'htmlPath': htmlPath};
     } catch (error) {
       print('Error converting $error');
       toastHelper.showErrortoast('Conversion error $error');
@@ -149,20 +152,108 @@ class Pdf2HtmlConverter {
       print('Clean URI: $fileUri');
 
       if (Platform.isWindows) {
-      // Open in default app (browser for .html, PDF reader for .pdf)
-      await Process.run('explorer', [htmlPath]);
-      print("Opened HTML via Explorer: $htmlPath");
-    } else {
-      // keep url_launcher for non-Windows
-      final uri = Uri.file(htmlPath);
-      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-      if (!launched) {
-        toastHelper.showErrortoast('Unable to open HTML file: $uri');
+        // Open in default app (browser for .html, PDF reader for .pdf)
+        await Process.run('explorer', [htmlPath]);
+        print("Opened HTML via Explorer: $htmlPath");
+      } else {
+        // keep url_launcher for non-Windows
+        final uri = Uri.file(htmlPath);
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        if (!launched) {
+          toastHelper.showErrortoast('Unable to open HTML file: $uri');
+        }
       }
-    }
     } catch (error) {
       print('Unable to open html $error');
       toastHelper.showErrortoast('Error opening html file $error');
     }
   }
+
+  // Future<Map<String, dynamic>> extractTextFromHtml(String htmlFilePath) async {
+  //   try {
+  //     final file = File(htmlFilePath);
+  //     final htmlString = await file.readAsString();
+
+  //     // Step 2: Parse HTML
+  //     final document = html_parser.parse(htmlString);
+  //     final docImages = document.querySelectorAll('img');
+  //     if (docImages.length < 1) {
+  //       return {'status': false, 'error': 'No images found'};
+  //     }
+  //     print('Found ${docImages.length} images');
+
+  //     for (var i = 0; i < docImages.length; i++) {
+  //       print('Image $i: ');
+  //       print('Start extract text for image $i');
+  //       await getTextFromImg(docImages[i], i);
+  //       print(' ');
+  //       print(' ');
+  //     }
+
+  //     return {'status': true};
+  //   } catch (error) {
+  //     print('Error extracting parsing and extracting text $error');
+  //     toastHelper.showErrortoast('Error parsing HTML $error');
+  //     return {'status': false};
+  //   }
+  // }
+
+  // Future<Map<String, dynamic>> getTextFromImg(
+  //   Element imageElement,
+  //   int index,
+  // ) async {
+  //   try {
+  //     //Extract base64 string
+  //     final regex = RegExp(r'data:image/(\w+);base64,(.*)');
+  //     final imgSrc = imageElement.attributes['src'];
+  //     final match = regex.firstMatch(imgSrc!);
+
+  //     if (match == null) {
+  //       print('Image $index: Failed to parse base64');
+  //       throw Exception('Failed to parse image');
+  //     }
+
+  //     final imageFormat = match.group(1); // e.g. 'png', 'jpeg'
+  //     final base64Data = match.group(2);
+
+  //     if (base64Data == null) {
+  //       print('Image $index: No base64 data found');
+  //       throw Exception('Failed to parse image');
+  //     }
+
+  //     final bytes = base64Decode(base64Data);
+
+  //     // Write image to temp file for ML Kit
+  //     final tempDir = await getTemporaryDirectory();
+  //     final tempImage = File('${tempDir.path}/temp_image.png');
+  //     await tempImage.writeAsBytes(bytes);
+
+  //     String extractedText = await performOCR(tempImage);
+  //     return {'status': true};
+  //   } catch (error) {
+  //     print('Error extracting text from image $index, error $error');
+  //     return {'status': false};
+  //   }
+  // }
+
+  // Future<String> performOCR(File imageFile) async {
+  //   try {
+  //     // Ensure file exists
+  //     if (!await imageFile.exists()) {
+  //       throw Exception('Image file does not exist: ${imageFile.path}');
+  //     }
+
+  //     print('Temp image found starting OCR');
+  //     final text = await TesseractOcr.extractText(imageFile.path);
+  //     print('OCR successful');
+  //     print('Extracted text $text');
+  //     return text.trim();
+  //   } catch (error) {
+  //     print('error doing ocr $error');
+  //     return '';
+  //   }
+  // }
 }
