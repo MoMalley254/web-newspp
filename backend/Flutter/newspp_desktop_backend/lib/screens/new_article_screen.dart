@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/toast_service.dart';
+import 'package:newspp_desktop_backend/services/upload_service.dart';
 import 'package:newspp_desktop_backend/widgets/forms/new_article_form.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NewArticleScreen extends StatefulWidget {
-  const NewArticleScreen({super.key});
+  final Function(String) navigateTo;
+  const NewArticleScreen({super.key, required this.navigateTo});
 
   @override
   State<NewArticleScreen> createState() => _NewArticleScreenState();
@@ -17,6 +19,7 @@ class NewArticleScreen extends StatefulWidget {
 class _NewArticleScreenState extends State<NewArticleScreen> {
   final convertHelper = Pdf2HtmlConverter();
   final toastHelper = ToastService();
+  final uploadHelper = UploadService();
 
   bool isProcessing = false;
   bool formDataConfirmed = false;
@@ -172,16 +175,21 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
             ),
             onPressed: () {
               setState(() {
-                isProcessing = false;
-                formDataConfirmed = false;
-                submittedFormData = null;
-                processedHtmlPath = '';
+                isProcessing = true;
               });
+              sendToServer(data);
             },
           ),
         ],
       ),
     );
+  }
+
+  Future<void> sendToServer(Map<String, dynamic> magazineData) async {
+    bool hasSentToServer = await uploadHelper.sendMagDataToServer(magazineData);
+    if (hasSentToServer) {
+      widget.navigateTo('Dashboard');
+    }
   }
 
   Widget createHelpSide(BuildContext context) {

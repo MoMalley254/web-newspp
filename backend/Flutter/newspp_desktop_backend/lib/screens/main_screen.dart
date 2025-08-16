@@ -16,24 +16,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final List<ScreenItem> _screens = [
-    ScreenItem(title: 'Dashboard', screen: HomeScreen(), icon: Icons.dashboard),
-    ScreenItem(
-      title: 'New Article',
-      screen: NewArticleScreen(),
-      icon: Icons.add,
-    ),
-    ScreenItem(
-      title: 'Statistics',
-      screen: StatisticsScreen(),
-      icon: Icons.auto_graph,
-    ),
-    ScreenItem(
-      title: 'Settings',
-      screen: SettingsScreen(),
-      icon: Icons.settings,
-    ),
-  ];
+  late List<ScreenItem> _screens;
 
   int _currentScreenIndex = 0;
   ScreenItem get _currentScreen => _screens[_currentScreenIndex];
@@ -41,7 +24,50 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // _currentScreen = _screens["Dashboard"];
+    // Initialize screens with optional navigateFunc
+    _screens = [
+      ScreenItem(
+        title: 'Dashboard',
+        icon: Icons.dashboard,
+        screenBuilder: (navigateTo) => HomeScreen(),
+      ),
+      ScreenItem(
+        title: 'New Article',
+        screenBuilder: (navigateTo) => NewArticleScreen(navigateTo: navigateTo),
+        icon: Icons.add,
+        navigateFunc: (menu) {
+          // Custom logic before navigation (e.g., reset form, analytics, etc.)
+          print('Preparing to navigate to: $menu');
+          _navigateTo(menu);
+        },
+      ),
+      ScreenItem(
+        title: 'Statistics',
+        screenBuilder: (navigateTo) => StatisticsScreen(),
+        icon: Icons.auto_graph,
+        navigateFunc: (menu) {
+          // Maybe log analytics
+          // await Analytics.logEvent('navigate_to_statistics');
+          _navigateTo(menu);
+        },
+      ),
+      ScreenItem(
+        title: 'Settings',
+        screenBuilder: (navigateTo) => SettingsScreen(),
+        icon: Icons.settings,
+        navigateFunc: _navigateTo,
+      ),
+    ];
+  }
+
+  // Reusable navigation method
+  void _navigateTo(String menu) {
+    final index = _screens.indexWhere((screen) => screen.title == menu);
+    if (index != -1 && index != _currentScreenIndex) {
+      setState(() {
+        _currentScreenIndex = index;
+      });
+    }
   }
 
   @override
@@ -68,13 +94,15 @@ class _MainScreenState extends State<MainScreen> {
                 color: const Color(0xFF1E1F25),
                 child: SideMenuWidget(
                   screens: _screens,
-                  onMenuSelected: (menu) {
-                    setState(() {
-                      print('New menu $menu');
-                      _currentScreenIndex = _screens.indexWhere(
-                        (screen) => screen.title == menu,
-                      );
-                    });
+                  onMenuSelected: (title) {
+                    final screen = _screens.firstWhere(
+                      (s) => s.title == title,
+                      orElse: () => _screens[_currentScreenIndex],
+                    );
+
+                    // Use custom navigateFunc if available, else default
+                    final navigate = screen.navigateFunc ?? _navigateTo;
+                    navigate(title); // This calls setState inside
                   },
                 ),
               ),
@@ -98,7 +126,7 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           TopBarWidget(screenTitle: _currentScreen.title),
           const SizedBox(height: 20),
-          Expanded(child: Center(child: _currentScreen.screen)),
+          Expanded(child: Center(child: _currentScreen.createScreen(_navigateTo))),
         ],
       ),
     );
