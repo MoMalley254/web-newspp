@@ -173,8 +173,9 @@ class _NewArticleFormState extends State<NewArticleForm> {
                       icon: const Icon(Icons.upload_file),
                       label: Text(
                         _pdfFile != null
-                            ? 'PDF: ${_pdfFile!.name}'
+                            ? 'PDF Selected'
                             : 'Pick PDF ',
+                            overflow: TextOverflow.ellipsis,
                       ),
                       onPressed: () async {
                         FilePickerResult? result = await FilePicker.platform

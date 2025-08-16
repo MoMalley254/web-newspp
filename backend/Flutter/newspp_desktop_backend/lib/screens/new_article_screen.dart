@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:newspp_desktop_backend/widgets/forms/new_article_form.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NewArticleScreen extends StatefulWidget {
   const NewArticleScreen({super.key});
@@ -14,6 +17,13 @@ class NewArticleScreen extends StatefulWidget {
 class _NewArticleScreenState extends State<NewArticleScreen> {
   final convertHelper = Pdf2HtmlConverter();
   final toastHelper = ToastService();
+
+  bool isProcessing = false;
+  bool formDataConfirmed = false;
+
+  Map<String, dynamic>? submittedFormData;
+  String processedHtmlPath = '';
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -30,7 +40,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
                 borderRadius: BorderRadius.circular(12),
                 color: const Color(0xFFF8F8F8),
               ),
-              child: Center(child: newArticleSide(context)),
+              child: Center(child: renderLeftContent(context)),
             ),
 
             // Right section - 20%
@@ -50,11 +60,25 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
     );
   }
 
+  Widget renderLeftContent(BuildContext context) {
+    if (isProcessing) {
+      return const CircularProgressIndicator();
+    } else if (formDataConfirmed) {
+      return showReadyToUpload(context);
+    } else {
+      return newArticleSide(context);
+    }
+  }
+
   Widget newArticleSide(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: NewArticleForm(
         onFormValid: (formData) {
+          setState(() {
+            isProcessing = true;
+            submittedFormData = formData;
+          });
           processMagazine(formData);
         },
       ),
@@ -62,8 +86,8 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
   }
 
   Future<void> processMagazine(Map<String, dynamic> formData) async {
-    print('Form data $formData');
     toastHelper.showProcessingtoast('Preparing Magazine Converter', 5);
+
     Map<String, dynamic> prepareExe = await convertHelper.convertToHtml(
       pdfPath: formData['pdf'].path,
       pdfName: formData['pdf'].name,
@@ -71,14 +95,93 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
     );
 
     if (!prepareExe['status']) {
+      setState(() {
+        isProcessing = false;
+      });
       return;
     }
 
-    String htmlPath = prepareExe['htmlPath'];
-    print('HTML file path $htmlPath');
-    // Map<String, dynamic> parseHtml = await convertHelper.extractTextFromHtml(
-    //   htmlPath,
-    // );
+    setState(() {
+      processedHtmlPath = prepareExe['htmlPath'];
+      isProcessing = false;
+      formDataConfirmed = true;
+    });
+  }
+
+  Widget showReadyToUpload(BuildContext context) {
+    final data = submittedFormData!;
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '✅ Confirm Magazine Details',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text('Title: ${data['title']}'),
+          Text('Author: ${data['author']}'),
+          Text('Issue: ${data['issue']}'),
+          Text('Date: ${data['date']}'),
+          Text('Tags: ${data['tags']}'),
+          Text('Description: ${data['desc']}'),
+          const SizedBox(height: 16),
+          Text('PDF: ${data['pdf'].name}'),
+          if (data['cover'] != null) Text('Cover Image: ${data['cover'].name}'),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.open_in_browser),
+            label: const Text("Open Generated HTML"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue[700],
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              await convertHelper.openConvertedHtml(processedHtmlPath);
+            },
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.refresh),
+            label: const Text("Re-enter data"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.grey[600],
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                isProcessing = false;
+                formDataConfirmed = false;
+                submittedFormData = null;
+                processedHtmlPath = '';
+              });
+            },
+          ),
+
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.upload),
+            label: const Text("Confirm & Upload"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                isProcessing = false;
+                formDataConfirmed = false;
+                submittedFormData = null;
+                processedHtmlPath = '';
+              });
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Widget createHelpSide(BuildContext context) {
