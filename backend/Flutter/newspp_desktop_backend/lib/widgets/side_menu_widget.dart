@@ -76,12 +76,15 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
           const SizedBox(height: 30),
           // Menu Buttons
           // Dynamically build menu buttons from screens
-          ...widget.screens.map((screenItem) {
-            final label = screenItem.title;
-            final icon = screenItem.icon; // fallback
-            final isActive = _activeMenu == label;
-            return _buildMenuButton(icon, label, isActive);
-          }),
+          ...widget.screens
+              .where((screenItem) => screenItem.title != 'Article')
+              .map((screenItem) {
+                final label = screenItem.title;
+                final icon = screenItem.icon;
+                final isActive = _activeMenu == label;
+                return _buildMenuButton(icon, label, isActive);
+              }),
+
           const Spacer(),
           const SizedBox(height: 20),
         ],
@@ -97,7 +100,11 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
-        leading: Icon(icon, color: isActive ? Colors.white : Colors.grey[400], size: 22),
+        leading: Icon(
+          icon,
+          color: isActive ? Colors.white : Colors.grey[400],
+          size: 22,
+        ),
         title: Text(
           label,
           style: GoogleFonts.poppins(
