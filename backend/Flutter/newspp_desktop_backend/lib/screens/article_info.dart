@@ -1,6 +1,11 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
 import 'package:newspp_desktop_backend/services/upload_service.dart';
+import 'package:toastification/toastification.dart';
 
 class ArticleInfo extends StatefulWidget {
   final Map<String, dynamic> articleInfo;
@@ -18,6 +23,7 @@ class ArticleInfo extends StatefulWidget {
 class _ArticleInfoState extends State<ArticleInfo> {
   final uploadService = UploadService();
   final fetchService = FetchService();
+  final convertService = Pdf2HtmlConverter();
 
   bool hasUpdated = false;
   late Map<String, dynamic> article;
@@ -153,6 +159,10 @@ class _ArticleInfoState extends State<ArticleInfo> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // COVER IMAGE
+                Text(
+                  'Cover Image',
+                  style: TextStyle(color: Colors.white, fontSize: 22),
+                ),
                 if (article['cover'] != null &&
                     article['cover'].toString().isNotEmpty)
                   ClipRRect(
@@ -212,6 +222,11 @@ class _ArticleInfoState extends State<ArticleInfo> {
                 const SizedBox(height: 20),
 
                 // Open HTML in browser
+                Text(
+                  'Magazine File',
+                  style: TextStyle(fontSize: 22, color: Colors.white),
+                ),
+                const SizedBox(height: 10),
                 ElevatedButton.icon(
                   onPressed: () {
                     // TODO: Call your convertService.openOnlineHtml here
@@ -226,11 +241,35 @@ class _ArticleInfoState extends State<ArticleInfo> {
 
                 // Upload new document
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement document upload
+                  onPressed: () async {
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles(
+                          type: FileType.custom,
+                          allowedExtensions: ['pdf'],
+                        );
+                    if (result != null) {
+                      final file = result.files.first;
+                      if (file.size > 50 * 1024 * 1024) {
+                        toastification.show(
+                          title: Text(
+                            'PDF exceeds 50MB limit. Please choose a smaller file.',
+                          ),
+                          type: ToastificationType.warning,
+                          style: ToastificationStyle.flatColored,
+                          autoCloseDuration: const Duration(seconds: 5),
+                        );
+                        return;
+                      }
+
+                      await updateMagFile(context, file);
+                      setState(() {
+                        hasUpdated = true;
+                      });
+                      loadArticle();
+                    }
                   },
                   icon: const Icon(Icons.upload_file),
-                  label: const Text('Upload Document'),
+                  label: const Text('Upload New PDF Document'),
                 ),
               ],
             ),
@@ -345,5 +384,50 @@ class _ArticleInfoState extends State<ArticleInfo> {
     Navigator.of(context).pop();
 
     return true;
+  }
+
+  Future<void> updateMagFile(BuildContext context, PlatformFile? newPdf) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Update'),
+          content: Text(
+            'Are you sure you want to update ${article['title']} file?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Expanded(child: Text('Updating... Please wait.')),
+            ],
+          ),
+        );
+      },
+    );
+
+    bool updateFile = await uploadService.processMagazine(newPdf!);
+    Navigator.of(context).pop();
   }
 }
