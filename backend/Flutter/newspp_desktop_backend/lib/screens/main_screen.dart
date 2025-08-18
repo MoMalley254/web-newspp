@@ -29,7 +29,10 @@ class _MainScreenState extends State<MainScreen> {
       ScreenItem(
         title: 'Dashboard',
         icon: Icons.dashboard,
-        screenBuilder: (navigateTo) => HomeScreen(),
+        screenBuilder: (navigateTo) => HomeScreen(navigateTo: navigateTo),
+        navigateFunc: (menu) {
+          _navigateTo(menu);
+        },
       ),
       ScreenItem(
         title: 'New Article',
@@ -126,7 +129,9 @@ class _MainScreenState extends State<MainScreen> {
         children: [
           TopBarWidget(screenTitle: _currentScreen.title),
           const SizedBox(height: 20),
-          Expanded(child: Center(child: _currentScreen.createScreen(_navigateTo))),
+          Expanded(
+            child: Center(child: _currentScreen.createScreen(_navigateTo)),
+          ),
         ],
       ),
     );

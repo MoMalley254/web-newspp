@@ -172,6 +172,30 @@ class Pdf2HtmlConverter {
     }
   }
 
+  Future<void> openOnlineHtml(String htmlUrl, String magName) async {
+    try {
+      toastHelper.showProcessingtoast('Opening $magName please wait...', 2);
+
+      if (Platform.isWindows) {
+        // Open in default app (browser for .html, PDF reader for .pdf)
+        await Process.run('explorer', [htmlUrl]);
+      } else {
+        // keep url_launcher for non-Windows
+        final uri = Uri.file(htmlUrl);
+        final launched = await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+        if (!launched) {
+          toastHelper.showErrortoast('Unable to open HTML file: $uri');
+        }
+      }
+    } catch (error) {
+      print('Unable to open html $error');
+      toastHelper.showErrortoast('Error opening html file $error');
+    }
+  }
+
   // Future<Map<String, dynamic>> extractTextFromHtml(String htmlFilePath) async {
   //   try {
   //     final file = File(htmlFilePath);
