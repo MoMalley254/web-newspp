@@ -5,7 +5,8 @@ import 'package:newspp_desktop_backend/widgets/search_bar_widget.dart';
 import 'package:newspp_desktop_backend/widgets/side_menu_widget.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Function(String) navigateTo;
+  final void Function(String menu, [dynamic arguments]) navigateTo;
+
   const HomeScreen({super.key, required this.navigateTo});
 
   @override
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         double totalWidth = constraints.maxWidth;
-    
+
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -26,9 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(
               width: totalWidth * 0.9,
               // color: Colors.blue,
-              child: Center(child: ArticlesSection(navigateTo: widget.navigateTo)),
+              child: Center(
+                child: ArticlesSection(navigateTo: widget.navigateTo),
+              ),
             ),
-    
+
             // Right section - 20%
             // Container(
             //   width: totalWidth * 0.35,

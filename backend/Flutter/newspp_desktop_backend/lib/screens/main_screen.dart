@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/models/screens.dart';
+import 'package:newspp_desktop_backend/screens/article_info.dart';
 import 'package:newspp_desktop_backend/screens/homescreen.dart';
 import 'package:newspp_desktop_backend/screens/new_article_screen.dart';
 import 'package:newspp_desktop_backend/screens/settings_screen.dart';
@@ -17,58 +18,79 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late List<ScreenItem> _screens;
-
   int _currentScreenIndex = 0;
-  ScreenItem get _currentScreen => _screens[_currentScreenIndex];
+  late Widget
+  _currentScreenWidget; // Mutable widget that changes with navigation
+  Map<String, dynamic>? _currentArguments;
 
   @override
   void initState() {
     super.initState();
-    // Initialize screens with optional navigateFunc
+
+    // Initialize screens
     _screens = [
       ScreenItem(
         title: 'Dashboard',
         icon: Icons.dashboard,
-        screenBuilder: (navigateTo) => HomeScreen(navigateTo: navigateTo),
+        screenBuilder:
+            (navigateTo, [args]) => HomeScreen(navigateTo: navigateTo),
         navigateFunc: (menu) {
           _navigateTo(menu);
         },
       ),
       ScreenItem(
         title: 'New Article',
-        screenBuilder: (navigateTo) => NewArticleScreen(navigateTo: navigateTo),
         icon: Icons.add,
+        screenBuilder:
+            (navigateTo, [args]) => NewArticleScreen(navigateTo: navigateTo),
         navigateFunc: (menu) {
-          // Custom logic before navigation (e.g., reset form, analytics, etc.)
-          print('Preparing to navigate to: $menu');
           _navigateTo(menu);
         },
       ),
       ScreenItem(
         title: 'Statistics',
-        screenBuilder: (navigateTo) => StatisticsScreen(),
         icon: Icons.auto_graph,
+        screenBuilder: (navigateTo, [args]) => StatisticsScreen(),
         navigateFunc: (menu) {
-          // Maybe log analytics
-          // await Analytics.logEvent('navigate_to_statistics');
           _navigateTo(menu);
         },
       ),
       ScreenItem(
         title: 'Settings',
-        screenBuilder: (navigateTo) => SettingsScreen(),
         icon: Icons.settings,
+        screenBuilder: (navigateTo, [args]) => SettingsScreen(),
         navigateFunc: _navigateTo,
       ),
+      ScreenItem(
+        title: 'Article',
+        icon: Icons.article,
+        screenBuilder: (navigateTo, [args]) {
+          return ArticleInfo(
+            articleInfo: _currentArguments!,
+            navigateTo: _navigateTo,
+          );
+        },
+      ),
     ];
+
+    // Set initial screen widget
+    _currentScreenWidget = _screens[_currentScreenIndex].createScreen(
+      _navigateTo,
+      _currentArguments,
+    );
   }
 
   // Reusable navigation method
-  void _navigateTo(String menu) {
+  void _navigateTo(String menu, [dynamic arguments]) {
     final index = _screens.indexWhere((screen) => screen.title == menu);
-    if (index != -1 && index != _currentScreenIndex) {
+    if (index != -1) {
       setState(() {
         _currentScreenIndex = index;
+        _currentArguments = arguments;
+        // _currentScreenWidget = _screens[index].createScreen(
+        //   _navigateTo,
+        //   arguments,
+        // );
       });
     }
   }
@@ -127,10 +149,12 @@ class _MainScreenState extends State<MainScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TopBarWidget(screenTitle: _currentScreen.title),
+          TopBarWidget(screenTitle: _screens[_currentScreenIndex].title),
           const SizedBox(height: 20),
           Expanded(
-            child: Center(child: _currentScreen.createScreen(_navigateTo)),
+            child: Center(
+              child: _screens[_currentScreenIndex].createScreen(_navigateTo),
+            ),
           ),
         ],
       ),

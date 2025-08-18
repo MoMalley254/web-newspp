@@ -3,7 +3,7 @@ import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
 
 class ArticlesSection extends StatefulWidget {
-  final Function(String) navigateTo;
+  final void Function(String menu, [dynamic arguments]) navigateTo;
   const ArticlesSection({super.key, required this.navigateTo});
 
   @override
@@ -141,17 +141,18 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                                       icon: Icon(
                                         Icons.open_in_new,
                                       ), // icon representing "open in another app"
-                                      label: Text('Open in browser'),
+                                      label: Text(
+                                        'Open in browser',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     ElevatedButton.icon(
                                       onPressed: () {
                                         // Navigate to the magazine info page
-                                        widget.navigateTo(
-                                          article['id'],
-                                        ); // or use the appropriate ID/key
+                                        widget.navigateTo('Article', article);
                                       },
                                       icon: Icon(Icons.info_outline),
-                                      label: Text('Magazine Info'),
+                                      label: Text('Edit'),
                                     ),
                                   ],
                                 ),
