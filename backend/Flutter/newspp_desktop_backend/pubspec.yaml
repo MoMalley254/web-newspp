@@ -18,6 +18,7 @@ dependencies:
   html: ^0.15.6
   tesseract_ocr: ^0.5.0
   window_manager: ^0.5.1
+  dio: ^5.9.0
 
 dev_dependencies:
   flutter_test:
