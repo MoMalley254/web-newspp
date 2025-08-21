@@ -1,0 +1,73 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id String @id @default(uuid())
+  email String @unique
+  name String 
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  magazines Magazine[]
+}
+
+model Author {
+  id String @id @default(uuid())
+  name String 
+  email String @unique
+  bio String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  magazines Magazine[]@relation("AuthorMagazines")
+}
+
+model Tag {
+  id String @id @default(uuid())
+  name String @unique
+  createdAt DateTime @default(now())
+
+  magazines Magazine[] @relation("MagazineTags")
+  issues    MagazineIssues[]    @relation("IssueTags")
+}
+
+model Magazine {
+  id String @id @default(uuid())
+  title String @unique
+  description String?
+  publisher String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tags        Tag[]      @relation("MagazineTags")
+
+  admin Admin @relation(fields: [adminId], references: [id])
+  adminId String
+
+  authors Author[] @relation("AuthorMagazines")
+
+  issues MagazineIssues[]
+}
+
+model MagazineIssues {
+  id String @id @default(uuid())
+  issueNumber Int @default(autoincrement())
+  title String?
+  publishDate DateTime @default(now())
+  htmlPath String 
+
+  magazine Magazine @relation(fields: [magazineId], references: [id])
+  magazineId String
+
+  tags       Tag[]    @relation("IssueTags")
+}
+
