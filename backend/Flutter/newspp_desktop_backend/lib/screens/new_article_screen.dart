@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
+import 'package:newspp_desktop_backend/services/mags_service.dart';
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:newspp_desktop_backend/services/upload_service.dart';
 import 'package:newspp_desktop_backend/widgets/forms/new_article_form.dart';
@@ -20,6 +21,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
   final convertHelper = Pdf2HtmlConverter();
   final toastHelper = ToastService();
   final uploadHelper = UploadService();
+  final magsHelper = MagsService();
 
   bool isProcessing = false;
   bool formDataConfirmed = false;
@@ -174,9 +176,9 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () {
-              setState(() {
-                isProcessing = true;
-              });
+              // setState(() {
+              //   isProcessing = true;
+              // });
               sendToServer(data);
             },
           ),
@@ -186,7 +188,8 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
   }
 
   Future<void> sendToServer(Map<String, dynamic> magazineData) async {
-    bool hasSentToServer = await uploadHelper.sendMagDataToServer(magazineData);
+    // bool hasSentToServer = await uploadHelper.sendMagDataToServer(magazineData);
+    bool hasSentToServer = await magsHelper.createMagazine(magazineData, processedHtmlPath);
     if (hasSentToServer) {
       widget.navigateTo('Dashboard');
     }
