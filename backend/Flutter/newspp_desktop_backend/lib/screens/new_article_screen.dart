@@ -133,7 +133,13 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
           Text('Issue: ${data['issue']}'),
           Text('Date: ${data['date']}'),
           Text('Tags: ${data['tags']}'),
-          Text('Description: ${data['desc']}'),
+          SizedBox(
+  height: 200, // set the height you want for the scroll box
+  child: SingleChildScrollView(
+    child: Text('Description: ${data['desc']}'),
+  ),
+),
+
           const SizedBox(height: 16),
           Text('PDF: ${data['pdf'].name}'),
           if (data['cover'] != null) Text('Cover Image: ${data['cover'].name}'),
@@ -176,9 +182,9 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () {
-              // setState(() {
-              //   isProcessing = true;
-              // });
+              setState(() {
+                isProcessing = true;
+              });
               sendToServer(data);
             },
           ),
@@ -189,10 +195,16 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
 
   Future<void> sendToServer(Map<String, dynamic> magazineData) async {
     // bool hasSentToServer = await uploadHelper.sendMagDataToServer(magazineData);
-    bool hasSentToServer = await magsHelper.createMagazine(magazineData, processedHtmlPath);
+    bool hasSentToServer = await magsHelper.createMagazine(
+      magazineData,
+      processedHtmlPath,
+    );
     if (hasSentToServer) {
       widget.navigateTo('Dashboard');
     }
+    setState(() {
+      isProcessing = false;
+    });
   }
 
   Widget createHelpSide(BuildContext context) {

@@ -70,7 +70,7 @@ class MagsService {
 
         return true;
       }
-      return true;
+      return false;
     } catch (createMagazineError) {
       print('Create magazine error $createMagazineError');
       return false;

@@ -50,7 +50,7 @@ class _ArticlesSectionState extends State<ArticlesSection> {
 
         print('Mags found ${snapshot.data!['mags']}');
 
-        List articles = snapshot.data!['articles'];
+        List articles = snapshot.data!['mags'];
 
         if (articles.isEmpty) {
           return const Center(child: Text('No articles available'));
@@ -84,12 +84,22 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                         children: [
                           // Background image
                           Positioned.fill(
-                            child: Image.network(
-                              article['cover'],
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (_, __, ___) => Container(color: Colors.grey),
-                            ),
+                            child:
+                                (article['cover'] == null ||
+                                        article['cover'].isEmpty)
+                                    ? Image.network(
+                                      'https://placehold.co/150x150?text=Business+Unusual', // your placeholder URL
+                                      fit: BoxFit.cover,
+                                    )
+                                    : Image.network(
+                                      article['cover'],
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (_, __, ___) => Image.network(
+                                            'https://placehold.co/150x150?text=Business+Unusual', // fallback placeholder on error
+                                            fit: BoxFit.cover,
+                                          ),
+                                    ),
                           ),
 
                           // Gradient overlay
@@ -134,7 +144,7 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                                   ),
                                 ),
                                 Text(
-                                  article['author'],
+                                  article['publisher'],
                                   style: const TextStyle(
                                     color: Colors.white60,
                                     fontSize: 12,

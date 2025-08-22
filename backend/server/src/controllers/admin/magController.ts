@@ -39,14 +39,14 @@ export const createNewMag = async (req: Request, res: Response) => {
     const newMagData = {
         title: title,
         author: author,
-        issueNumber: issue,
+        issueNumber: parseInt(issue),
         publishDate: date,
         tags: tags,
         description: desc,
         publisher: 'Business Unusual',
         adminId: adminId,
         htmlPath: htmlFile.path,
-        coverImage: coverFile.path
+        // coverImage: coverFile.path
     }
 
     const createMagResult = await createMagService(newMagData);
