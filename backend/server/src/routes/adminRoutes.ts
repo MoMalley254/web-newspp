@@ -6,14 +6,21 @@ import {
     updateAdminPass
 } from '../controllers/admin/authController';
 
+import {
+    getAllMags
+} from '../controllers/admin/magController';
+
 const router = express.Router();
 
 router.get('/', async(req, res) => {
     res.redirect('/login');
 });
 
-router.get('/create', authenticateAccessToken, createAdmin);
+router.post('/create', authenticateAccessToken, createAdmin);
 router.post('/login', loginAdmin);
-router.get('/update', authenticateAccessToken, updateAdminPass);
+router.post('/update', authenticateAccessToken, updateAdminPass);
+
+//Mag routes
+router.get('/mag/All', authenticateAccessToken, getAllMags);
 
 export default router;

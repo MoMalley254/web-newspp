@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
+import 'package:newspp_desktop_backend/services/mags_service.dart';
 
 class ArticlesSection extends StatefulWidget {
   final void Function(String menu, [dynamic arguments]) navigateTo;
@@ -11,6 +12,8 @@ class ArticlesSection extends StatefulWidget {
 }
 
 class _ArticlesSectionState extends State<ArticlesSection> {
+  final magsSevice = MagsService();
+
   final fetchService = FetchService();
   late Future<Map<String, dynamic>> fetchArticles;
 
@@ -19,7 +22,8 @@ class _ArticlesSectionState extends State<ArticlesSection> {
   @override
   void initState() {
     super.initState();
-    fetchArticles = fetchService.fetchArticlesFromServer();
+    // fetchArticles = fetchService.fetchArticlesFromServer();
+    fetchArticles = magsSevice.getAllMags();
   }
 
   @override
@@ -35,7 +39,16 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           return Center(
             child: Text('Error: ${snapshot.data?['error'] ?? 'Unknown error'}'),
           );
+        } else if (snapshot.data!['mags'].isEmpty) {
+          return Center(
+            child: Text(
+              'No Magazines found',
+              style: TextStyle(fontSize: 22, color: Colors.white),
+            ),
+          );
         }
+
+        print('Mags found ${snapshot.data!['mags']}');
 
         List articles = snapshot.data!['articles'];
 

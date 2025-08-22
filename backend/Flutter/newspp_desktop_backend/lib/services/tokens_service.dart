@@ -13,15 +13,18 @@ class TokenStorage {
   Future<void> saveTokens(String accessToken, String refreshToken) async {
     final prefs = await SharedPreferences.getInstance();
 
-      final encryptedAccessToken = _encrypter.encrypt(accessToken, iv: _iv);
+    // final encryptedAccessToken = _encrypter.encrypt(accessToken, iv: _iv);
 
-      final encryptedRefreshToken = _encrypter.encrypt(refreshToken, iv: _iv);
+    // final encryptedRefreshToken = _encrypter.encrypt(refreshToken, iv: _iv);
 
-      await prefs.setString('access_token', encryptedAccessToken.base64);
-      await prefs.setString('refresh_token', encryptedRefreshToken.base64);
+    // await prefs.setString('access_token', encryptedAccessToken.base64);
+    // await prefs.setString('refresh_token', encryptedRefreshToken.base64);
+    await prefs.setString('access_token', accessToken);
+    await prefs.setString('refresh_token', refreshToken);
   }
 
   Future<Map<String, String?>> getTokens() async {
+    // await clearTokens();
     final prefs = await SharedPreferences.getInstance();
 
     final encryptedAccessToken = prefs.getString('access_token');
@@ -31,24 +34,27 @@ class TokenStorage {
       return {'access_token': null, 'refresh_token': null};
     }
 
-    final decryptedAccessToken = _encrypter.decrypt64(
-      encryptedAccessToken,
-      iv: _iv,
-    );
-    final decryptedRefreshToken = _encrypter.decrypt64(
-      encryptedRefreshToken,
-      iv: _iv,
-    );
+    // final decryptedAccessToken = _encrypter.decrypt64(
+    //   encryptedAccessToken,
+    //   iv: _iv,
+    // );
+    // final decryptedRefreshToken = _encrypter.decrypt64(
+    //   encryptedRefreshToken,
+    //   iv: _iv,
+    // );
 
+    // return {
+    //   'access_token': decryptedAccessToken,
+    //   'refresh_token': decryptedRefreshToken,
+    // };
     return {
-      'access_token': decryptedAccessToken,
-      'refresh_token': decryptedRefreshToken,
+      'access_token': encryptedAccessToken,
+      'refresh_token': encryptedRefreshToken,
     };
   }
 
   Future<void> clearTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
-    await prefs.remove('refresh_token');
+    await prefs.clear();
   }
 }
