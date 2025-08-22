@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { AdminData } from "../../types/admin/adminTypes";
+import { AdminData } from "../../types/adminTypes";
 import { 
     createAdminService,
     loginService,
@@ -33,10 +33,13 @@ export const createAdmin = async(req: Request, res: Response) => {
 
 export const loginAdmin = async(req: Request, res: Response) => {
     try {
+        if (!req.body || req.body.email === '' || req.body.password === '') {
+            return res.status(400).json({ error: 'Email or password cannot be empty'});
+        }
         const loginData: AdminData = {
-            email: 'notclankr@gmail.com',
+            email: req.body.email,
             name: '',
-            password: 'superClankr1'
+            password: req.body.password
         }
 
         const login = await loginService(loginData);

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { JwtPayload } from '../../types/admin/adminTypes'; 
+import { JwtPayload } from '../../types/adminTypes'; 
 
 export const authenticateAccessToken = (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers['authorization'];
@@ -17,7 +17,7 @@ export const authenticateAccessToken = (req: Request, res: Response, next: NextF
     }
 
     const payload = jwt.verify(token, secret) as JwtPayload;
-    req.user = payload; // Attach user data to request for use in controllers
+    // req.user = payload; // Attach user data to request for use in controllers
 
     next();
   } catch (err) {

@@ -1,6 +1,6 @@
 import prisma from "../../config/prismaClient";
 import * as argon2 from "argon2";
-import { AdminData } from "../../types/admin/adminTypes";
+import { AdminData } from "../../types/adminTypes";
 import jwt from "jsonwebtoken";
 
 export const createAdminService = async (newAdminData: AdminData) => {
@@ -58,6 +58,13 @@ export const loginService = async (loginData: AdminData) => {
       return {
         status: false,
         error: `${loginData.email} does not exist`,
+      };
+    }
+
+    if (!loginData.password || typeof loginData.password !== 'string') {
+      return {
+        status: false,
+        error: `Invalid password provided`,
       };
     }
 

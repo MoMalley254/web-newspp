@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "sourceMap": true,
     "outDir": "dist",
     "strict": true,
     "lib": ["ESNext"],
     "esModuleInterop": true,
-  }
+  },
+  "include": ["src/**/*"] // Make sure this covers src/types/admin/index.d.ts
 }

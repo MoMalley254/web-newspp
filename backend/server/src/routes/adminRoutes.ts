@@ -13,7 +13,7 @@ router.get('/', async(req, res) => {
 });
 
 router.get('/create', authenticateAccessToken, createAdmin);
-router.get('/login', loginAdmin);
+router.post('/login', loginAdmin);
 router.get('/update', authenticateAccessToken, updateAdminPass);
 
 export default router;
