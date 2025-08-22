@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/models/screens.dart';
+import 'package:newspp_desktop_backend/services/auth_service.dart';
 
 class SideMenuWidget extends StatefulWidget {
   final List<ScreenItem> screens; // Pass screens
@@ -18,6 +19,28 @@ class SideMenuWidget extends StatefulWidget {
 class _SideMenuWidgetState extends State<SideMenuWidget> {
   String _activeMenu = "Dashboard";
 
+  final authService = AuthService();
+  Map<String, dynamic> adminData = {
+    'name': 'John Doe'
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    loadAdminData();
+  }
+
+  Future<void> loadAdminData() async {
+    Map<String, dynamic> getAdminData = await authService.getAdminData();
+    if (getAdminData['status']) {
+      setState(() {
+        adminData['name'] = getAdminData['name'];
+        // adminData['name'] = getAdminData['name'];
+        // adminData['name'] = getAdminData['name'];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,7 +56,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
               Icon(Icons.dashboard, color: Colors.yellow[600], size: 28),
               const SizedBox(width: 8),
               Text(
-                "Newspp",
+                "Business Unusual",
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   color: Colors.white,
@@ -51,7 +74,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
           ),
           const SizedBox(height: 12),
           Text(
-            "Louis Carter",
+            adminData['name'],
             style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 16,

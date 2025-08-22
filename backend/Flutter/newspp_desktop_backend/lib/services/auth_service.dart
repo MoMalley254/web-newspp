@@ -70,4 +70,27 @@ class AuthService {
       return false;
     }
   }
+
+  Future<Map<String, dynamic>> getAdminData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String? adminId = await prefs.getString('adminId');
+      String? adminEmail = await prefs.getString('adminEmail');
+      String? adminName = await prefs.getString('adminName');
+
+      if (adminId == null || adminEmail == null || adminName == null) {
+        return {'status': false, 'error': 'Missing fields please login again'};
+      }
+
+      return {
+        'status': true,
+        'name': adminName,
+        'email': adminEmail,
+        'id': adminId,
+      };
+    } catch (getAdminDataError) {
+      print('Get admin data error $getAdminDataError');
+      return {'status': false, 'error': getAdminDataError.toString()};
+    }
+  }
 }
