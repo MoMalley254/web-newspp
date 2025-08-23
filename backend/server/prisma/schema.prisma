@@ -29,7 +29,7 @@ model Tag {
 
 model Magazine {
   id String @id @default(uuid())
-  title String @unique
+  title String 
   issueNumber Int 
   publishDate DateTime @default(now())
   description String?
