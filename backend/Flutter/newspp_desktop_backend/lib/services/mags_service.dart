@@ -13,24 +13,33 @@ class MagsService {
   static const String baseMagUrl = '/admin/mag';
 
   Future<Map<String, dynamic>> getAllMags() async {
-    try {
-      final response = await _dio.get('$baseMagUrl/all');
+  try {
+    final response = await _dio.get('$baseMagUrl/all');
 
-      if (response.statusCode == 200) {
-        List<dynamic> responseData = response.data['magazines'];
+    if (response.statusCode == 200) {
+      List<dynamic> responseData = response.data['magazines'];
 
-        // print('Response $responseData');
-        return {'status': true, 'mags': responseData};
-      } else {
-        // print('Error fr ${response.data}');
-        throw response.data['error'];
-      }
-    } catch (getAllMagsError) {
-      print('Get all magazines error $getAllMagsError');
-      toastHelper.showErrortoast(getAllMagsError.toString());
-      return {'status': false, 'error': getAllMagsError.toString()};
+      // Iterate and update htmlPath and coverImage
+      List<dynamic> updatedMags = responseData.map((mag) {
+        // Ensure mag is a Map<String, dynamic>
+        if (mag is Map<String, dynamic>) {
+          mag['html'] = 'http://localhost:3000${baseMagUrl}${(mag['htmlPath'].toString().replaceAll('\\', '/'))}';
+          mag['cover'] = 'http://localhost:3000${baseMagUrl}${(mag['coverImage'].toString().replaceAll('\\', '/') ?? '')}';
+        }
+        return mag;
+      }).toList();
+
+      return {'status': true, 'mags': updatedMags};
+    } else {
+      throw response.data['error'];
     }
+  } catch (getAllMagsError) {
+    print('Get all magazines error $getAllMagsError');
+    toastHelper.showErrortoast(getAllMagsError.toString());
+    return {'status': false, 'error': getAllMagsError.toString()};
   }
+}
+
 
   Future<bool> createMagazine(
     Map<String, dynamic> formData,
@@ -58,7 +67,7 @@ class MagsService {
       if (coverFile != null && coverFile.path != null) {
         mapData['cover'] = await MultipartFile.fromFile(
           coverFile.path!,
-          filename: 'Cover',
+          filename: coverFile.name,
         );
       }
 

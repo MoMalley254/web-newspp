@@ -48,8 +48,6 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           );
         }
 
-        print('Mags found ${snapshot.data!['mags']}');
-
         List articles = snapshot.data!['mags'];
 
         if (articles.isEmpty) {
@@ -73,6 +71,9 @@ class _ArticlesSectionState extends State<ArticlesSection> {
             itemCount: articles.length,
             itemBuilder: (context, index) {
               final article = articles[index];
+              print('');
+              print('Article $article');
+              print('');
               return LayoutBuilder(
                 builder: (context, constraints) {
                   final itemHeight = constraints.maxHeight * 0.2;
@@ -85,18 +86,18 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                           // Background image
                           Positioned.fill(
                             child:
-                                (article['coverImage'] == null ||
-                                        article['coverImage'].isEmpty)
+                                (article['cover'] == null ||
+                                        article['cover'].isEmpty)
                                     ? Image.network(
-                                      'https://placehold.co/150x150?text=Business+Unusual', // your placeholder URL
+                                      'https://placehold.co/600x400/png?text=Bussiness+Unusual', // your placeholder URL
                                       fit: BoxFit.cover,
                                     )
                                     : Image.network(
-                                      article['coverImage'],
+                                      article['cover'],
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (_, __, ___) => Image.network(
-                                            'https://placehold.co/150x150?text=Business+Unusual', // fallback placeholder on error
+                                            'https://placehold.co/600x400/png?text=Bussiness+Unusual', // fallback placeholder on error
                                             fit: BoxFit.cover,
                                           ),
                                     ),

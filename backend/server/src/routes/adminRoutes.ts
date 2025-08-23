@@ -19,9 +19,15 @@ const router = express.Router();
 // ✅ Generate a timestamp folder name
 function generateFolderName(): string {
   const now = new Date();
-  const formatted = now.toISOString().replace(/[:.]/g, '-'); // e.g. "2025-08-22T15-36-22-123Z"
+
+  const day = String(now.getDate()).padStart(2, '0');      // DD
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // MM (getMonth() is zero-based)
+  const year = now.getFullYear();                          // YYYY
+
+  const formatted = `${day}-${month}-${year}`;
   return formatted;
 }
+
 
 // ✅ Dynamic Multer storage config
 const storage = multer.diskStorage({
@@ -40,7 +46,7 @@ const storage = multer.diskStorage({
     cb(null, folderPath);
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + path.extname(file.originalname));
+    cb(null, file.fieldname + file.originalname);
   },
 });
 
