@@ -19,31 +19,22 @@ model Admin {
   magazines Magazine[]
 }
 
-model Author {
-  id String @id @default(uuid())
-  name String 
-  email String @unique
-  bio String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  magazines Magazine[]@relation("AuthorMagazines")
-}
-
 model Tag {
   id String @id @default(uuid())
   name String @unique
   createdAt DateTime @default(now())
 
   magazines Magazine[] @relation("MagazineTags")
-  issues    MagazineIssues[]    @relation("IssueTags")
 }
 
 model Magazine {
   id String @id @default(uuid())
   title String @unique
+  issueNumber Int 
+  publishDate DateTime @default(now())
   description String?
   publisher String?
+  htmlPath String 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -52,21 +43,6 @@ model Magazine {
   admin Admin @relation(fields: [adminId], references: [id])
   adminId String
 
-  authors Author[] @relation("AuthorMagazines")
-
-  issues MagazineIssues[]
-}
-
-model MagazineIssues {
-  id String @id @default(uuid())
-  issueNumber Int @default(autoincrement())
-  title String?
-  publishDate DateTime @default(now())
-  htmlPath String 
-
-  magazine Magazine @relation(fields: [magazineId], references: [id])
-  magazineId String
-
-  tags       Tag[]    @relation("IssueTags")
+  credits Json?
 }
 
