@@ -58,7 +58,7 @@ async function createTags(
   }
 }
 
-export const createMagService = async (magData: Record<string, any>) => {
+export const createMagService = async (magData: Record<string, any>, hasImage: boolean) => {
   try {
 
     console.log(`Mag data ${JSON.stringify(magData)}`);
@@ -87,8 +87,8 @@ export const createMagService = async (magData: Record<string, any>) => {
         issueNumber: magData.issueNumber,
         publishDate: new Date(magData.publishDate),
         htmlPath: magData.htmlPath,
-        credits: magData.credits
-        
+        credits: magData.credits,
+        coverImage: hasImage ? magData.coverImage : null
       },
     });
 

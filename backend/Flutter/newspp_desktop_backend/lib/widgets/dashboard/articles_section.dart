@@ -85,14 +85,14 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                           // Background image
                           Positioned.fill(
                             child:
-                                (article['cover'] == null ||
-                                        article['cover'].isEmpty)
+                                (article['coverImage'] == null ||
+                                        article['coverImage'].isEmpty)
                                     ? Image.network(
                                       'https://placehold.co/150x150?text=Business+Unusual', // your placeholder URL
                                       fit: BoxFit.cover,
                                     )
                                     : Image.network(
-                                      article['cover'],
+                                      article['coverImage'],
                                       fit: BoxFit.cover,
                                       errorBuilder:
                                           (_, __, ___) => Image.network(
