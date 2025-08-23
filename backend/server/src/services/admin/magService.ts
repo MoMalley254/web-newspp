@@ -58,42 +58,10 @@ async function createTags(
   }
 }
 
-async function createAuthors(authors: string): Promise<{ status: boolean; authorIds?: string[]; error?: any }> {
-  try {
-    const authorNames = authors
-      .split(",")
-      .map((author) => author.trim().toLowerCase())
-      .filter((author) => author.length > 0);
-
-    const authorIds: string[] = [];
-
-    for (const authorName of authorNames) {
-      const author = await prisma.author.findFirst({
-        where: { name: authorName },
-      });
-
-      if (author) {
-        authorIds.push(author.id);
-      }
-      // If author not found, skip (do NOT create new author)
-    }
-
-    return {
-      status: true,
-      authorIds,
-    };
-  } catch (createAuthorsError: any) {
-    console.error(`Create authors error:`, createAuthorsError);
-    return {
-      status: false,
-      error: createAuthorsError,
-    };
-  }
-}
-
-
 export const createMagService = async (magData: Record<string, any>) => {
   try {
+
+    console.log(`Mag data ${JSON.stringify(magData)}`);
     // Create or get tags
     const tagsResult = await createTags(magData["tags"] as string);
     if (!tagsResult.status) {
@@ -104,17 +72,6 @@ export const createMagService = async (magData: Record<string, any>) => {
     }
 
     console.log(`Created tags ${tagsResult.tagIds}`);
-
-    // Get authors (only existing ones per your logic)
-    const authorsResult = await createAuthors(magData["author"] as string);
-    if (!authorsResult.status) {
-      return {
-        status: false,
-        error: authorsResult.error,
-      };
-    }
-
-    console.log(`Authors found ${authorsResult.authorIds}`);
 
     // Create the Magazine
     const magazine = await prisma.magazine.create({
@@ -127,37 +84,19 @@ export const createMagService = async (magData: Record<string, any>) => {
         tags: {
           connect: tagsResult.tagIds!.map((id) => ({ id })),
         },
-
-        authors: {
-          connect: authorsResult.authorIds!.map((id) => ({ id })),
-        },
+        issueNumber: magData.issueNumber,
+        publishDate: new Date(magData.publishDate),
+        htmlPath: magData.htmlPath,
+        credits: magData.credits
+        
       },
     });
 
     console.log(`Magazine created with id: ${magazine.id}`);
 
-    // Create the initial Magazine Issue
-    const issue = await prisma.magazineIssues.create({
-      data: {
-        title: magData.issueTitle ?? magData.title,
-        issueNumber: magData.issueNumber ?? 1, // default to 1 if not provided
-        publishDate: magData.publishDate ? new Date(magData.publishDate) : undefined,
-        htmlPath: magData.htmlPath,
-
-        magazineId: magazine.id,
-
-        tags: {
-          connect: tagsResult.tagIds!.map((id) => ({ id })),
-        },
-      },
-    });
-
-    console.log(`Magazine issue created with id: ${issue.id}`);
-
     return {
       status: true,
       magazineId: magazine.id,
-      issueId: issue.id,
     };
   } catch (createMagServiceError: any) {
     console.error(`Create mag service error ${createMagServiceError}`);

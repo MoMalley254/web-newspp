@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:newspp_desktop_backend/core/network/dio_client.dart';
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:path/path.dart' as p;
@@ -37,7 +38,7 @@ class MagsService {
   ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      String adminId = await prefs.getString('adminId') ?? '';
+      String adminId = prefs.getString('adminId') ?? '';
       final htmlFile = File(htmlPath);
       if (!htmlFile.existsSync()) {
         print('❌ HTML file not found at $htmlPath');
@@ -47,11 +48,21 @@ class MagsService {
 
       final fileName = p.basename(htmlPath);
 
-      final form = FormData.fromMap({
+      final Map<String, dynamic> mapData = {
         ...formData,
         'html': await MultipartFile.fromFile(htmlPath, filename: fileName),
         'adminId': adminId,
-      });
+      };
+
+      final coverFile = formData['cover'] as PlatformFile?;
+      if (coverFile != null && coverFile.path != null) {
+        mapData['cover'] = await MultipartFile.fromFile(
+          coverFile.path!,
+          filename: 'Cover',
+        );
+      }
+
+      final form = FormData.fromMap(mapData);
 
       final response = await _dio.post('$baseMagUrl/new', data: form);
 

@@ -117,7 +117,8 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
     final data = submittedFormData!;
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Column(
+      child: SingleChildScrollView(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -128,21 +129,50 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Text('Title: ${data['title']}'),
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Text('Title: ${data['title']}'),
           Text('Author: ${data['author']}'),
           Text('Issue: ${data['issue']}'),
           Text('Date: ${data['date']}'),
           Text('Tags: ${data['tags']}'),
+          const SizedBox(height: 16),
+          Text('Credits:', style: TextStyle(fontWeight: FontWeight.bold)),
+
           SizedBox(
-  height: 200, // set the height you want for the scroll box
-  child: SingleChildScrollView(
-    child: Text('Description: ${data['desc']}'),
-  ),
-),
+            height: 150,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children:
+                    (data['credits'] as Map<String, dynamic>).entries
+                        .map<Widget>((entry) {
+                          final role = entry.key;
+                          final names = (entry.value as List).join(', ');
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 6.0),
+                            child: Text('$role: $names'),
+                          );
+                        })
+                        .toList(),
+              ),
+            ),
+          ),
+
+          SizedBox(
+            height: 200, // set the height you want for the scroll box
+            child: SingleChildScrollView(
+              child: Text('Description: ${data['desc']}'),
+            ),
+          ),
 
           const SizedBox(height: 16),
           Text('PDF: ${data['pdf'].name}'),
           if (data['cover'] != null) Text('Cover Image: ${data['cover'].name}'),
+              ],
+            )
+          ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
             icon: const Icon(Icons.open_in_browser),
@@ -190,6 +220,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
           ),
         ],
       ),
+      )
     );
   }
 

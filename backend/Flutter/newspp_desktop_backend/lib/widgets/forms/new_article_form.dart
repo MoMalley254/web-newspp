@@ -20,6 +20,9 @@ class _NewArticleFormState extends State<NewArticleForm> {
   final _authorController = TextEditingController();
   final _tagsController = TextEditingController();
   final _descController = TextEditingController();
+  List<Map<String, TextEditingController>> _credits = [
+    {'role': TextEditingController(), 'names': TextEditingController()},
+  ];
 
   PlatformFile? _pdfFile;
   PlatformFile? _coverImage;
@@ -31,6 +34,11 @@ class _NewArticleFormState extends State<NewArticleForm> {
     _publishDateController.dispose();
     _tagsController.dispose();
     _descController.dispose();
+    for (var credit in _credits) {
+      credit['role']?.dispose();
+      credit['names']?.dispose();
+    }
+
     super.dispose();
   }
 
@@ -142,6 +150,83 @@ class _NewArticleFormState extends State<NewArticleForm> {
             ),
             const SizedBox(height: 16),
 
+            //Credits
+            // Credits Section
+            const Text('Credits'),
+            const SizedBox(height: 6),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: _credits.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: _credits[index]['role'],
+                          decoration: InputDecoration(
+                            hintText: 'Role (e.g., Editor)',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Role required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _credits[index]['names'],
+                          decoration: InputDecoration(
+                            hintText: 'Names (e.g., Alice, Bob)',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Names required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      IconButton(
+                        icon: Icon(Icons.remove_circle, color: Colors.red),
+                        onPressed: () {
+                          setState(() {
+                            _credits.removeAt(index);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _credits.add({
+                      'role': TextEditingController(),
+                      'names': TextEditingController(),
+                    });
+                  });
+                },
+                icon: Icon(Icons.add),
+                label: Text('Add Another Role'),
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // Description
             const Text('Description / Summary'),
             const SizedBox(height: 6),
@@ -172,10 +257,8 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     ElevatedButton.icon(
                       icon: const Icon(Icons.upload_file),
                       label: Text(
-                        _pdfFile != null
-                            ? 'PDF Selected'
-                            : 'Pick PDF ',
-                            overflow: TextOverflow.ellipsis,
+                        _pdfFile != null ? 'PDF Selected' : 'Pick PDF ',
+                        overflow: TextOverflow.ellipsis,
                       ),
                       onPressed: () async {
                         FilePickerResult? result = await FilePicker.platform
@@ -265,13 +348,19 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     return;
                   }
 
-                  // Form is valid and files are selected
-                  toastification.show(
-                    title: Text('Submitted successfully.'),
-                    type: ToastificationType.success,
-                    style: ToastificationStyle.fillColored,
-                    autoCloseDuration: const Duration(seconds: 5),
-                  );
+                  Map<String, List<String>> creditsData = {};
+
+                  for (var credit in _credits) {
+                    final role = credit['role']!.text.trim();
+                    final namesRaw = credit['names']!.text.trim();
+                    if (role.isNotEmpty && namesRaw.isNotEmpty) {
+                      creditsData[role] =
+                          namesRaw
+                              .split(',')
+                              .map((name) => name.trim())
+                              .toList();
+                    }
+                  }
 
                   Map<String, dynamic> formData = {
                     'title': _titleController.text,
@@ -279,12 +368,20 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     'issue': _issueNoController.text,
                     'date': _publishDateController.text,
                     'tags': _tagsController.text,
+                    'credits': creditsData,
                     'desc': _descController.text,
                     'pdf': _pdfFile,
                     'cover': _coverImage,
                   };
 
                   widget.onFormValid(formData);
+                   // Form is valid and files are selected
+                  toastification.show(
+                    title: Text('Submitted successfully.'),
+                    type: ToastificationType.success,
+                    style: ToastificationStyle.fillColored,
+                    autoCloseDuration: const Duration(seconds: 5),
+                  );
                 }
               },
             ),

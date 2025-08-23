@@ -21,7 +21,7 @@ export const getAllMags = async (req: Request, res: Response) => {
 
 export const createNewMag = async (req: Request, res: Response) => {
   try {
-    const { title, author, issue, date, tags, desc, adminId} = req.body;
+    const { title, author, issue, date, tags, desc, adminId, credits} = req.body;
     const files = req.files as {
       [fieldname: string]: Express.Multer.File[];
     };
@@ -45,7 +45,8 @@ export const createNewMag = async (req: Request, res: Response) => {
         description: desc,
         publisher: 'Business Unusual',
         adminId: adminId,
-        htmlPath: htmlFile.path,
+        credits: credits,
+        htmlPath: '\\public\\' + htmlFile.path.split('\\public\\').slice(1).join('\\public\\'),
         // coverImage: coverFile.path
     }
 
