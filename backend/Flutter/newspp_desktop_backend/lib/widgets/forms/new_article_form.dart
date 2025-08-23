@@ -252,7 +252,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                 // Upload PDF
                 Column(
                   children: [
-                    const Text('PDF *Max 50MB'),
+                    const Text('PDF *Max 500MB'),
                     const SizedBox(height: 6),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.upload_file),
@@ -268,10 +268,10 @@ class _NewArticleFormState extends State<NewArticleForm> {
                             );
                         if (result != null) {
                           final file = result.files.first;
-                          if (file.size > 50 * 1024 * 1024) {
+                          if (file.size > 500 * 1024 * 1024) {
                             toastification.show(
                               title: Text(
-                                'PDF exceeds 50MB limit. Please choose a smaller file.',
+                                'PDF exceeds 500MB limit. Please choose a smaller file.',
                               ),
                               type: ToastificationType.warning,
                               style: ToastificationStyle.flatColored,
