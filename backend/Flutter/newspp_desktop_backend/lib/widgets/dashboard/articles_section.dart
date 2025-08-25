@@ -71,9 +71,6 @@ class _ArticlesSectionState extends State<ArticlesSection> {
             itemCount: articles.length,
             itemBuilder: (context, index) {
               final article = articles[index];
-              print('');
-              print('Article $article');
-              print('');
               return LayoutBuilder(
                 builder: (context, constraints) {
                   final itemHeight = constraints.maxHeight * 0.2;

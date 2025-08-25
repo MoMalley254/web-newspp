@@ -51,6 +51,18 @@ class _ArticleInfoState extends State<ArticleInfo> {
 
   @override
   Widget build(BuildContext context) {
+    print('Magazine data ${article}');
+    final excludedKeys = {
+  'id',
+  'coverImage',
+  'htmlPath',
+  'createdAt',
+  'updatedAt',
+  'adminId',
+  'credits', // handled separately
+  'html',
+  'cover'
+};
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -70,8 +82,10 @@ class _ArticleInfoState extends State<ArticleInfo> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children:
                       article.entries.map((entry) {
-                        if (entry.key == 'cover' || entry.key == 'html') {
+                        if (excludedKeys.contains(entry.key)) {
                           return SizedBox(); // handled on the right
+                        } else if (entry.key == 'credits' ) {
+                          Map<String, dynamic> credits = Map<String, dynamic>.from(article['credits']);
                         }
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
