@@ -222,8 +222,6 @@ async function validateRefreshToken(rToken: string): Promise<RefreshTokenValidat
       return { valid: false };
     }
 
-    console.log(`Payload: ${JSON.stringify(decoded)}`);
-
     return {
       valid: true,
       userId: decoded.userId,
