@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
+import 'package:newspp_desktop_backend/services/mags_service.dart';
 import 'package:newspp_desktop_backend/services/upload_service.dart';
 import 'package:toastification/toastification.dart';
 
@@ -24,9 +26,12 @@ class _ArticleInfoState extends State<ArticleInfo> {
   final uploadService = UploadService();
   final fetchService = FetchService();
   final convertService = Pdf2HtmlConverter();
+  final magsService = MagsService();
 
   bool hasUpdated = false;
   late Map<String, dynamic> article;
+
+  PlatformFile? _coverImage;
 
   @override
   void initState() {
@@ -36,33 +41,33 @@ class _ArticleInfoState extends State<ArticleInfo> {
   }
 
   Future<void> loadArticle() async {
-    // final int articleId = widget.articleInfo['id'];
-    final int articleId = 3;
+    final String articleId = widget.articleInfo['id'];
 
-    final newArticle = await fetchService.fetchArticleFromServer(
-      articleId,
-    ); // Replace with your actual method
+    // final newArticle = await fetchService.fetchArticleFromServer(
+    //   articleId,
+    // );
+
+    final newArticle = await magsService.fetchSingleMagazine(articleId);
     if (newArticle['status']) {
       setState(() {
-        article = newArticle['article'];
+        article = newArticle['magazine'];
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print('Magazine data ${article}');
+    print('Image url ${article}');
     final excludedKeys = {
-  'id',
-  'coverImage',
-  'htmlPath',
-  'createdAt',
-  'updatedAt',
-  'adminId',
-  'credits', // handled separately
-  'html',
-  'cover'
-};
+      'id',
+      'coverImage',
+      'htmlPath',
+      'createdAt',
+      'updatedAt',
+      'adminId',
+      'html',
+      'cover',
+    };
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -84,8 +89,220 @@ class _ArticleInfoState extends State<ArticleInfo> {
                       article.entries.map((entry) {
                         if (excludedKeys.contains(entry.key)) {
                           return SizedBox(); // handled on the right
-                        } else if (entry.key == 'credits' ) {
-                          Map<String, dynamic> credits = Map<String, dynamic>.from(article['credits']);
+                        } else if (entry.key == 'credits') {
+                          Map<String, dynamic> credits =
+                              Map<String, dynamic>.from(article['credits']);
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Credits',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Column(
+                                children:
+                                    credits.entries.map((entry) {
+                                      final value = entry.value;
+                                      Widget valueWidget;
+                                      String valueToPass;
+
+                                      if (value is List) {
+                                        // Handle list of contributors
+                                        valueToPass = value.join(',');
+                                        valueWidget = Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children:
+                                              value.map<Widget>((creditor) {
+                                                return Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      creditor.toString(),
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                      ),
+                                                      softWrap: true,
+                                                      overflow:
+                                                          TextOverflow.visible,
+                                                    ),
+                                                    const SizedBox(height: 5),
+                                                  ],
+                                                );
+                                              }).toList(),
+                                        );
+                                      } else {
+                                        valueToPass = value.toString();
+                                        valueWidget = Text(
+                                          value.toString(),
+                                          style: const TextStyle(fontSize: 16),
+                                          softWrap: true,
+                                          overflow: TextOverflow.visible,
+                                        );
+                                      }
+
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  entry.key[0].toUpperCase() +
+                                                      entry.key.substring(1),
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Container(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 10,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: Colors.grey,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                                  child: valueWidget,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 14),
+                                              ElevatedButton.icon(
+                                                onPressed: () async {
+                                                  final result =
+                                                      await showEditDialog(
+                                                        context,
+                                                        entry.key[0]
+                                                                .toUpperCase() +
+                                                            entry.key.substring(
+                                                              1,
+                                                            ),
+                                                        valueToPass,
+                                                      );
+
+                                                  if (result != null) {
+                                                    bool sendToServer =
+                                                        await sendUpdate(
+                                                          context,
+                                                          'credits : ${entry.key}',
+                                                          result,
+                                                        );
+
+                                                    if (sendToServer) {
+                                                      setState(() {
+                                                        hasUpdated = true;
+                                                      });
+                                                      loadArticle();
+                                                    }
+                                                  }
+                                                },
+                                                icon: const Icon(Icons.edit),
+                                                label: const Text('Edit'),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 20),
+                                        ],
+                                      );
+                                    }).toList(),
+                              ),
+                            ],
+                          );
+                        } else if (entry.key == 'publishDate') {
+                          final publishDate = DateFormat(
+                            'yyyy-MM-dd',
+                          ).format(DateTime.parse(entry.value));
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  entry.key[0].toUpperCase() +
+                                      entry.key.substring(1),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 10,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: Colors.grey,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            4,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          publishDate,
+                                          style: const TextStyle(fontSize: 16),
+                                          softWrap: true,
+                                          overflow: TextOverflow.visible,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+
+                                    ElevatedButton.icon(
+                                      onPressed: () async {
+                                        final result = await showEditDialog(
+                                          context,
+                                          entry.key[0].toUpperCase() +
+                                              entry.key.substring(1),
+                                          publishDate,
+                                        );
+
+                                        // You can handle the result here
+                                        if (result != null) {
+                                          bool sendToServer = await sendUpdate(
+                                            context,
+                                            entry.key,
+                                            result,
+                                          );
+
+                                          if (sendToServer) {
+                                            setState(() {
+                                              hasUpdated = true;
+                                            });
+                                            loadArticle();
+                                          }
+                                        }
+                                      },
+                                      icon: Icon(Icons.edit),
+                                      label: Text('Edit'),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
                         }
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
@@ -136,8 +353,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
                                       if (result != null) {
                                         bool sendToServer = await sendUpdate(
                                           context,
-                                          entry.key[0].toUpperCase() +
-                                              entry.key.substring(1),
+                                          entry.key,
                                           result,
                                         );
 
@@ -177,8 +393,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
                   'Cover Image',
                   style: TextStyle(color: Colors.white, fontSize: 22),
                 ),
-                if (article['cover'] != null &&
-                    article['cover'].toString().isNotEmpty)
+                if (article['cover'] != null)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
@@ -186,13 +401,26 @@ class _ArticleInfoState extends State<ArticleInfo> {
                       height: 200,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder:
-                          (context, error, stackTrace) => Container(
-                            height: 200,
-                            color: Colors.grey[300],
-                            child: Center(child: Text('Image load error')),
-                          ),
+                      errorBuilder: (context, error, stackTrace) {
+                        final imageUrl = article['cover'];
+                        print('❌ Failed to load image: $imageUrl');
+                        return Container(
+                          height: 200,
+                          color: Colors.grey[300],
+                          child: const Center(child: Text('Image load error')),
+                        );
+                      },
                     ),
+                  )
+                else if (_coverImage != null)
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[200],
+                    ),
+                    child: Center(child: Text('Image: ${_coverImage!.name}')),
                   )
                 else
                   Container(
@@ -211,8 +439,46 @@ class _ArticleInfoState extends State<ArticleInfo> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Implement image upload
+                      onPressed: () async {
+                        FilePickerResult? result = await FilePicker.platform
+                            .pickFiles(type: FileType.image);
+                        if (result != null) {
+                          final file = result.files.first;
+                          if (file.size > 5 * 1024 * 1024) {
+                            toastification.show(
+                              title: Text(
+                                'Image exceeds 5MB limit. Please choose a smaller image.',
+                              ),
+                              type: ToastificationType.warning,
+                              style: ToastificationStyle.flatColored,
+                              autoCloseDuration: const Duration(seconds: 5),
+                            );
+                            return;
+                          }
+                          setState(() => _coverImage = file);
+
+                          // final confirm = await showEditDialog(
+                          //               context,
+                          //               'coverImage',
+                          //               '',
+                          //             );
+
+                          // You can handle the result here
+                          // if (confirm != null) {
+                          bool sendToServer = await sendUpdate(
+                            context,
+                            'coverImage',
+                            result.files.first.path!,
+                          );
+
+                          if (sendToServer) {
+                            setState(() {
+                              hasUpdated = true;
+                            });
+                            loadArticle();
+                          }
+                          // }
+                        }
                       },
                       icon: const Icon(Icons.upload),
                       label: const Text('Upload'),
@@ -245,7 +511,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
                   onPressed: () {
                     // TODO: Call your convertService.openOnlineHtml here
                     // Example:
-                    // convertService.openOnlineHtml(article['html'], article['title']);
+                    convertService.openOnlineHtml(article['html'], article['title']);
                   },
                   icon: const Icon(Icons.open_in_new),
                   label: const Text('Open in browser'),
@@ -263,10 +529,10 @@ class _ArticleInfoState extends State<ArticleInfo> {
                         );
                     if (result != null) {
                       final file = result.files.first;
-                      if (file.size > 50 * 1024 * 1024) {
+                      if (file.size > 500 * 1024 * 1024) {
                         toastification.show(
                           title: Text(
-                            'PDF exceeds 50MB limit. Please choose a smaller file.',
+                            'PDF exceeds 500MB limit. Please choose a smaller file.',
                           ),
                           type: ToastificationType.warning,
                           style: ToastificationStyle.flatColored,
@@ -372,6 +638,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
     );
 
     if (confirm != true) return false;
+    // return false;
 
     showDialog(
       context: context,
@@ -390,11 +657,18 @@ class _ArticleInfoState extends State<ArticleInfo> {
     );
 
     Map<String, dynamic> mapToUpdate = {
+      'id': article['id'],
       'name': article['title'],
       'field': editField,
       'value': newValue,
     };
-    await uploadService.sendUpdateToServer(mapToUpdate);
+
+    await magsService.updateMagazine(
+      mapToUpdate,
+      editField == 'htmlPath' || editField == 'coverImage',
+    );
+
+    // await uploadService.sendUpdateToServer(mapToUpdate);
     Navigator.of(context).pop();
 
     return true;
@@ -441,7 +715,8 @@ class _ArticleInfoState extends State<ArticleInfo> {
       },
     );
 
-    bool updateFile = await uploadService.processMagazine(newPdf!);
+    // bool updateFile = await uploadService.processMagazine(newPdf!);
+    bool updateFile = await magsService.processMagazine(newPdf!, article['id'], article['title']);
     Navigator.of(context).pop();
   }
 }

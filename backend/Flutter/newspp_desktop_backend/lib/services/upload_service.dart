@@ -35,35 +35,7 @@ class UploadService {
     }
   }
 
-  Future<bool> processMagazine(PlatformFile? newPdf) async {
-    if (newPdf == null || newPdf.path == null) {
-      toastHelper.showErrortoast('No PDF file provided.');
-      return false;
-    }
-    toastHelper.showProcessingtoast('Preparing Magazine Converter', 5);
-
-    Map<String, dynamic> convert = await convertHelper.convertToHtml(
-      pdfPath: newPdf.path!,
-      pdfName: newPdf.name,
-      outputDir: 'C:/Users/user/Desktop/output',
-    );
-
-    if (!convert['status']) {
-      return false;
-    }
-
-    bool uploadToServer = await uploadUpdatedFileToServer({
-      'name': 'Mag name',
-      'field': 'Magazine File',
-      'file': convert['htmlPath'],
-    });
-
-    if (!uploadToServer) {
-      return false;
-    }
-
-    return true;
-  }
+  
 
   Future<bool> uploadUpdatedFileToServer(Map<String, dynamic> newData) async {
     try {

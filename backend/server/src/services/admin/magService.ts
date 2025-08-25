@@ -58,9 +58,11 @@ async function createTags(
   }
 }
 
-export const createMagService = async (magData: Record<string, any>, hasImage: boolean) => {
+export const createMagService = async (
+  magData: Record<string, any>,
+  hasImage: boolean
+) => {
   try {
-
     console.log(`Mag data ${JSON.stringify(magData)}`);
     // Create or get tags
     const tagsResult = await createTags(magData["tags"] as string);
@@ -88,7 +90,7 @@ export const createMagService = async (magData: Record<string, any>, hasImage: b
         publishDate: new Date(magData.publishDate),
         htmlPath: magData.htmlPath,
         credits: magData.credits,
-        coverImage: hasImage ? magData.coverImage : null
+        coverImage: hasImage ? magData.coverImage : null,
       },
     });
 
@@ -103,6 +105,129 @@ export const createMagService = async (magData: Record<string, any>, hasImage: b
     return {
       status: false,
       error: createMagServiceError,
+    };
+  }
+};
+
+export const findSingleMagService = async (magId: string) => {
+  try {
+    const mag = await prisma.magazine.findUnique({
+      where: { id: magId },
+    });
+
+    if (!mag) {
+      return {
+        status: false,
+        error: "Magazine does not exist",
+      };
+    }
+
+    return {
+      status: true,
+      magData: mag,
+    };
+  } catch (findSingleMagServiceError: any) {
+    console.error(`Find single mag service error ${findSingleMagServiceError}`);
+    return {
+      status: false,
+      error: findSingleMagServiceError.message || "Unable to find magazine",
+    };
+  }
+};
+
+export const updateMagazineService = async (
+  magData: Record<string, any>,
+  isCredits: boolean
+) => {
+  try {
+    if (isCredits) {
+      // 🔧 Handle credits-specific update
+      const [, subKey] = magData.field.split(": "); // e.g., 'Graphics'
+
+      // 1. Fetch current credits JSON
+      const existing = await prisma.magazine.findUnique({
+        where: { id: magData.id },
+        select: { credits: true },
+      });
+
+      console.log(`Existing item found ${existing}`);
+
+      if (
+        !existing ||
+        typeof existing.credits !== "object" ||
+        existing.credits === null
+      ) {
+        throw new Error("Credits not found or not valid JSON object");
+      }
+
+      // Ensure it's an object
+      const existingCredits = existing.credits as Record<string, any>;
+
+      // 2. Modify the subfield
+      const updatedCredits = {
+        ...existingCredits,
+        [subKey]: magData.value,
+      };
+
+      // 3. Save it back
+      const update = await prisma.magazine.update({
+        where: { id: magData.id },
+        data: {
+          credits: updatedCredits,
+        },
+      });
+
+      if (!update) {
+        return {
+          status: false,
+          error: 'Unable to update magazine'
+        }
+      }
+
+      return {
+        status: true,
+        data: update
+      };
+    } else {
+      let valueToUse = magData.value;
+
+      if (magData.field === "issueNumber") {
+        valueToUse = Number(magData.value);
+      } else if (magData.field === "publishDate") {
+        const date = new Date(magData.value);
+        if (!isNaN(date.getTime())) {
+          valueToUse = date;
+        } else {
+          throw new Error("Invalid date format for publishDate");
+        }
+      }
+
+      const update = await prisma.magazine.update({
+        where: { id: magData.id },
+        data: {
+          [magData.field]: valueToUse,
+        },
+      });
+
+      if (!update) {
+        return {
+          status: false,
+          error: "Unable to update magazine.",
+        };
+      }
+
+      return {
+        status: true,
+        data: update,
+      };
+    }
+  } catch (updateMagazineServiceError: any) {
+    console.error(
+      `Update magazine service error: ${updateMagazineServiceError}`
+    );
+    return {
+      status: false,
+      error: updateMagazineServiceError.message || "Unable to update magazine",
     };
   }
 };
