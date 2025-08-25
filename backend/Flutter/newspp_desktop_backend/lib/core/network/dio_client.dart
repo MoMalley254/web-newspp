@@ -9,20 +9,29 @@ class DioClient {
   static const String baseUrl = 'http://localhost:3000';
   static const String refreshUrl = '$baseUrl/admin/refresh';
 
+  int retryCount = 0;
+
   static final Dio _dio = Dio(
     BaseOptions(
       baseUrl: baseUrl,
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},
-      validateStatus: (status) => status != null && status < 600,
+      // Only treat 400 as errors, let 500 pass without throwing an error
+      validateStatus: (status) {
+        // Treat 400-499 as errors, but allow 500-599 for now
+        if (status != null) {
+          return (status >= 200 && status < 300) ||
+              (status >= 500 && status < 600);
+        }
+        return false; // All other status codes are considered invalid
+      },
     ),
   );
 
   static void init() {
-  DioClient(); // This will trigger the factory constructor
-}
-
+    DioClient(); // This will trigger the factory constructor
+  }
 
   static Dio get instance => _dio;
 
@@ -41,8 +50,6 @@ class DioClient {
           if (accessToken.isNotEmpty) {
             options.headers['authorization'] = 'Bearer $accessToken';
           }
-          print('➡️ Request: ${options.method} ${options.uri}');
-          print('Sending token: Bearer $accessToken');
           return handler.next(options);
         },
 
@@ -54,36 +61,58 @@ class DioClient {
         onError: (DioException error, handler) async {
           print('❌ Error: ${error.response?.statusCode} ${error.message}');
 
-          if (error.response?.statusCode == 401) {
-            // Attempt to refresh token
-            final refreshed = await _singleton._refreshToken();
+          // Check if we are getting a 403 error and retry count is less than 3
+          if (error.response?.statusCode == 403 && retryCount < 3) {
+            _singleton.toastService.showProcessingtoast(
+              'Authenticating please wait, attempt ${retryCount + 1}',
+              2,
+            );
+            print(
+              'Attempt ${retryCount + 1}: Trying to refresh the access token...',
+            );
 
-            if (refreshed) {
-              // Retry the original request with new token
-              final newAccessToken = await _singleton.getAToken();
+            // Increment retry count
+            retryCount++;
 
-              final requestOptions = error.requestOptions;
-              requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+            try {
+              // Attempt to refresh the token
+              final refreshed = await _singleton._refreshToken();
 
-              try {
+              if (refreshed) {
+                _singleton.toastService.showSuccesstoast('Authenticated');
+                // Retry the original request with the new access token
+                final newAccessToken = await _singleton.getAToken();
+
+                final requestOptions = error.requestOptions;
+                requestOptions.headers['Authorization'] =
+                    'Bearer $newAccessToken';
+
+                // Retry the request
                 final clonedResponse = await _dio.fetch(requestOptions);
                 return handler.resolve(clonedResponse);
-              } catch (retryError) {
-                print('Retry failed: $retryError');
-                return handler.reject(DioException(
-                  requestOptions: requestOptions,
+              } else {
+                // Token refresh failed, reject with error
+                _singleton.toastService.showErrortoast(
+                  'Re-authentication failed. Please log in again.',
+                );
+                return handler.reject(error); // Reject original error
+              }
+            } catch (retryError) {
+              print('Retry failed: $retryError');
+              //Clear saved tokens
+              await _singleton.tokenService.clearTokens();
+              return handler.reject(
+                DioException(
+                  requestOptions: error.requestOptions,
                   error: retryError,
                   type: DioExceptionType.badResponse,
-                ));
-              }
-            } else {
-              _singleton.toastService.showErrortoast('Session expired. Please log in again.');
-              // You can add redirect to login here if needed
-              return handler.reject(error);
+                ),
+              );
             }
+          } else {
+            // Reject if it's not a 403 or retry attempts exceed 3
+            return handler.reject(error);
           }
-
-          return handler.next(error);
         },
       ),
     );
@@ -124,12 +153,12 @@ class DioClient {
         data: {'refreshToken': rToken},
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final data = response.data;
-        final newAccessToken = data['accessToken'];
-        final newRefreshToken = data['refreshToken'];
+        final newAccessToken = data['newAToken'];
+        final refreshToken = data['rToken'];
 
-        await tokenService.saveTokens(newAccessToken, newRefreshToken);
+        await tokenService.saveTokens(newAccessToken, refreshToken);
         print('🔄 Token refreshed');
         return true;
       } else {

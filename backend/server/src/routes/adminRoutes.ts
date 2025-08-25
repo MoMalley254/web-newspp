@@ -7,6 +7,7 @@ import {
   createAdmin,
   loginAdmin,
   updateAdminPass,
+  refreshAccessToken
 } from '../controllers/admin/authController';
 
 import {
@@ -64,6 +65,7 @@ router.get('/', async (req, res) => {
 router.post('/create', authenticateAccessToken, createAdmin);
 router.post('/login', loginAdmin);
 router.post('/update', authenticateAccessToken, updateAdminPass);
+router.post('/refresh', refreshAccessToken);
 
 // 🔥 Magazine upload — handles ALL file logic in route layer
 router.post(

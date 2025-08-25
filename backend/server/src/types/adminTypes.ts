@@ -7,3 +7,9 @@ export interface AdminData {
 export interface JwtPayload {
   userId: string;
 }
+
+export interface RefreshTokenValidationResult {
+  valid: boolean;
+  userId?: string;
+  error?: any;
+}

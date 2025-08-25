@@ -3,7 +3,8 @@ import { AdminData } from "../../types/adminTypes";
 import { 
     createAdminService,
     loginService,
-    updateAdminPassword
+    updateAdminPassword,
+    refreshAccessTokenService
 } from "../../services/admin/authService";
 
 export const createAdmin = async(req: Request, res: Response) => {
@@ -74,5 +75,24 @@ export const updateAdminPass = async(req: Request, res: Response) => {
         console.error(`Error loging in ${updateAdminPassError}`);
         const status = updateAdminPassError.status || 500;
         return res.status(status).json({ error: updateAdminPassError.message || 'Server error'});
+    }
+}
+
+export const refreshAccessToken = async(req: Request, res: Response) => {
+    try {
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            return res.status(400).json({ error: 'Refresh token not found'});
+        }
+        
+        const refresh = await refreshAccessTokenService(refreshToken);
+        if (!refresh?.status) {
+            return res.status(500).json({ error: refresh?.error});
+        }
+
+        return res.status(201).json({ newAToken: refresh.newAToken, rToken: refreshToken});
+    } catch(refreshAccessTokenError: any) {
+        console.error(`Refresh access token error ${refreshAccessTokenError}`);
+        return res.status(500).json({ error: refreshAccessTokenError || 'Unable to refresh access token'});
     }
 }

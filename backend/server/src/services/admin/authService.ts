@@ -1,7 +1,7 @@
 import prisma from "../../config/prismaClient";
 import * as argon2 from "argon2";
-import { AdminData } from "../../types/adminTypes";
-import jwt from "jsonwebtoken";
+import { AdminData, RefreshTokenValidationResult } from "../../types/adminTypes";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 export const createAdminService = async (newAdminData: AdminData) => {
   try {
@@ -61,7 +61,7 @@ export const loginService = async (loginData: AdminData) => {
       };
     }
 
-    if (!loginData.password || typeof loginData.password !== 'string') {
+    if (!loginData.password || typeof loginData.password !== "string") {
       return {
         status: false,
         error: `Invalid password provided`,
@@ -120,49 +120,119 @@ function generateTokens(userId: string) {
   };
 }
 
-export const updateAdminPassword = async(email: string, oldPass: string, newPass: string) => {
+export const updateAdminPassword = async (
+  email: string,
+  oldPass: string,
+  newPass: string
+) => {
   try {
     const adminToUpdate = await prisma.admin.findFirst({
-      where: { email: email}
+      where: { email: email },
     });
 
-    if(!adminToUpdate) {
+    if (!adminToUpdate) {
       return {
         status: false,
-        error: `${email} does not exist`
-      }
+        error: `${email} does not exist`,
+      };
     }
 
-    const passwordMatch: boolean = await argon2.verify(adminToUpdate.password, oldPass);
-    if(!passwordMatch) {
+    const passwordMatch: boolean = await argon2.verify(
+      adminToUpdate.password,
+      oldPass
+    );
+    if (!passwordMatch) {
       console.log(`Password dont match`);
       return {
         status: false,
-        error: `Incorrect password`
-      }
+        error: `Incorrect password`,
+      };
     }
 
     const newHash = await argon2.hash(newPass);
     const update = await prisma.admin.update({
-      where: { email: email},
-      data: { password: newHash}
+      where: { email: email },
+      data: { password: newHash },
     });
 
-    if(!update) {
+    if (!update) {
       return {
         status: false,
-        error: 'Unable to update'
-      }
+        error: "Unable to update",
+      };
     } else {
       return {
         status: true,
-      }
+      };
     }
   } catch (updateAdminPasswordError: any) {
-    console.error(`Update admin password error: ${updateAdminPasswordError.message}`)
+    console.error(
+      `Update admin password error: ${updateAdminPasswordError.message}`
+    );
     return {
       status: false,
-      error: updateAdminPasswordError
+      error: updateAdminPasswordError,
+    };
+  }
+};
+
+export const refreshAccessTokenService = async (rToken: string) => {
+  try {
+    if (!process.env.REFRESH_SECRET || !process.env.JWT_SECRET) {
+      throw new Error("Missing required environment variables.");
     }
+
+    const validationResult = await validateRefreshToken(rToken);
+
+    if (!validationResult.valid || !validationResult.userId) {
+      return {
+        status: false,
+        error: 'Session expired, unable to refresh',
+      };
+    }
+
+    const accessToken = jwt.sign(
+      { userId: validationResult.userId },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    return {
+      status: true,
+      newAToken: accessToken,
+      // newAToken: '',
+    };
+
+  } catch (err: any) {
+    console.error(`Refresh access token service error:`, err);
+
+    return {
+      status: false,
+      error: 'Failed to refresh access token.',
+    };
+  }
+};
+
+
+async function validateRefreshToken(rToken: string): Promise<RefreshTokenValidationResult> {
+  try {
+    const decoded = jwt.verify(rToken, process.env.REFRESH_SECRET!) as JwtPayload;
+
+    if (!decoded.userId) {
+      return { valid: false };
+    }
+
+    console.log(`Payload: ${JSON.stringify(decoded)}`);
+
+    return {
+      valid: true,
+      userId: decoded.userId,
+    };
+  } catch (err: any) {
+    console.error('Refresh token validation error:', err);
+    return {
+      valid: false,
+      error: err,
+    };
   }
 }
