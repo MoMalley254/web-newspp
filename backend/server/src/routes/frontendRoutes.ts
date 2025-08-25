@@ -1,10 +1,10 @@
 import express from 'express';
+import {
+    renderIndexPage
+} from '../controllers/front/frontMagController';
 
 const router = express.Router();
 
-router.get('/', async(req, res) => {
-    console.log('Hit at front index');
-    res.redirect('/front');
-});
+router.get('/', renderIndexPage);
 
 export default router;
