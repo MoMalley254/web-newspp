@@ -9,6 +9,9 @@
       rel="stylesheet"
     />
 
+    <!-- Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="front/public/assets/styles/styles.css" />
     <title>E-Newspp</title>
   </head>
@@ -19,7 +22,7 @@
         Found <span class="article-count">0</span> articles
       </p>
     </div>
-        <div id="thumbnailsSideView" class="hideThumbNails"></div>
+    <div id="thumbnailsSideView" class="hideThumbNails"></div>
     <div class="content-body no-content">
       <div class="blackOverlay"></div>
       <section class="top">
@@ -96,7 +99,6 @@
             </h2>
           </div>
           <div id="contentContainer">
-            
             <!-- <div id="flipbook">
             </div>  -->
           </div>
@@ -104,34 +106,36 @@
       </section>
 
       <section class="bottom">
-          
         <!-- controls bottom -->
         <div class="controls-bottom">
+          <button class="btn-skip-backward" aria-label="Skip Page Backward">
+            <i class="material-icons">skip_previous</i>
+          </button>
 
-            <button class="btn-skip-backward" aria-label="Skip Page Backward">
-              <i class="material-icons">skip_previous</i>
-            </button>
+          <button class="btn-prev-page" aria-label="Previous Page">
+            <i class="material-icons">navigate_before</i>
+          </button>
 
-            <button class="btn-prev-page" aria-label="Previous Page">
-              <i class="material-icons">navigate_before</i>
-            </button>
+          <div class="page-counts">
+            <h4 class="page">
+              <span id="current-page">0</span> of
+              <span id="total-pages">0</span> pages
+            </h4>
+          </div>
 
-            <div class="page-counts">
-              <h4 class="page">
-                 <span id="current-page">0</span> of <span id="total-pages">0</span> pages
-              </h4>
-            </div>
+          <button class="btn-next-page" aria-label="Next Page">
+            <i class="material-icons">navigate_next</i>
+          </button>
 
-            <button class="btn-next-page" aria-label="Next Page">
-              <i class="material-icons">navigate_next</i>
-            </button>
-
-            <button class="btn-skip-forward" aria-label="Skip Page Forward">
-              <i class="material-icons">skip_next</i>
-            </button>
+          <button class="btn-skip-forward" aria-label="Skip Page Forward">
+            <i class="material-icons">skip_next</i>
+          </button>
         </div>
       </section>
     </div>
+
+    <!-- Bootstrap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 
     <!-- jQuery (Required by Turn.js) -->
     <script
@@ -148,7 +152,6 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     ></script>
-
 
     <script src="front/public/assets/scripts/load.js"></script>
     <!-- <script src="front/public/assets/scripts/flip.js"></script> -->
