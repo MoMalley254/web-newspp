@@ -21,7 +21,7 @@ app.get('/', async (req: Request, res: Response) => {
 app.use('/front', frontendRoutes);
 app.use('/admin', adminRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {
     console.log(`App running @ http://localhost:${PORT}`);
 });

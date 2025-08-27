@@ -6,7 +6,7 @@ class DioClient {
   final tokenService = TokenStorage();
   final toastService = ToastService();
 
-  static const String baseUrl = 'http://localhost:3000';
+  static const String baseUrl = 'http://localhost:3005';
   static const String refreshUrl = '$baseUrl/admin/refresh';
 
   int retryCount = 0;
@@ -59,7 +59,11 @@ class DioClient {
         },
 
         onError: (DioException error, handler) async {
-          print('❌ Error: ${error.response?.statusCode} ${error.message}');
+          print('❌ Error: ${error.response?.statusCode} → ${error.requestOptions?.uri} ${error.message}');
+
+          if (error.response?.statusCode == 404) {
+            print('404 not found ${error.requestOptions}');
+          }
 
           // Check if we are getting a 403 error and retry count is less than 3
           if (error.response?.statusCode == 403 && retryCount < 3) {

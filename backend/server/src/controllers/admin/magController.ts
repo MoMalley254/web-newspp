@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import {
   getAllMagsService,
   createMagService,
   findSingleMagService,
   updateMagazineService,
 } from "../../services/admin/magService";
+import path from "path";
 
 export const getAllMags = async (req: Request, res: Response) => {
   try {
@@ -25,24 +26,40 @@ export const getAllMags = async (req: Request, res: Response) => {
   }
 };
 
-export const createNewMag = async (req: Request, res: Response) => {
+export const createNewMag = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { title, author, issue, date, tags, desc, adminId, credits } =
       req.body;
+
     const files = req.files as {
       [fieldname: string]: Express.Multer.File[];
     };
 
-    const htmlFile = files?.html?.[0];
     const coverFile = files?.cover?.[0];
 
-    if (!htmlFile) {
-      return res.status(400).json({ error: "HTML file is required" });
+    // ✅ Directory path from multer setup
+    const uploadFolder = (req as any).uploadFolder;
+    const pagesDir = path.join(uploadFolder, "pages");
+
+    if (!pagesDir) {
+      return res.status(500).json({ error: "Upload directory missing" });
     }
 
-    console.log("✅ HTML file path:", htmlFile.path);
+    console.log("✅ Upload directory:", pagesDir);
     console.log("✅ Cover file path:", coverFile?.path ?? "None uploaded");
+
     let hasImage = false;
+
+    // ✅ Construct paths
+    const relativeUploadPath =
+      "\\public\\" +
+      pagesDir.split("public\\").slice(1).join("public");
+
+      console.log(`Relative path ${relativeUploadPath}`);
 
     const newMagData = {
       title: title,
@@ -54,16 +71,14 @@ export const createNewMag = async (req: Request, res: Response) => {
       publisher: "Business Unusual",
       adminId: adminId,
       credits: credits,
-      htmlPath:
-        "\\public\\" +
-        htmlFile.path.split("\\public\\").slice(1).join("\\public\\"),
+      htmlPath: relativeUploadPath, // ✅ Save directory path, not HTML
       coverImage: "",
     };
 
     if (coverFile) {
       newMagData.coverImage =
         "\\public\\" +
-        coverFile.path.split("\\public\\").slice(1).join("\\public\\");
+        coverFile.path.split("public\\").slice(1).join("public");
       hasImage = true;
     }
 
@@ -80,6 +95,7 @@ export const createNewMag = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to upload magazine" });
   }
 };
+
 
 export const findMagazine = async (req: Request, res: Response) => {
   try {

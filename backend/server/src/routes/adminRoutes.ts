@@ -31,17 +31,37 @@ function generateFolderName(): string {
   return formatted;
 }
 
+// 🕒 Generate folder name: "DD-MM-YYYY"
+function generateDateFolder(): string {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
+// 🕒 Generate subfolder: "HH-MM-SS"
+function generateTimeFolder(): string {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+  return `${hours}-${minutes}-${seconds}`;
+}
+
 // ✅ Dynamic Multer storage config
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const folderName = generateFolderName();
+    const dateFolder = generateDateFolder();    // e.g. "27-08-2025"
+    const timeFolder = generateTimeFolder();    // e.g. "14-32-09"
     const folderPath = path.join(
       __dirname,
       "..",
       "..",
       "public",
       "magazines",
-      folderName
+      dateFolder,
+      timeFolder
     );
 
     // Create folder if it doesn't exist
@@ -52,10 +72,19 @@ const storage = multer.diskStorage({
     // Attach folder path to req so controller can find uploaded file if needed
     (req as any).uploadFolder = folderPath;
 
-    cb(null, folderPath);
+    const targetFolder =
+      file.fieldname === "images"
+        ? path.join(folderPath, "pages")
+        : folderPath;
+
+    if (!fs.existsSync(targetFolder)) {
+      fs.mkdirSync(targetFolder, { recursive: true });
+    }
+
+    cb(null, targetFolder);
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname + file.originalname);
+    cb(null, file.originalname);
   },
 });
 
@@ -76,14 +105,30 @@ router.post("/update", authenticateAccessToken, updateAdminPass);
 router.post("/refresh", refreshAccessToken);
 
 // 🔥 Magazine upload — handles ALL file logic in route layer
+// router.get('/mag/new', async(req, res) => {
+//   console.log('Hit at get');
+// })
 router.post(
   "/mag/new",
   authenticateAccessToken,
   upload.fields([
-    { name: "html", maxCount: 1 },
-    { name: "cover", maxCount: 1 },
+    // { name: "html", maxCount: 1 },    // ignored
+    { name: "cover", maxCount: 1 },   // saved via multer
+    { name: "images", maxCount: 100 }, // the extracted images from Flutter
   ]),
-  createNewMag // Only reads req.files, not involved in file saving
+  async (req, res, next) => {
+    try {
+      // You can log them if needed
+      const images = (req.files as any)?.images || [];
+      console.log(`📄 Uploaded ${images.length} page images.`);
+
+      // ✅ Hand off to controller
+      await createNewMag(req, res, next);
+    } catch (err) {
+      console.error("Error processing magazine pages:", err);
+      res.status(500).json({ error: "Failed to upload magazine" });
+    }
+  }
 );
 
 router.get("/mag/All", authenticateAccessToken, getAllMags);

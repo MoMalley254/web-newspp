@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart';
-import 'package:html/parser.dart' as html_parser;
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -16,7 +16,6 @@ class Pdf2HtmlConverter {
   /// Prepares the executable and required data folder.
   /// Returns true if successfully prepared.
   Future<Map<String, dynamic>> prepareExecutable() async {
-    toastHelper.showProcessingtoast('Preparing Magazine Converter', 3);
     try {
       final supportDir = await getApplicationSupportDirectory();
       final toolDir = Directory(p.join(supportDir.path, 'pdf2htmlEX'));
@@ -108,7 +107,22 @@ class Pdf2HtmlConverter {
       final exePath = p.join(toolDir['toolDir'], 'pdf2htmlEX.exe');
       final dataDir = p.join(toolDir['toolDir'], 'data');
 
-      final args = ['--dest-dir', toolPath, '--data-dir', dataDir, pdfPath];
+      final pagesDir = p.join(toolDir['toolDir'], 'pages');
+      final outputDirExists = await Directory(pagesDir).exists();
+      if (!outputDirExists) {
+        await Directory(pagesDir).create(recursive: true);
+        print('📁 Created output directory: $pagesDir');
+      } else {
+        print('📁 Output directory already exists: $pagesDir');
+      }
+
+      // final args = ['--dest-dir', toolPath, '--data-dir', dataDir, pdfPath];
+      final args = [
+        '--split-pages', '1', // ✅ This is the key flag
+        '--dest-dir', pagesDir, // where to output the files
+        '--data-dir', dataDir, // required data folder
+        pdfPath, // input PDF file
+      ];
 
       toastHelper.showProcessingtoast(
         'Converting magazine, do not close this window',
@@ -118,31 +132,126 @@ class Pdf2HtmlConverter {
 
       process.stdout.transform(SystemEncoding().decoder).listen((line) {
         print('[stdout] $line');
+
+        if (line.contains('Preprocessing')) {
+          toastHelper.showProcessingtoast('Loading PDF pages...', 3);
+        } else if (line.contains('Working')) {
+          final match = RegExp(r'Working:  (\d+)').firstMatch(line);
+          if (match != null) {
+            toastHelper.showProcessingtoast(
+              'Processing page ${match.group(1)}',
+              3,
+            );
+          }
+        }
       });
 
       process.stderr.transform(SystemEncoding().decoder).listen((line) {
         print('[stderr] $line');
+        toastHelper.showWarningtoast('PDF warning: $line');
       });
 
       final exitCode = await process.exitCode;
       print('✅ Conversion complete. Exit code: $exitCode');
 
-      String htmlPath = p.join(toolPath, pdfName.replaceAll('.pdf', '.html'));
-      print('HTML file path $htmlPath');
-      final cleanPath = r'$htmlPath';
-      print(' ');
-      print('Clean HTML file path $cleanPath');
-      toastHelper.showSuccesstoast('Conversion completed');
-      toastHelper.showClickableSuccesstoast(
-        'Conversion completed click to open converted file',
-        10,
-        () => openConvertedHtml(htmlPath),
-      );
-      return {'status': true, 'htmlPath': htmlPath};
+      // String htmlPath = p.join(toolPath, pdfName.replaceAll('.pdf', '.html'));
+      // print('HTML file path $htmlPath');
+      // final cleanPath = r'$htmlPath';
+      // print(' ');
+      // print('Clean HTML file path $cleanPath');
+      toastHelper.showSuccesstoast('Conversion completed, please wait');
+
+      Map<String, dynamic> getImages = await getImagesFromFiles(pagesDir);
+      if (!getImages['status']) {
+        return {'status': false, 'error': getImages['error']};
+      }
+
+      // return {'status': true, 'htmlPath': htmlPath};
+      return {
+        'status': true,
+        'outputDir': pagesDir,
+        'images': getImages['images'],
+      };
     } catch (error) {
       print('Error converting $error');
       toastHelper.showErrortoast('Conversion error $error');
       return {'status': false, 'error': error};
+    }
+  }
+
+  Future<Map<String, dynamic>> getImagesFromFiles(String pagesDir) async {
+    toastHelper.showProcessingtoast('Extracting data please wait...', 5);
+    try {
+      final dir = Directory(pagesDir);
+
+      if (!await dir.exists()) {
+        throw Exception('Directory does not exist: $pagesDir');
+      }
+
+      final allFiles = dir.listSync();
+      final pageFiles =
+          allFiles
+              .where(
+                (f) =>
+                    f is File && p.extension(f.path).toLowerCase() == '.page',
+              )
+              .toList();
+
+      print('📄 Total files found: ${allFiles.length}');
+      print('📄 .page files found: ${pageFiles.length}');
+
+      List<Map<String, dynamic>> images = [];
+
+      for (final file in pageFiles) {
+        final filePath = file.path;
+        print('🔍 Processing file: $filePath');
+
+        final fileName = p.basenameWithoutExtension(filePath);
+        final match = RegExp(r'(\d+)$').firstMatch(fileName);
+        if (match == null) {
+          print('⚠️ Skipping: Cannot extract page number from $fileName');
+          continue;
+        }
+
+        final pageNumber = int.parse(match.group(1)!);
+
+        final content = await File(filePath).readAsString();
+        final document = parse(content);
+        final imgTags = document.getElementsByTagName('img');
+
+        if (imgTags.isEmpty) {
+          print('⚠️ No <img> tags found in $filePath');
+          continue;
+        }
+
+        final img = imgTags.first;
+        final src = img.attributes['src'];
+
+        if (src == null || !src.startsWith('data:image/')) {
+          print('⚠️ No valid base64 image found in $filePath');
+          continue;
+        }
+
+        try {
+          final base64Str = src.split(',')[1];
+          final imageBytes = base64.decode(base64Str);
+
+          images.add({'page': pageNumber, 'bytes': imageBytes});
+
+          print('🖼️ Extracted image for page $pageNumber');
+        } catch (err) {
+          print('❌ Failed to decode image in $filePath: $err');
+        }
+      }
+
+      return {
+        'status': true,
+        'images': images, // List of { page, bytes }
+      };
+    } catch (getImagesFromFilesError) {
+      print('❌ Get images from files error: $getImagesFromFilesError');
+      toastHelper.showErrortoast(getImagesFromFilesError.toString());
+      return {'status': false, 'error': getImagesFromFilesError.toString()};
     }
   }
 

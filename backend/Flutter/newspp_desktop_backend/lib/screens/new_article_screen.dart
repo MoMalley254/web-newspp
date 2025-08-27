@@ -28,6 +28,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
 
   Map<String, dynamic>? submittedFormData;
   String processedHtmlPath = '';
+  List<dynamic>? pages;
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +81,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
       padding: const EdgeInsets.all(20),
       child: NewArticleForm(
         onFormValid: (formData) {
+          print('Form data got ${formData}');
           setState(() {
             isProcessing = true;
             submittedFormData = formData;
@@ -106,10 +108,14 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
       return;
     }
 
+    print('Result from convert ${prepareExe['images'].length}');
+
     setState(() {
-      processedHtmlPath = prepareExe['htmlPath'];
+      // processedHtmlPath = prepareExe['htmlPath'];
+      processedHtmlPath = prepareExe['outputDir'];
       isProcessing = false;
       formDataConfirmed = true;
+      pages = prepareExe['images'];
     });
   }
 
@@ -119,108 +125,114 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
       padding: const EdgeInsets.all(20),
       child: SingleChildScrollView(
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '✅ Confirm Magazine Details',
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                Text('Title: ${data['title']}'),
-          Text('Author: ${data['author']}'),
-          Text('Issue: ${data['issue']}'),
-          Text('Date: ${data['date']}'),
-          Text('Tags: ${data['tags']}'),
-          const SizedBox(height: 16),
-          Text('Credits:', style: TextStyle(fontWeight: FontWeight.bold)),
-
-          SizedBox(
-            height: 150,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    (data['credits'] as Map<String, dynamic>).entries
-                        .map<Widget>((entry) {
-                          final role = entry.key;
-                          final names = (entry.value as List).join(', ');
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 6.0),
-                            child: Text('$role: $names'),
-                          );
-                        })
-                        .toList(),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '✅ Confirm Magazine Details',
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text('Title: ${data['title']}'),
+                  Text('Author: ${data['author']}'),
+                  Text('Issue: ${data['issue']}'),
+                  Text('Date: ${data['date']}'),
+                  Text('Tags: ${data['tags']}'),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Credits:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
 
-          SizedBox(
-            height: 200, // set the height you want for the scroll box
-            child: SingleChildScrollView(
-              child: Text('Description: ${data['desc']}'),
-            ),
-          ),
+                  SizedBox(
+                    height: 150,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            (data['credits'] as Map<String, dynamic>).entries
+                                .map<Widget>((entry) {
+                                  final role = entry.key;
+                                  final names = (entry.value as List).join(
+                                    ', ',
+                                  );
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 6.0),
+                                    child: Text('$role: $names'),
+                                  );
+                                })
+                                .toList(),
+                      ),
+                    ),
+                  ),
 
-          const SizedBox(height: 16),
-          Text('PDF: ${data['pdf'].name}'),
-          if (data['cover'] != null) Text('Cover Image: ${data['cover'].name}'),
-              ],
-            )
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.open_in_browser),
-            label: const Text("Open Generated HTML"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[700],
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () async {
-              await convertHelper.openConvertedHtml(processedHtmlPath);
-            },
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.refresh),
-            label: const Text("Re-enter data"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.grey[600],
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              setState(() {
-                isProcessing = false;
-                formDataConfirmed = false;
-                submittedFormData = null;
-                processedHtmlPath = '';
-              });
-            },
-          ),
+                  SizedBox(
+                    height: 200, // set the height you want for the scroll box
+                    child: SingleChildScrollView(
+                      child: Text('Description: ${data['desc']}'),
+                    ),
+                  ),
 
-          const SizedBox(height: 12),
-          ElevatedButton.icon(
-            icon: const Icon(Icons.upload),
-            label: const Text("Confirm & Upload"),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
+                  const SizedBox(height: 16),
+                  Text('PDF: ${data['pdf'].name}'),
+                  if (data['cover'] != null)
+                    Text('Cover Image: ${data['cover'].name}'),
+                ],
+              ),
             ),
-            onPressed: () {
-              setState(() {
-                isProcessing = true;
-              });
-              sendToServer(data);
-            },
-          ),
-        ],
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.open_in_browser),
+              label: const Text("Open Generated HTML"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue[700],
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                await convertHelper.openConvertedHtml(processedHtmlPath);
+              },
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: const Text("Re-enter data"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[600],
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  isProcessing = false;
+                  formDataConfirmed = false;
+                  submittedFormData = null;
+                  processedHtmlPath = '';
+                });
+              },
+            ),
+
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.upload),
+              label: const Text("Confirm & Upload"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                setState(() {
+                  isProcessing = true;
+                });
+                sendToServer(data);
+              },
+            ),
+          ],
+        ),
       ),
-      )
     );
   }
 
@@ -229,6 +241,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
     bool hasSentToServer = await magsHelper.createMagazine(
       magazineData,
       processedHtmlPath,
+      pages!
     );
     if (hasSentToServer) {
       widget.navigateTo('Dashboard');

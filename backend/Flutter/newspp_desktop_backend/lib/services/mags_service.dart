@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -49,24 +50,56 @@ class MagsService {
   Future<bool> createMagazine(
     Map<String, dynamic> formData,
     String htmlPath,
+    List<dynamic> pageImages
   ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       String adminId = prefs.getString('adminId') ?? '';
-      final htmlFile = File(htmlPath);
-      if (!htmlFile.existsSync()) {
-        print('❌ HTML file not found at $htmlPath');
-        toastHelper.showErrortoast('HTML file not found.');
-        return false;
+      // final htmlFile = File(htmlPath);
+      // if (!htmlFile.existsSync()) {
+      //   print('❌ HTML file not found at $htmlPath');
+      //   toastHelper.showErrortoast('HTML file not found.');
+      //   return false;
+      // }
+
+      // final fileName = p.basename(htmlPath);
+
+      void printMapKeys(Map map) {
+        for (var key in map.keys) {
+          print('Form data key $key');
+        }
       }
 
-      final fileName = p.basename(htmlPath);
+      printMapKeys(formData);
 
       final Map<String, dynamic> mapData = {
         ...formData,
-        'html': await MultipartFile.fromFile(htmlPath, filename: fileName),
+        // 'html': await MultipartFile.fromFile(htmlPath, filename: fileName),
         'adminId': adminId,
       };
+
+      if (pageImages.isNotEmpty) {
+        print('📦 Preparing ${pageImages.length} images for upload...');
+
+        final List<MultipartFile> imageFiles = [];
+
+        for (final img in pageImages) {
+          final page = img['page'];
+          final bytes = img['bytes'] as Uint8List;
+          final fileName = '$page.jpg'; // or .png
+
+          final multipartFile = MultipartFile.fromBytes(
+            bytes,
+            filename: fileName,
+          );
+
+          imageFiles.add(multipartFile);
+          print('📎 Attached page $page as $fileName');
+        }
+
+        // ✅ Attach all images under one key
+        mapData['images'] = imageFiles;
+      }
 
       final coverFile = formData['cover'] as PlatformFile?;
       if (coverFile != null && coverFile.path != null) {
@@ -87,7 +120,7 @@ class MagsService {
 
         // ✅ Delete the HTML file after successful upload
         try {
-          htmlFile.deleteSync();
+          // htmlFile.deleteSync();
           print('🗑️ Deleted local HTML file at $htmlPath');
         } catch (e) {
           print('⚠️ Failed to delete HTML file: $e');
@@ -116,7 +149,8 @@ class MagsService {
         print('Mag found $magazine');
         magazine['cover'] =
             '$baseHost$baseMagUrl/public/${magazine['coverImage']}';
-        magazine['html'] = '$baseHost$baseMagUrl/public/${magazine['htmlPath']}';
+        magazine['html'] =
+            '$baseHost$baseMagUrl/public/${magazine['htmlPath']}';
         return {'status': true, 'magazine': magazine};
       } else {
         final error = response.data['error'];
@@ -130,7 +164,11 @@ class MagsService {
     }
   }
 
-  Future<bool> processMagazine(PlatformFile? newPdf, String id, String name) async {
+  Future<bool> processMagazine(
+    PlatformFile? newPdf,
+    String id,
+    String name,
+  ) async {
     if (newPdf == null || newPdf.path == null) {
       toastHelper.showErrortoast('No PDF file provided.');
       return false;
@@ -154,10 +192,7 @@ class MagsService {
       'value': convert['htmlPath'],
     };
 
-    bool uploadToServer = await updateMagazine(
-      mapToUpdate,
-      true,
-    );
+    bool uploadToServer = await updateMagazine(mapToUpdate, true);
 
     // bool uploadToServer = await uploadUpdatedFileToServer({
     //   'name': 'Mag name',
