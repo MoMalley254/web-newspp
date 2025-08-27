@@ -22,3 +22,29 @@ export const fetchMagazinesService = async() => {
         }
     }
 }
+
+export const fetchSingleMagazineService = async(magId: string) => {
+    try {
+        const mag = await prisma.magazine.findUnique({
+              where: { id: magId },
+            });
+        
+            if (!mag) {
+              return {
+                status: false,
+                error: "Magazine does not exist",
+              };
+            }
+        
+            return {
+              status: true,
+              magData: mag,
+            };
+    } catch (fetchSingleMagazineServiceError: any) {
+        console.error(`Fetch single magazine error ${fetchSingleMagazineServiceError}`);
+        return {
+            status: false,
+            error: fetchSingleMagazineServiceError.message
+        }
+    }
+}

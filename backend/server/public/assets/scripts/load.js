@@ -18,7 +18,7 @@ const magazineTitle = document.getElementById("magazineTitle");
 
 let dotCount = 0;
 let foundArticles = 0;
-const baseUrl = window.location;
+const baseUrl = `${window.location.origin}/front`;
 
 const isMobile = detectDeviceType();
 
@@ -102,24 +102,29 @@ function createArticleThumbnail(mag) {
   thumb.textContent = actualArticleName;
 
   // If there's a cover image, set it as background with a white overlay
-  if (mag['coverImage'] && mag['coverImage'] !== '') {
-    const imageUrl = `${baseUrl}${mag['coverImage'].replace(/\\/g, '/').replace(/\/+/g, '/')}`;
-
-    console.log(`Image ${imageUrl}`);
+  if (mag["coverImage"] && mag["coverImage"] !== "") {
+    const imageUrl = `${baseUrl}${mag["coverImage"]
+      .replace(/\\/g, "/")
+      .replace(/\/+/g, "/")}`;
     thumb.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url(${imageUrl})`;
     thumb.style.backgroundSize = "cover";
     thumb.style.backgroundPosition = "center";
     thumb.style.color = "#000"; // Optional: make text readable on light overlay
   }
 
+  const htmlUrl = `${baseUrl}${mag["htmlPath"]
+  .replace(/\\/g, "/")
+  .replace(/\/+/g, "/")}`;
+
   thumb.addEventListener("click", () => {
-    showArticleContent(mag, actualArticleName);
+    // showArticleContent(mag, actualArticleName);
+    const articleId = mag['id'];
+    window.location.href = `/front/view?article=${encodeURIComponent(articleId)}`;
     thumbnailsContainer.style.display = "none";
   });
 
   return thumb;
 }
-
 
 async function fetchMagazinesFromServer() {
   try {
@@ -177,82 +182,178 @@ async function fetchMagazinesFromServer() {
 //   );
 // }
 
-function showArticleContent(articleHTML, actualArticleName) {
-  showThumbnails();
-  const loadingArticleContent = document.querySelector(
-    ".loading-article-content"
-  );
-  loadingArticleContent.style.display = "block";
-  loadingArticleContent.querySelector(".article-name").textContent =
-    actualArticleName;
+// async function showArticleContent(magObject, actualArticleName) {
+//   // Show thumbnails section and loader
+//   showThumbnails();
+//   const loadingArticleContent = document.querySelector(".loading-article-content");
+//   const articleNameEl = loadingArticleContent.querySelector(".article-name");
 
-  const articleContainer = document.createElement("div");
-  articleContainer.id = "flipbook";
+//   loadingArticleContent.style.display = "block";
+//   articleNameEl.textContent = actualArticleName;
+
+//   const articleContainer = document.createElement("div");
+//   articleContainer.id = "flipbook";
+
+//   try {
+//     removeOldScript(); // remove any previously loaded flip.js or similar
+
+//     const htmlPath = `front${magObject["htmlPath"].replaceAll('\\', '/')}`;
+//     const getHtml = await fetchHtml(htmlPath);
+
+//     if (!getHtml.status) {
+//       throw new Error(`Failed to fetch HTML for ${actualArticleName}`);
+//     }
+
+//   } catch (error) {
+//     console.error(error);
+//     articleContainer.innerHTML = `<p>Unable to extract ${actualArticleName} content.</p>`;
+//   } finally {
+//     // Hide loading UI
+//     articleNameEl.textContent = "";
+//     loadingArticleContent.style.display = "none";
+
+//     // Replace existing flipbook if present
+//     const oldFlipbook = contentContainer.querySelector("#flipbook");
+//     if (oldFlipbook) oldFlipbook.remove();
+
+//     contentContainer.appendChild(articleContainer);
+//     thumbnailsSideView.style.display = "flex";
+//     magazineTitle.textContent = actualArticleName;
+//     pagesCount.style.display = "block";
+
+//     // Load flip.js
+//     loadFlipScript().then(() => {
+//       console.log("✅ flip.js loaded");
+//     });
+//   }
+// }
+
+async function showArticleContent(magObject, actualArticleName) {
+  showThumbnails();
+  const loadingArticleContent = document.querySelector(".loading-article-content");
+  const articleNameEl = loadingArticleContent.querySelector(".article-name");
+
+  loadingArticleContent.style.display = "block";
+  articleNameEl.textContent = actualArticleName;
 
   try {
-    removeOldScript();
+    const htmlPath = `front${magObject["htmlPath"].replaceAll("\\", "/")}`;
+    const flipbookContainer = await loadAndExtractPages(htmlPath);
 
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(articleHTML, "text/html");
-    const pageContent = doc.body;
+    // Remove old flipbook if present
+    const oldFlipbook = contentContainer.querySelector("#flipbook");
+    if (oldFlipbook) oldFlipbook.remove();
 
-    if (pageContent) {
-      // Insert content asynchronously to let browser update the UI (show loader)
-      setTimeout(() => {
-        const pagesContainer = pageContent.querySelector("#page-container");
-        if (!pagesContainer) {
-          throw new error("No Pages found in the article");
-        }
+    contentContainer.appendChild(flipbookContainer);
 
-        const articlePages = pagesContainer.querySelectorAll('div[id^="pf"]');
-        console.log(`Images found ${articlePages.length}`);
-        if (articlePages < 1) {
-          throw new error("No Pages found in the article");
-        }
+    // Initialize Turn.js here
+    // $('#flipbook').turn({
+    //   width: 800,
+    //   height: 600,
+    //   autoCenter: true,
+    //   // ... your other Turn.js options
+    // });
 
-        articlePages.forEach((page) => {
-          const newPage = document.createElement("div");
-          // newPage.classList.add('article-page');
-
-          const newPageImg = document.createElement("img");
-          // newPageImg.classList.add('article-page-img');
-          newPageImg.src = page.querySelector("img").src;
-          newPage.appendChild(newPageImg);
-
-          articleContainer.appendChild(newPage);
-        });
-
-        // articleContainer.innerHTML = pageContent.innerHTML;
-
-        // Hide loader after content inserted
-        loadingArticleContent.querySelector(".article-name").textContent = "";
-        loadingArticleContent.style.display = "none";
-      }, 0);
-    } else {
-      articleContainer.innerHTML = `<p>Unable to extract ${actualArticleName} content.</p>`;
-      loadingArticleContent.querySelector(".article-name").textContent = "";
-      loadingArticleContent.style.display = "none";
-    }
   } catch (error) {
-    articleContainer.innerHTML = `<p>Unable to extract ${actualArticleName} content.</p>`;
-    loadingArticleContent.querySelector(".article-name").textContent = "";
-    loadingArticleContent.style.display = "none";
+    console.error(error);
+    contentContainer.innerHTML = `<p>Unable to load ${actualArticleName}</p>`;
   } finally {
-    if (contentContainer.querySelector("#flipbook")) {
-      contentContainer.querySelector("#flipbook").remove();
-    }
-
-    contentContainer.appendChild(articleContainer);
-    thumbnailsSideView.style.display = "flex";
-    magazineTitle.textContent = actualArticleName;
-    pagesCount.style.display = "block";
-
-    //Load flip.js
-    loadFlipScript().then(() => {
-      console.log("✅ flip.js loaded");
-    });
+    articleNameEl.textContent = "";
+    loadingArticleContent.style.display = "none";
   }
 }
+
+
+function loadAndExtractPages(htmlUrl) {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed'; // or hidden however you want
+    iframe.style.left = '-9999px'; // hide offscreen
+    iframe.style.width = '80vw';  
+    iframe.style.height = '75vh';
+    iframe.src = htmlUrl;
+
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      try {
+        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+        // Extract styles from iframe head
+        const styles = iframeDoc.querySelectorAll('style');
+        styles.forEach(style => {
+          document.head.appendChild(style.cloneNode(true));
+        });
+
+        // Extract page divs
+        const pages = iframeDoc.querySelectorAll('div[id^="pf"]'); // adjust selector if needed
+
+        if (pages.length === 0) {
+          reject('No pages found in iframe document');
+          return;
+        }
+
+        console.log(`Pages found ${pages.length}`);
+
+        // Create container for pages in main document
+        const container = document.createElement('div');
+        container.id = 'toFlip';
+
+        pages.forEach(pageDiv => {
+          const page = document.createElement('div');
+          page.classList.add('page');
+          page.innerHTML = pageDiv.innerHTML;
+          container.appendChild(page);
+        });
+
+        // Clean up iframe after extraction
+        iframe.remove();
+
+        resolve(container);
+
+      } catch (error) {
+        iframe.remove();
+        reject(error);
+      }
+    };
+
+    iframe.onerror = (err) => {
+      iframe.remove();
+      reject('Failed to load iframe: ' + err);
+    };
+  });
+}
+
+
+
+async function fetchHtml(htmlUrl) {
+  console.log(`Page URL: ${htmlUrl}`);
+  try {
+    const response = await fetch(htmlUrl, {
+      headers: {
+        'Accept': 'text/html'
+      }
+    });
+
+    if (response.ok) {
+      const htmlContent = await response.text();  
+
+      return {
+        status: true,
+        file: htmlContent,  
+      };
+    } else {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+  } catch (error) {
+    console.error(`❌ Error fetching HTML: ${htmlUrl}`, error);
+    return {
+      status: false,
+      error: error,
+    };
+  }
+}
+
 
 function removeOldScript() {
   return new Promise((resolve, reject) => {
@@ -267,7 +368,7 @@ function removeOldScript() {
 function loadFlipScript() {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = "./scripts/flip.js";
+    script.src = "/front/public/assets/scripts/flip.js";
     script.id = "flipJsFile";
     script.onload = () => {
       console.log("✅ flip.js loaded");

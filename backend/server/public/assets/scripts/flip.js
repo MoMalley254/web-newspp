@@ -3,7 +3,8 @@ function initTurnjs() {
 
   console.log("📄 Window loaded, initializing flipbook...");
 
-  const $flipbook = $("#flipbook");
+  // const $flipbook = $("#flipbook");
+  const $flipbook = $("#page-container");
 
   // Clean up previous instance
   if ($flipbook.data("turn")) {
