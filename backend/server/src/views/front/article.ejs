@@ -60,10 +60,13 @@
           <button id="btn-hide-controls" aria-label="Hide Controls">
             <i class="material-icons">keyboard_double_arrow_up</i>
           </button>
-          
 
           <div class="top-show-controls">
-            <button id="btn-back" aria-label="Back to articles" onclick="history.back()">
+            <button
+              id="btn-back"
+              aria-label="Back to articles"
+              onclick="history.back()"
+            >
               <i class="material-icons">keyboard_backspace</i>
             </button>
 
@@ -78,7 +81,6 @@
               <i class="material-icons">menu_book</i>
             </button>
 
-            
             <button id="btn-fullscreen" aria-label="Full Screen">
               <i class="material-icons">fullscreen</i>
             </button>
@@ -136,47 +138,62 @@
           ></button>
         </div>
         <div class="offcanvas-body bg-dark">
-          <p><strong>Issue:  <%= mag.issueNumber %></strong> </p>
+          <p><strong>Issue: <%= mag.issueNumber %></strong></p>
           <% const date = new Date(mag.publishDate); %>
-          <p><strong>Published:  <%= ('0' + date.getDate()).slice(-2) %>-<%= ('0' + (date.getMonth() + 1)).slice(-2) %>-<%= date.getFullYear() %></strong> </p>
-          
-          <% if (mag.credits && Object.keys(mag.credits).length > 0) { 
-              console.log(`Credits ${JSON.stringify(mag)}`)
-            %>
-            <div class="mag-credits">
-  <strong>Credits:</strong>
-  <% Object.entries(mag.credits).forEach(([role, people]) => { %>
-    <% const peopleArray = people.split(',').map(p => p.trim()); %>
-    <div>
-      <strong><%= role.charAt(0).toUpperCase() + role.slice(1) %>:</strong> 
-      <%= peopleArray.join(', ') %>
-    </div>
-  <% }) %>
-</div>
+          <p>
+            <strong
+              >Published: <%= ('0' + date.getDate()).slice(-2) %>-<%= ('0' +
+              (date.getMonth() + 1)).slice(-2) %>-<%= date.getFullYear()
+              %></strong
+            >
+          </p>
 
+          <% if (mag.credits && Object.keys(mag.credits).length > 0) { %>
+          <div class="mag-credits">
+            <strong>Credits:</strong>
+            <% Object.entries(mag.credits).forEach(([role, people]) => { let
+            peopleArray = []; if (Array.isArray(people) && people.length > 0) {
+            peopleArray = people; } else if (typeof people === 'string') {
+            peopleArray = people.split(',').map(p => p.trim()); } %>
+            <div>
+              <strong
+                ><%= role.charAt(0).toUpperCase() + role.slice(1) %>:</strong
+              >
+              <%= peopleArray.join(', ') %>
+            </div>
+            <% }) %>
+          </div>
           <% } %>
 
-          
-          <br>
-          <p><strong>Description: <br> <%= mag.description %></strong> </p>
+          <br />
+          <p>
+            <strong
+              >Description: <br />
+              <%= mag.description %></strong
+            >
+          </p>
 
           <% if (mag.tags && mag.tags.length > 0) { %>
-  <div class="mag-tags mb-3">
-    <strong>Tags: <br></strong>
-    <% mag.tags.forEach(tag => { %>
-      <a href="/front/tag/?tag=<%= tag.id %>" class="btn btn-primary btn-sm me-2 mb-2" target="_blank"><%= tag.name %></a>
-    <% }) %>
-  </div>
-<% } %>
-
+          <div class="mag-tags mb-3">
+            <strong>Tags: <br /></strong>
+            <% mag.tags.forEach(tag => { %>
+            <a
+              href="/front/tag/?tag=<%= tag.id %>"
+              class="btn btn-primary btn-sm me-2 mb-2"
+              target="_blank"
+              ><%= tag.name %></a
+            >
+            <% }) %>
+          </div>
+          <% } %>
         </div>
       </div>
 
-      <section id="articlesSection" class="content" >
+      <section id="articlesSection" class="content">
         <h2 class="loader">
-            Loading <span class="article-name"></span> content
-            <span class="dots"></span>
-          </h2>
+          Loading <span class="article-name"></span> content
+          <span class="dots"></span>
+        </h2>
         <div id="flipContainer" data-resource-url="<%= mag.htmlPath %>"></div>
       </section>
 
