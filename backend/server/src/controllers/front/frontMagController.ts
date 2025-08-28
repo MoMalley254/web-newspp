@@ -41,31 +41,32 @@ export const renderSingleMagazine = async (req: Request, res: Response) => {
     if (!magId || magId === "") {
       return res
         .status(400)
-        .render("front/article", { error: "Unable to load -- please retry" });
+        .render("front/article", { status: false, error: "Unable to load -- please retry" });
     }
     const getMagazine = await fetchSingleMagazineService(magId);
     if (!getMagazine.status) {
       return res
         .status(500)
-        .render("front/article", { error: getMagazine.error });
+        .render("front/article", { status: false, error: getMagazine.error });
     }
 
     const magazine = getMagazine.magData;
     const magazinePath = magazine?.htmlPath;
     if (!magazinePath || magazinePath === "") {
       return res.status(500).render("front/article", {
+        status: false,
         error: `Could not find content for "${magazine?.title || "Unknown"}".`,
       });
     }
 
-    return res.status(200).render("front/article", { error: 'Felt like it' });
+    return res.status(200).render("front/article", { mag: magazine, status: true });
   } catch (renderSingleMagazineError: unknown) {
     const errorMessage =
       renderSingleMagazineError instanceof Error
         ? renderSingleMagazineError.message
         : "An unknown error occurred";
 
-    return res.status(500).render("front/article", { error: errorMessage });
+    return res.status(500).render("front/article", { status: false, error: errorMessage });
   }
 };
 

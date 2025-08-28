@@ -525,6 +525,13 @@ body {
     margin-top: 30vh;
 }
 
+.loader {
+    margin-top: 25vh;
+  font-size: 50px;
+  font-weight: 600;
+}
+
+
 #flipbook {
     z-index: 97;
     margin-left: 9vw;
