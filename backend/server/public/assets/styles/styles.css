@@ -71,7 +71,8 @@ body {
 }
 
 .controls-top {
-  height: 7vh;
+    margin-top: 1.5vh;
+  height: 5vh;
   width: 100vw;
   display: flex;
   justify-content: space-between;
@@ -165,7 +166,7 @@ body {
   justify-content: space-between;
   align-items: center;
   justify-items: center;
-  margin: -2vh 14vw 0 14vw;
+  margin: -0 14vw 0 14vw;
   position: fixed;
 }
 
@@ -638,7 +639,7 @@ body {
 
 #flipContainer {
   width: 80vw;
-  height: 78vh;
+  height: 80vh;
   margin-left: 10vw;
   overflow: hidden;
 }

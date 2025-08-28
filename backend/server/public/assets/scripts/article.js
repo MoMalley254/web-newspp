@@ -124,7 +124,7 @@ async function showFlipbook(imageUrls) {
     maxHeight: 3000,
     maxShadowOpacity: 0.7,
     showCover: true,
-    mobileScrollSupport: false,
+    mobileScrollSupport: true,
   });
 
   // Load the initial chunk
