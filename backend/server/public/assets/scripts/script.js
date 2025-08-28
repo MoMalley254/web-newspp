@@ -5,9 +5,6 @@ const content = document.querySelector('.content');
 const fullScreenBtn = document.getElementById('btn-fullscreen');
 const fullScreenContent = document.querySelector('.content-body');
 
-const sectionsBtn = document.getElementById('btn-menu');
-const blackOverlay = document.querySelector('.blackOverlay');
-
 hideMenuBtn.addEventListener('click', (e) => {
 
     // Fade out current icon
@@ -107,25 +104,6 @@ document.addEventListener('fullscreenchange', () => {
         fullScreenBtn.setAttribute('aria-label', 'Full Screen');
     }
 });
-
-sectionsBtn.addEventListener('click', (e) => {
-    showThumbnails();
-    
-});
-
-function showThumbnails() {
-    if (thumbnailsSideView.classList.contains('hideThumbNails')) {
-        thumbnailsSideView.classList.remove('hideThumbNails');
-        blackOverlay.style.transform = 'translateX(calc(0vw))';
-        sectionsBtn.innerHTML = `<i class="material-icons">close</i>`;
-        sectionsBtn.setAttribute('aria-label', 'Hide Articles');
-    } else {
-        thumbnailsSideView.classList.add('hideThumbNails');
-        blackOverlay.style.transform = 'translateX(calc(100vw))';
-        sectionsBtn.innerHTML = `<i class="material-icons">segment</i>`;
-        sectionsBtn.setAttribute('aria-label', 'Show Articles');
-    }
-}
 
 
 
