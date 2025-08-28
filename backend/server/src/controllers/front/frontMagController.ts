@@ -5,8 +5,8 @@ import {
   fetchSingleMagazineService,
 } from "../../services/front/frontMagService";
 import path from "path";
-import fs from "fs";
-import readline from "readline";
+import { promises as fs } from 'fs';
+
 
 export const renderIndexPage = async (req: Request, res: Response) => {
   try {
@@ -70,53 +70,50 @@ export const renderSingleMagazine = async (req: Request, res: Response) => {
   }
 };
 
-// ➕ Helper to clean and adjust #page-container CSS
-function processCssBlock(lines: string[]): string {
-  let cleaned = [...lines];
+export const returnImageUrls = async (req: Request, res: Response) => {
+  try {
+    const { path: basePath } = req.body;
+    const index = parseInt(req.query.index as string, 10);
+    const pagesPerChunk = parseInt(req.query.pages as string, 10);
 
-  // Flags for replacement case
-  const hasBackgroundColor = cleaned.some((l) =>
-    l.includes("background-color: #9e9e9e")
-  );
-  const hasBackgroundImage = cleaned.some((l) =>
-    l.includes("background-image: url(data:image/svg+xml;base64")
-  );
+    if (!basePath || isNaN(index) || isNaN(pagesPerChunk)) {
+      return res.status(400).json({ error: 'Invalid path, index, or pages query.' });
+    }
 
-  if (hasBackgroundColor && hasBackgroundImage) {
-    // Remove both original lines
-    cleaned = cleaned.filter(
-      (l) =>
-        !l.includes("background-color: #9e9e9e") &&
-        !l.includes("background-image: url(data:image/svg+xml;base64")
+    // Generate chunked image URLs
+    const start = index * pagesPerChunk;
+    const end = start + pagesPerChunk;
+
+    const absoluteImagePath = path.join(__dirname, '../../../', basePath);
+    const allFiles = await fs.readdir(absoluteImagePath);
+    if (allFiles.length < 1) {
+      return res.status(500).json({ error: 'No content found' });
+    }
+    const imageFiles = allFiles.filter(file =>
+      /\.(jpg|jpeg|png|gif|webp)$/i.test(file)
     );
 
-    // Insert new background line before closing }
-    const lastIndex = cleaned.findIndex((l) => l.trim().endsWith("}"));
-    if (lastIndex !== -1) {
-      cleaned.splice(
-        lastIndex,
-        0,
-        "  background: linear-gradient(to bottom right, #232370, #4f0a8c);"
-      );
-    }
+    imageFiles.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 
-    return cleaned.join("\n");
+    // const currentChunk = imageFiles.slice(start, end);
+    // const remainingChunk = imageFiles.slice(end);
+
+    // const imageUrls = currentChunk.map(filename =>
+    //   path.posix.join(basePath, filename)
+    // );
+
+    const imageUrls = imageFiles.map(filename =>
+      path.posix.join(basePath, filename)
+    );
+
+    // const remainingImages = remainingChunk.map(filename =>
+    //   path.posix.join(basePath, filename)
+    // );
+
+    // return res.status(200).json({ images: imageUrls, hasMore: remainingImages.length > 0, remaining: remainingImages });
+    return res.status(200).json({ images: imageUrls });
+  } catch (returnImageUrlsError) {
+    console.error(`Return image urls error ${returnImageUrlsError}`);
+    return res.status(500).json({ error: 'Failed to generate image URLs' });
   }
-
-  // Handle #page-container overflow cleanup as before
-  const isPageContainer = cleaned[0]?.trim().startsWith("#page-container");
-
-  if (isPageContainer) {
-    cleaned = cleaned.filter((l) => !l.includes("overflow: auto"));
-
-    const hasOverflowX = cleaned.some((l) => l.includes("overflow-x"));
-    if (!hasOverflowX) {
-      const idx = cleaned.findIndex((l) => l.trim().endsWith("}"));
-      if (idx !== -1) {
-        cleaned.splice(idx, 0, "  overflow-x: hidden;");
-      }
-    }
-  }
-
-  return cleaned.join("\n");
-}
+};
