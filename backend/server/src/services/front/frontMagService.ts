@@ -2,7 +2,13 @@ import prisma from "../../config/prismaClient";
 
 export const fetchMagazinesService = async() => {
     try {
-        const magazines = await prisma.magazine.findMany();
+        const magazines = await prisma.magazine.findMany({
+            select: { 
+                id: true,
+                title: true,
+                coverImage: true
+            }
+        });
         if (!magazines) {
             return {
                 status:false,

@@ -9,6 +9,6 @@ const router = express.Router();
 
 router.get('/', renderIndexPage);
 router.get('/all', fetchMagazines);
-router.get('/view', renderSingleMagazine)
+router.get('/view', renderSingleMagazine);
 
 export default router;
