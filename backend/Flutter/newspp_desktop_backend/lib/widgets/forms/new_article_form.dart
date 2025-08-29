@@ -454,6 +454,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     'credits': creditsData,
                     'desc': _descController.text,
                     'cover': _coverImage,
+                    'usePdf': usePdf,
                   };
 
                   // 👇 Conditionally add either 'pdf' or 'images'

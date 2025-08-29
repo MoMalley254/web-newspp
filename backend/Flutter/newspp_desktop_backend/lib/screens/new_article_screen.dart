@@ -86,7 +86,9 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
             isProcessing = true;
             submittedFormData = formData;
           });
-          processMagazine(formData);
+          if (formData['usePdf']) {
+            processMagazine(formData);
+          }
         },
       ),
     );
@@ -179,24 +181,24 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
                   ),
 
                   const SizedBox(height: 16),
-                  Text('PDF: ${data['pdf'].name}'),
+                  data['usePdf'] ? Text('PDF: ${data['pdf'].name}') : Text('Selected ${data['images'].length} image(s)'),
                   if (data['cover'] != null)
                     Text('Cover Image: ${data['cover'].name}'),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.open_in_browser),
-              label: const Text("Open Generated HTML"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[700],
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                await convertHelper.openConvertedHtml(processedHtmlPath);
-              },
-            ),
+            // ElevatedButton.icon(
+            //   icon: const Icon(Icons.open_in_browser),
+            //   label: const Text("Open Generated HTML"),
+            //   style: ElevatedButton.styleFrom(
+            //     backgroundColor: Colors.blue[700],
+            //     foregroundColor: Colors.white,
+            //   ),
+            //   onPressed: () async {
+            //     await convertHelper.openConvertedHtml(processedHtmlPath);
+            //   },
+            // ),
             const SizedBox(height: 12),
             ElevatedButton.icon(
               icon: const Icon(Icons.refresh),

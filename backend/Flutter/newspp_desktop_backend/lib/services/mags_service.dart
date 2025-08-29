@@ -50,7 +50,7 @@ class MagsService {
   Future<bool> createMagazine(
     Map<String, dynamic> formData,
     String htmlPath,
-    List<dynamic> pageImages
+    List<dynamic> pageImages,
   ) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -78,7 +78,7 @@ class MagsService {
         'adminId': adminId,
       };
 
-      if (pageImages.isNotEmpty) {
+      if (formData['usePdf'] && pageImages.isNotEmpty) {
         print('📦 Preparing ${pageImages.length} images for upload...');
 
         final List<MultipartFile> imageFiles = [];
@@ -97,6 +97,17 @@ class MagsService {
           print('📎 Attached page $page as $fileName');
         }
 
+        // ✅ Attach all images under one key
+        mapData['images'] = imageFiles;
+      } else {
+        List<File> pages = formData['images'];
+        final List<MultipartFile> imageFiles = [];
+        if (pages.isNotEmpty) {
+          for (final image in pages) {
+            final imageFile = await MultipartFile.fromFile(image.path);
+            imageFiles.add(imageFile);
+          }
+        }
         // ✅ Attach all images under one key
         mapData['images'] = imageFiles;
       }
