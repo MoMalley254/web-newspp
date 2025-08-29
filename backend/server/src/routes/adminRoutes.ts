@@ -46,14 +46,14 @@ function generateTimeFolder(): string {
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
   const seconds = String(now.getSeconds()).padStart(2, "0");
-  return `${hours}-${minutes}-${seconds}`;
+  return `${hours}`;
 }
 
 // ✅ Dynamic Multer storage config
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dateFolder = generateDateFolder();    // e.g. "27-08-2025"
-    const timeFolder = generateTimeFolder();    // e.g. "14-32-09"
+    const timeFolder = generateTimeFolder();    // e.g. "14"
     const folderPath = path.join(
       __dirname,
       "..",

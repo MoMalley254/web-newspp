@@ -420,7 +420,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                       autoCloseDuration: const Duration(seconds: 5),
                     );
                     return;
-                  } else if (!usePdf && _selectedImages.length < 1) {
+                  } else if (!usePdf && _selectedImages.isEmpty) {
                     toastification.show(
                       title: Text(
                         'Please provide images for the magazine pages.',
@@ -429,6 +429,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                       style: ToastificationStyle.flatColored,
                       autoCloseDuration: const Duration(seconds: 5),
                     );
+                    return;
                   }
 
                   Map<String, List<String>> creditsData = {};

@@ -83,11 +83,15 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
         onFormValid: (formData) {
           print('Form data got ${formData}');
           setState(() {
-            isProcessing = true;
+            formData['usePdf'] ? isProcessing = true : formDataConfirmed = true;
             submittedFormData = formData;
           });
           if (formData['usePdf']) {
             processMagazine(formData);
+          } else {
+            setState(() {
+              pages = formData['images'];
+            });
           }
         },
       ),
@@ -181,7 +185,9 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
                   ),
 
                   const SizedBox(height: 16),
-                  data['usePdf'] ? Text('PDF: ${data['pdf'].name}') : Text('Selected ${data['images'].length} image(s)'),
+                  data['usePdf']
+                      ? Text('PDF: ${data['pdf'].name}')
+                      : Text('Selected ${data['images'].length} image(s)'),
                   if (data['cover'] != null)
                     Text('Cover Image: ${data['cover'].name}'),
                 ],
@@ -243,7 +249,7 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
     bool hasSentToServer = await magsHelper.createMagazine(
       magazineData,
       processedHtmlPath,
-      pages!
+      pages!,
     );
     if (hasSentToServer) {
       widget.navigateTo('Dashboard');
