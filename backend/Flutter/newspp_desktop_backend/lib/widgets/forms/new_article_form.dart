@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,6 +28,9 @@ class _NewArticleFormState extends State<NewArticleForm> {
 
   PlatformFile? _pdfFile;
   PlatformFile? _coverImage;
+
+  bool usePdf = true;
+  List<File?> _selectedImages = [];
 
   @override
   void dispose() {
@@ -245,83 +250,153 @@ class _NewArticleFormState extends State<NewArticleForm> {
             ),
             const SizedBox(height: 16),
 
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Upload PDF
-                Column(
-                  children: [
-                    const Text('PDF *Max 500MB'),
-                    const SizedBox(height: 6),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.upload_file),
-                      label: Text(
-                        _pdfFile != null ? 'PDF Selected' : 'Pick PDF ',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      onPressed: () async {
-                        FilePickerResult? result = await FilePicker.platform
-                            .pickFiles(
-                              type: FileType.custom,
-                              allowedExtensions: ['pdf'],
-                            );
-                        if (result != null) {
-                          final file = result.files.first;
-                          if (file.size > 500 * 1024 * 1024) {
-                            toastification.show(
-                              title: Text(
-                                'PDF exceeds 500MB limit. Please choose a smaller file.',
-                              ),
-                              type: ToastificationType.warning,
-                              style: ToastificationStyle.flatColored,
-                              autoCloseDuration: const Duration(seconds: 5),
-                            );
-                            return;
-                          }
-                          setState(() => _pdfFile = file);
-                        }
-                      },
-                    ),
-                  ],
-                ),
+            SwitchListTile(
+              title: Text("Use PDF"),
+              value: usePdf,
+              onChanged: (bool value) {
+                setState(() {
+                  usePdf = value;
 
-                Column(
+                  // Optional: clear selected images when switching
+                  if (usePdf) {
+                    _selectedImages.clear();
+                  }
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+
+            usePdf
+                ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Upload Cover Image
-                    const Text('Cover Image *Max 5MB'),
-                    const SizedBox(height: 6),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.image),
-                      label: Text(
-                        _coverImage != null
-                            ? 'Image: ${_coverImage!.name}'
-                            : 'Pick Cover Image',
-                      ),
-                      onPressed: () async {
-                        FilePickerResult? result = await FilePicker.platform
-                            .pickFiles(type: FileType.image);
-                        if (result != null) {
-                          final file = result.files.first;
-                          if (file.size > 5 * 1024 * 1024) {
-                            toastification.show(
-                              title: Text(
-                                'Image exceeds 5MB limit. Please choose a smaller image.',
-                              ),
-                              type: ToastificationType.warning,
-                              style: ToastificationStyle.flatColored,
-                              autoCloseDuration: const Duration(seconds: 5),
-                            );
-                            return;
-                          }
-                          setState(() => _coverImage = file);
-                        }
-                      },
+                    // Upload PDF
+                    Column(
+                      children: [
+                        const Text('PDF *Max 500MB'),
+                        const SizedBox(height: 6),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.upload_file),
+                          label: Text(
+                            _pdfFile != null ? 'PDF Selected' : 'Pick PDF ',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onPressed: () async {
+                            FilePickerResult? result = await FilePicker.platform
+                                .pickFiles(
+                                  type: FileType.custom,
+                                  allowedExtensions: ['pdf'],
+                                );
+                            if (result != null) {
+                              final file = result.files.first;
+                              if (file.size > 500 * 1024 * 1024) {
+                                toastification.show(
+                                  title: Text(
+                                    'PDF exceeds 500MB limit. Please choose a smaller file.',
+                                  ),
+                                  type: ToastificationType.warning,
+                                  style: ToastificationStyle.flatColored,
+                                  autoCloseDuration: const Duration(seconds: 5),
+                                );
+                                return;
+                              }
+                              setState(() => _pdfFile = file);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+
+                    Column(
+                      children: [
+                        // Upload Cover Image
+                        const Text('Cover Image *Max 5MB'),
+                        const SizedBox(height: 6),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.image),
+                          label: Text(
+                            _coverImage != null
+                                ? 'Image: ${_coverImage!.name}'
+                                : 'Pick Cover Image',
+                          ),
+                          onPressed: () async {
+                            FilePickerResult? result = await FilePicker.platform
+                                .pickFiles(type: FileType.image);
+                            if (result != null) {
+                              final file = result.files.first;
+                              if (file.size > 5 * 1024 * 1024) {
+                                toastification.show(
+                                  title: Text(
+                                    'Image exceeds 5MB limit. Please choose a smaller image.',
+                                  ),
+                                  type: ToastificationType.warning,
+                                  style: ToastificationStyle.flatColored,
+                                  autoCloseDuration: const Duration(seconds: 5),
+                                );
+                                return;
+                              }
+                              setState(() => _coverImage = file);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                : Column(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 👇 Button to pick images
+                        ElevatedButton(
+                          onPressed: () async {
+                            FilePickerResult? result = await FilePicker.platform
+                                .pickFiles(
+                                  type: FileType.image,
+                                  allowMultiple: true,
+                                );
+
+                            if (result != null) {
+                              setState(() {
+                                _selectedImages =
+                                    result.paths
+                                        .where((path) => path != null)
+                                        .map((path) => File(path!))
+                                        .toList();
+                              });
+                            }
+                          },
+                          child: Text('Select Images'),
+                        ),
+
+                        // 👇 Scrollable horizontal image row
+                        if (_selectedImages.isNotEmpty)
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children:
+                                  _selectedImages.map((file) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Image.file(
+                                        file!,
+                                        width: 100,
+                                        height: 100,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
+
+                        const SizedBox(height: 5),
+                        Text('Selected ${_selectedImages.length} image(s)'),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
             const SizedBox(height: 24),
 
             // Submit Button
@@ -337,15 +412,23 @@ class _NewArticleFormState extends State<NewArticleForm> {
               ),
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  if (_pdfFile == null) {
+                  if (usePdf && _pdfFile == null) {
                     toastification.show(
                       title: Text('Please provide a PDF file of the magazine.'),
                       type: ToastificationType.warning,
                       style: ToastificationStyle.flatColored,
                       autoCloseDuration: const Duration(seconds: 5),
                     );
-                    ;
                     return;
+                  } else if (!usePdf && _selectedImages.length < 1) {
+                    toastification.show(
+                      title: Text(
+                        'Please provide images for the magazine pages.',
+                      ),
+                      type: ToastificationType.warning,
+                      style: ToastificationStyle.flatColored,
+                      autoCloseDuration: const Duration(seconds: 5),
+                    );
                   }
 
                   Map<String, List<String>> creditsData = {};
@@ -370,12 +453,18 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     'tags': _tagsController.text,
                     'credits': creditsData,
                     'desc': _descController.text,
-                    'pdf': _pdfFile,
                     'cover': _coverImage,
                   };
 
+                  // 👇 Conditionally add either 'pdf' or 'images'
+                  if (usePdf) {
+                    formData['pdf'] = _pdfFile;
+                  } else {
+                    formData['images'] = _selectedImages;
+                  }
+
                   widget.onFormValid(formData);
-                   // Form is valid and files are selected
+                  // Form is valid and files are selected
                   toastification.show(
                     title: Text('Submitted successfully.'),
                     type: ToastificationType.success,

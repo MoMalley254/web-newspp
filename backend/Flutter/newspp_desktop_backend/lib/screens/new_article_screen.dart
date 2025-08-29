@@ -270,10 +270,11 @@ class _NewArticleScreenState extends State<NewArticleScreen> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const Text(
-            '• Upload a PDF version of the magazine.\n'
-            '• Maximum file size: 50MB.\n'
-            '• Larger PDF files take longer to process.\n'
-            '• Avoid scanned/image-only PDFs (they cannot be parsed).\n'
+            '• Upload either image files of the magazine or a PDF file of all.\n'
+            '• If uploading images ensure they are named according to their number e.g 1.jpg, 2.jpg etc.\n'
+            '• Maximum image size 5MB, PDF file size: 500MB.\n'
+            '• Larger files take longer to process.\n'
+            '• Avoid scanned PDFs (they cannot be parsed).\n'
             '• Ensure fonts are embedded or use standard fonts.',
           ),
           const SizedBox(height: 16),
