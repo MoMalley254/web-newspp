@@ -37,3 +37,5 @@ flutter:
     - assets/bin/windows/pdf2htmlex/data/
     - assets/bin/windows/pdf2htmlex/pdf2htmlEX.exe
     - assets/tessdata_config.json
+    - assets/bin/windows/convert.exe
+    - assets/bin/windows/poppler/bin/

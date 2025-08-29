@@ -18,38 +18,55 @@ class Pdf2HtmlConverter {
   Future<Map<String, dynamic>> prepareExecutable() async {
     try {
       final supportDir = await getApplicationSupportDirectory();
-      final toolDir = Directory(p.join(supportDir.path, 'pdf2htmlEX'));
+      // final toolDir = Directory(p.join(supportDir.path, 'pdf2htmlEX'));
+      final toolDir = Directory(p.join(supportDir.path, 'pdf2images'));
 
       print('📁 Support directory: ${supportDir.path}');
       print('🔧 Tool directory: ${toolDir.path}');
 
-      final exePath = p.join(toolDir.path, 'pdf2htmlEX.exe');
-      final dataDirPath = p.join(toolDir.path, 'data');
+      // final exePath = p.join(toolDir.path, 'pdf2htmlEX.exe');
+      final exePath = p.join(toolDir.path, 'convert.exe');
+      // final dataDirPath = p.join(toolDir.path, 'data');
+      final popplerBinPath = p.join(toolDir.path, 'poppler', 'bin');
+      final popplerDir = Directory(popplerBinPath);
 
       final exeFile = File(exePath);
 
-      if (!await exeFile.exists()) {
-        print('⚙️ Extracting pdf2htmlEX.exe and data/ folder...');
+      if (!await exeFile.exists() || !await popplerDir.exists()) {
+        // print('⚙️ Extracting pdf2htmlEX.exe and data/ folder...');
+        print('⚙️ Extracting convert.exe...');
 
         await toolDir.create(recursive: true);
 
         // Extract the .exe
+        // final exeBytes = await rootBundle.load(
+        //   'assets/bin/windows/pdf2htmlex/pdf2htmlEX.exe',
+        // );
         final exeBytes = await rootBundle.load(
-          'assets/bin/windows/pdf2htmlex/pdf2htmlEX.exe',
+          'assets/bin/windows/convert.exe',
         );
         await exeFile.writeAsBytes(exeBytes.buffer.asUint8List());
 
         // Extract the data directory
+        // final success = await _extractAssetFolder(
+        //   assetPath: 'assets/bin/windows/pdf2htmlex/data/',
+        //   destinationPath: dataDirPath,
+        // );
+
+        // if (!success) {
+        //   throw Exception('❌ Failed to extract asset folder');
+        // }
         final success = await _extractAssetFolder(
-          assetPath: 'assets/bin/windows/pdf2htmlex/data/',
-          destinationPath: dataDirPath,
+          assetPath: 'assets/bin/windows/poppler/bin/',
+          destinationPath: popplerBinPath,
         );
 
         if (!success) {
           throw Exception('❌ Failed to extract asset folder');
         }
 
-        print('✅ Assets extracted to $dataDirPath');
+        // print('✅ Assets extracted to $dataDirPath');
+        print('✅ Assets extracted to $popplerBinPath');
         print('✅ pdf2htmlEX prepared at $exePath');
       } else {
         print('✅ pdf2htmlEX already exists at $exePath');
@@ -104,8 +121,10 @@ class Pdf2HtmlConverter {
 
       toastHelper.showSuccesstoast('Converter ready');
       String toolPath = toolDir['toolDir'];
-      final exePath = p.join(toolDir['toolDir'], 'pdf2htmlEX.exe');
-      final dataDir = p.join(toolDir['toolDir'], 'data');
+      // final exePath = p.join(toolDir['toolDir'], 'pdf2htmlEX.exe');
+      final exePath = p.join(toolDir['toolDir'], 'convert.exe');
+      // final dataDir = p.join(toolDir['toolDir'], 'data');
+      final popplerDir = p.join(toolDir['toolDir'], 'poppler', 'bin');
 
       final pagesDir = p.join(toolDir['toolDir'], 'pages');
       final outputDirExists = await Directory(pagesDir).exists();
@@ -117,41 +136,57 @@ class Pdf2HtmlConverter {
       }
 
       // final args = ['--dest-dir', toolPath, '--data-dir', dataDir, pdfPath];
-      final args = [
-        '--split-pages', '1', // ✅ This is the key flag
-        '--dest-dir', pagesDir, // where to output the files
-        '--data-dir', dataDir, // required data folder
-        pdfPath, // input PDF file
-      ];
+      // final args = [
+      //   '--split-pages', '1', // ✅ This is the key flag
+      //   '--dest-dir', pagesDir, // where to output the files
+      //   '--data-dir', dataDir, // required data folder
+      //   pdfPath, // input PDF file
+      // ];
 
       toastHelper.showProcessingtoast(
-        'Converting magazine, do not close this window',
+        'Processing magazine, do not close this window',
         7,
       );
-      final process = await Process.start(exePath, args, runInShell: true);
+      // final process = await Process.start(exePath, args, runInShell: true);
+      final process = await Process.start(exePath, [pdfPath, popplerDir, pagesDir], runInShell: true);
 
+      // Listen to stdout
       process.stdout.transform(SystemEncoding().decoder).listen((line) {
-        print('[stdout] $line');
-
-        if (line.contains('Preprocessing')) {
-          toastHelper.showProcessingtoast('Loading PDF pages...', 3);
-        } else if (line.contains('Working')) {
-          final match = RegExp(r'Working:  (\d+)').firstMatch(line);
-          if (match != null) {
-            toastHelper.showProcessingtoast(
-              'Processing page ${match.group(1)}',
-              3,
-            );
-          }
-        }
+        print("LOG: $line"); // You can send this to the UI
+        toastHelper.showProcessingtoast(line, 3);
       });
 
+      // Listen to stderr
       process.stderr.transform(SystemEncoding().decoder).listen((line) {
-        print('[stderr] $line');
-        toastHelper.showWarningtoast('PDF warning: $line');
+        print("LOG: $line");
+        toastHelper.showWarningtoast(line);
       });
+
+      // process.stdout.transform(SystemEncoding().decoder).listen((line) {
+      //   print('[stdout] $line');
+
+      //   if (line.contains('Preprocessing')) {
+      //     toastHelper.showProcessingtoast('Loading PDF pages...', 3);
+      //   } else if (line.contains('Working')) {
+      //     final match = RegExp(r'Working:  (\d+)').firstMatch(line);
+      //     if (match != null) {
+      //       toastHelper.showProcessingtoast(
+      //         'Processing page ${match.group(1)}',
+      //         3,
+      //       );
+      //     }
+      //   }
+      // });
+
+      // process.stderr.transform(SystemEncoding().decoder).listen((line) {
+      //   print('[stderr] $line');
+      //   toastHelper.showWarningtoast('PDF warning: $line');
+      // });
 
       final exitCode = await process.exitCode;
+      if (exitCode == 1) {
+        return {'status': false, 'error': 'Conversion failed'};
+      }
       print('✅ Conversion complete. Exit code: $exitCode');
 
       // String htmlPath = p.join(toolPath, pdfName.replaceAll('.pdf', '.html'));
@@ -189,11 +224,17 @@ class Pdf2HtmlConverter {
       }
 
       final allFiles = dir.listSync();
+      // final pageFiles =
+      //     allFiles
+      //         .where(
+      //           (f) =>
+      //               f is File && p.extension(f.path).toLowerCase() == '.page',
+      //         )
+      //         .toList();
       final pageFiles =
           allFiles
               .where(
-                (f) =>
-                    f is File && p.extension(f.path).toLowerCase() == '.page',
+                (f) => f is File && p.extension(f.path).toLowerCase() == '.png',
               )
               .toList();
 
@@ -207,38 +248,40 @@ class Pdf2HtmlConverter {
         print('🔍 Processing file: $filePath');
 
         final fileName = p.basenameWithoutExtension(filePath);
-        final match = RegExp(r'(\d+)$').firstMatch(fileName);
-        if (match == null) {
-          print('⚠️ Skipping: Cannot extract page number from $fileName');
-          continue;
-        }
+        final imageFile = File(filePath);
+        // final match = RegExp(r'(\d+)$').firstMatch(fileName);
+        // if (match == null) {
+        //   print('⚠️ Skipping: Cannot extract page number from $fileName');
+        //   continue;
+        // }
 
-        final pageNumber = int.parse(match.group(1)!);
+        // final pageNumber = int.parse(match.group(1)!);
 
-        final content = await File(filePath).readAsString();
-        final document = parse(content);
-        final imgTags = document.getElementsByTagName('img');
+        // final content = await File(filePath).readAsString();
+        // final document = parse(content);
+        // final imgTags = document.getElementsByTagName('img');
 
-        if (imgTags.isEmpty) {
-          print('⚠️ No <img> tags found in $filePath');
-          continue;
-        }
+        // if (imgTags.isEmpty) {
+        //   print('⚠️ No <img> tags found in $filePath');
+        //   continue;
+        // }
 
-        final img = imgTags.first;
-        final src = img.attributes['src'];
+        // final img = imgTags.first;
+        // final src = img.attributes['src'];
 
-        if (src == null || !src.startsWith('data:image/')) {
-          print('⚠️ No valid base64 image found in $filePath');
-          continue;
-        }
+        // if (src == null || !src.startsWith('data:image/')) {
+        //   print('⚠️ No valid base64 image found in $filePath');
+        //   continue;
+        // }
 
         try {
-          final base64Str = src.split(',')[1];
-          final imageBytes = base64.decode(base64Str);
+          // final base64Str = src.split(',')[1];
+          // final imageBytes = base64.decode(base64Str);
 
-          images.add({'page': pageNumber, 'bytes': imageBytes});
+          // images.add({'page': pageNumber, 'bytes': imageBytes});
+          images.add({'page': fileName, 'file': imageFile});
 
-          print('🖼️ Extracted image for page $pageNumber');
+          print('🖼️ Extracted image for page ${file.path}');
         } catch (err) {
           print('❌ Failed to decode image in $filePath: $err');
         }
