@@ -14,14 +14,14 @@ hideMenuBtn.addEventListener('click', (e) => {
         if (topControls.classList.contains('hide')) {
             topControls.classList.remove('hide');
 
-            enlarge(false);
+            // enlarge(false);
             
             e.target.innerHTML = `<i class="material-icons">keyboard_double_arrow_up</i>`;
             hideMenuBtn.setAttribute('aria-label', 'Hide Controls');
         } else {
             topControls.classList.add('hide');
 
-            enlarge(true);
+            // enlarge(true);
             
             e.target.innerHTML = `<i class="material-icons">keyboard_double_arrow_down</i>`;
             hideMenuBtn.setAttribute('aria-label', 'Show Controls');
