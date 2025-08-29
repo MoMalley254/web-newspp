@@ -145,8 +145,8 @@ async function showFlipbook(imageUrls) {
     // minHeight: 400,
     // maxWidth: 2000,
     // maxHeight: 3000,
-    width: 500, // base page width
-    height: 700, // base page height
+    width: isMobile ? 350 : 500, // base page width
+    height: isMobile ? 500 : 700, // base page height
 
     size: "fixed",
     // set threshold values:

@@ -238,6 +238,9 @@ body {
 }
 
 @media (max-width: 767px) {
+  .top {
+    top: 0;
+  }
   .top .titles h2 {
     margin-top: 10px;
     font-size: 20px;
@@ -667,10 +670,17 @@ body {
 
 @media (max-width: 768px) {
   #flipContainer {
-    width: 95vw;
-    height: 60vh;
+    width: 100%;
+    height: 100%;
     margin-left: 1vw;
     margin-right: 1vw;
     overflow: hidden;
+  margin-top: -10vh;
   }
+
+  #flipContainer .page {
+  height: 100%;
+  width: 50%;
+  /* padding: 20px 0 10px 0; */
+}
 }
