@@ -73,7 +73,7 @@ export const createMagService = async (
       };
     }
 
-    console.log(`Created tags ${tagsResult.tagIds}`);
+    console.log(`Publish date ${magData.publishDate}`);
 
     // Create the Magazine
     const magazine = await prisma.magazine.create({
@@ -87,7 +87,8 @@ export const createMagService = async (
           connect: tagsResult.tagIds!.map((id) => ({ id })),
         },
         issueNumber: magData.issueNumber,
-        publishDate: new Date(magData.publishDate),
+        // publishDate: new Date(magData.publishDate),
+        publishDate: new Date('2025-08-08'),
         htmlPath: magData.htmlPath,
         credits: magData.credits,
         coverImage: hasImage ? magData.coverImage : null,

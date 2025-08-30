@@ -84,6 +84,7 @@ class MagsService {
         final List<MultipartFile> imageFiles = [];
 
         for (final img in pageImages) {
+          print('Image $img');
           // final page = img['page'];
           // final bytes = img['bytes'] as Uint8List;
           // final fileName = '$page.jpg'; // or .png
@@ -96,7 +97,7 @@ class MagsService {
           //   filename: fileName,
           // );
           final multipartFile = await MultipartFile.fromFile(
-            page,
+            page.path,
             filename: fileName,
           );
 
