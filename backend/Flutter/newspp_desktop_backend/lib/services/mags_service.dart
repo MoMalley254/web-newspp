@@ -140,8 +140,12 @@ class MagsService {
 
         // ✅ Delete the HTML file after successful upload
         try {
-          // htmlFile.deleteSync();
-          print('🗑️ Deleted local HTML file at $htmlPath');
+          Map<String, dynamic> clean = await convertHelper.deleteImages();
+          if (!clean['status']) {
+            toastHelper.showWarningtoast(
+              'Files not cleaned, please delete manually from ${clean['pagesDir']}',
+            );
+          }
         } catch (e) {
           print('⚠️ Failed to delete HTML file: $e');
         }

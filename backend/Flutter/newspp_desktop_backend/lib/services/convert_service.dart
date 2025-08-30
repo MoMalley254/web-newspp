@@ -148,7 +148,11 @@ class Pdf2HtmlConverter {
         7,
       );
       // final process = await Process.start(exePath, args, runInShell: true);
-      final process = await Process.start(exePath, [pdfPath, popplerDir, pagesDir], runInShell: true);
+      final process = await Process.start(exePath, [
+        pdfPath,
+        popplerDir,
+        pagesDir,
+      ], runInShell: true);
 
       // Listen to stdout
       process.stdout.transform(SystemEncoding().decoder).listen((line) {
@@ -247,7 +251,7 @@ class Pdf2HtmlConverter {
         final filePath = file.path;
         print('🔍 Processing file: $filePath');
 
-        final fileName = p.basenameWithoutExtension(filePath);
+        final fileName = p.basename(filePath);
         final imageFile = File(filePath);
         // final match = RegExp(r'(\d+)$').firstMatch(fileName);
         // if (match == null) {
@@ -432,4 +436,50 @@ class Pdf2HtmlConverter {
   //     return '';
   //   }
   // }
+
+  Future<Map<String, dynamic>> deleteImages() async {
+    String pagesDir = '';
+    try {
+      toastHelper.showProcessingtoast('Cleaning up files, please wait...', 3);
+
+      final supportDir = await getApplicationSupportDirectory();
+      final toolDir = Directory(p.join(supportDir.path, 'pdf2images'));
+      if (!toolDir.existsSync()) {
+        throw Exception('File system not found');
+      }
+
+      pagesDir = p.join(toolDir.path, 'pages');
+      final directory = Directory(pagesDir);
+
+      // Check if the directory exists
+      if (await directory.exists()) {
+        final files = directory.listSync();
+
+        // Loop through each file and delete if it's an image
+        for (var file in files) {
+          if (file is File && _isImage(file.path)) {
+            try {
+              await file.delete();
+              print('Deleted image: ${file.path}');
+            } catch (e) {
+              print('Error deleting file ${file.path}: $e');
+            }
+          }
+        }
+      }
+
+      toastHelper.showSuccesstoast('Images deleted successfully');
+      return {'status': true};
+    } catch (deleteImagesErr) {
+      print('Delete images error: $deleteImagesErr');
+      toastHelper.showErrortoast(deleteImagesErr.toString());
+      return {'status': false, 'pagesDir': pagesDir};
+    }
+  }
+
+  bool _isImage(String filePath) {
+    // Simple check for common image file extensions
+    final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.any((ext) => filePath.toLowerCase().endsWith(ext));
+  }
 }
