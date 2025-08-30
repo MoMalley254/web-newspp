@@ -104,23 +104,32 @@ router.post("/login", loginAdmin);
 router.post("/update", authenticateAccessToken, updateAdminPass);
 router.post("/refresh", refreshAccessToken);
 
-// 🔥 Magazine upload — handles ALL file logic in route layer
-// router.get('/mag/new', async(req, res) => {
-//   console.log('Hit at get');
-// })
 router.post(
   "/mag/new",
   authenticateAccessToken,
   upload.fields([
-    // { name: "html", maxCount: 1 },    // ignored
-    { name: "cover", maxCount: 1 },   // saved via multer
-    { name: "images", maxCount: 100 }, // the extracted images from Flutter
+    { name: "cover", maxCount: 1 },
+    { name: "images", maxCount: 100 },
   ]),
   async (req, res, next) => {
     try {
-      // You can log them if needed
-      const images = (req.files as any)?.images || [];
-      console.log(`📄 Uploaded ${images.length} page images.`);
+      const files = req.files as {
+        cover?: Express.Multer.File[];
+        images?: Express.Multer.File[];
+      };
+
+      const images = files.images || [];
+
+      // 🔁 If no cover, use the first image as cover
+      if (!files.cover || files.cover.length === 0) {
+        if (images.length > 0) {
+          files.cover = [images[0]]; 
+        } else {
+          return res.status(400).json({
+            error: "No cover provided and no images available to use as cover.",
+          });
+        }
+      }
 
       // ✅ Hand off to controller
       await createNewMag(req, res, next);
