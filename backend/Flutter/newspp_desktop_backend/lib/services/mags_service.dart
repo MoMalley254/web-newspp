@@ -29,9 +29,9 @@ class MagsService {
               // Ensure mag is a Map<String, dynamic>
               if (mag is Map<String, dynamic>) {
                 mag['html'] =
-                    'http://localhost:3000${baseMagUrl}${(mag['htmlPath'].toString().replaceAll('\\', '/'))}';
+                    '$baseHost$baseMagUrl${(mag['htmlPath'].toString().replaceAll('\\', '/'))}';
                 mag['cover'] =
-                    'http://localhost:3000${baseMagUrl}${(mag['coverImage'].toString().replaceAll('\\', '/') ?? '')}';
+                    '$baseHost$baseMagUrl${(mag['coverImage'].toString().replaceAll('\\', '/'))}';
               }
               return mag;
             }).toList();

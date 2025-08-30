@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:newspp_desktop_backend/core/network/urls.dart';
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:newspp_desktop_backend/services/tokens_service.dart';
 
@@ -6,14 +7,13 @@ class DioClient {
   final tokenService = TokenStorage();
   final toastService = ToastService();
 
-  static const String baseUrl = 'http://localhost:3005';
-  static const String refreshUrl = '$baseUrl/admin/refresh';
+  static const String refreshUrl = '$baseHost/admin/refresh';
 
   int retryCount = 0;
 
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: baseUrl,
+      baseUrl: baseHost,
       connectTimeout: Duration(seconds: 10),
       receiveTimeout: Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},
