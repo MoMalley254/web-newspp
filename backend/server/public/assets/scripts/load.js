@@ -6,12 +6,14 @@ const foundShower = document.querySelector(".found-articles");
 const articlesSection = document.getElementById("articlesSection");
 
 const contentContainer = document.getElementById("contentContainer");
-const thumbnailsContainer = document.getElementById("article-thumbnails"); // container for thumbnails
-const thumbnailsSideView = document.getElementById("thumbnailsSideView");
+const thumbnailsContainer = document.getElementById("article-thumbnails");
 
 const pagesCount = document.querySelector(".page-counts");
 
 const magazineTitle = document.getElementById("magazineTitle");
+
+const copySpan = document.getElementById("copy");
+const foundItems = document.getElementById("foundItems");
 
 let dotCount = 0;
 let foundArticles = 0;
@@ -84,11 +86,10 @@ async function getArticles() {
     // console.log(``);
 
     const thumb1 = createArticleThumbnail(magazine);
-    const thumb2 = createArticleThumbnail(magazine);
 
     thumbnailsContainer.appendChild(thumb1);
-    thumbnailsSideView.appendChild(thumb2);
   });
+  foundItems.textContent = allArticles.mags.length;
 }
 
 // Create thumbnail element
@@ -98,21 +99,37 @@ function createArticleThumbnail(mag) {
   thumb.className = "article-thumbnail";
   thumb.textContent = actualArticleName;
 
+  const titleName = document.createElement("div");
+  titleName.className = "book-title";
+  titleName.textContent = actualArticleName;
+
   // If there's a cover image, set it as background with a white overlay
   if (mag["coverImage"] && mag["coverImage"] !== "") {
-    const imageUrl = `${baseUrl}${mag["coverImage"]
+    let imageUrl = `${baseUrl}${mag["coverImage"]
       .replace(/\\/g, "/")
       .replace(/\/+/g, "/")}`;
-    thumb.style.backgroundImage = `linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.6)), url(${imageUrl})`;
+    // thumb.style.backgroundImage = `linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0.2)), url(${imageUrl})`;
+    thumb.style.backgroundImage = `
+      radial-gradient(
+        circle at bottom left,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 40%,
+        transparent 80%
+      ),
+      url(${imageUrl})
+    `;
+
     thumb.style.backgroundSize = "cover";
     thumb.style.backgroundPosition = "center";
-    thumb.style.color = "#000"; // Optional: make text readable on light overlay
+    thumb.style.color = "#f2eaeaff"; // Optional: make text readable on light overlay
   }
 
   thumb.addEventListener("click", () => {
     // showArticleContent(mag, actualArticleName);
-    const articleId = mag['id'];
-    window.location.href = `/front/view?article=${encodeURIComponent(articleId)}`;
+    const articleId = mag["id"];
+    window.location.href = `/front/view?article=${encodeURIComponent(
+      articleId
+    )}`;
     // window.open(`/front/view?article=${encodeURIComponent(articleId)}`);
     // thumbnailsContainer.style.display = "none";
   });
@@ -145,7 +162,9 @@ async function fetchMagazinesFromServer() {
 
 async function showArticleContent(magObject, actualArticleName) {
   showThumbnails();
-  const loadingArticleContent = document.querySelector(".loading-article-content");
+  const loadingArticleContent = document.querySelector(
+    ".loading-article-content"
+  );
   const articleNameEl = loadingArticleContent.querySelector(".article-name");
 
   loadingArticleContent.style.display = "block";
@@ -160,7 +179,6 @@ async function showArticleContent(magObject, actualArticleName) {
     if (oldFlipbook) oldFlipbook.remove();
 
     contentContainer.appendChild(flipbookContainer);
-
   } catch (error) {
     console.error(error);
     contentContainer.innerHTML = `<p>Unable to load ${actualArticleName}</p>`;
@@ -170,8 +188,5 @@ async function showArticleContent(magObject, actualArticleName) {
   }
 }
 
-
-
-
-
-
+const year = new Date().getFullYear();
+copySpan.textContent = year;

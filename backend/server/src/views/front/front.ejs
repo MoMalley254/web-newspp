@@ -10,7 +10,10 @@
     />
 
     <!-- Bootstrap -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
     <link rel="stylesheet" href="front/public/assets/styles/styles.css" />
     <title>Business Unusual</title>
@@ -18,9 +21,9 @@
   <body>
     <section class="top">
       <div class="titles front">
-          <!-- <h1>E-Newspp</h1> -->
-          <h1 id="magazineTitle">Business Unusual</h1>
-        </div>
+        <!-- <h1>E-Newspp</h1> -->
+        <h1 id="magazineTitle">Business Unusual</h1>
+      </div>
     </section>
     <div class="loading-articles">
       <h2 class="loader">Loading articles<span class="dots"></span></h2>
@@ -28,30 +31,19 @@
         Found <span class="article-count">0</span> articles
       </p>
     </div>
-    <div id="thumbnailsSideView" class="hideThumbNails"></div>
     <div class="content-body no-content">
       <div class="blackOverlay"></div>
 
-      <section
-        id="articlesSection"
-        class="content"
-        
-      >
-        <div id="article-thumbnails"></div>
-        <div class="content-wrapper">
-          <div class="loading-article-content">
-            <h2 class="loader">
-              Loading <span class="article-name"></span> content
-              <span class="dots"></span>
-            </h2>
-          </div>
-          <div id="contentContainer">
-            <!-- <div id="flipbook">
-            </div>  -->
-          </div>
+      <section id="articlesSection" class="content">
+        <p class="foundItems">Showing <span id="foundItems"></span> articles</p>
+        <div id="article-thumbnails" class="front"></div>
+        <div class="copy">
+          <p>Ela Creatives <br> &copy; <span id="copy"></span></p>
         </div>
       </section>
-
+      <section class="bottom">
+        
+      </section>
     </div>
 
     <!-- Bootstrap -->

@@ -61,7 +61,7 @@ body {
 }
 
 .top .front {
-  margin-top: 5vh;
+  margin-top: 2vh;
 }
 
 .top h1 {
@@ -75,14 +75,14 @@ body {
 }
 
 .controls-top {
-    /* margin-top: 1.5vh; */
+  /* margin-top: 1.5vh; */
   height: 5vh;
   width: 100vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
   justify-items: center;
-  background:  #232370;
+  background: #232370;
 }
 
 .controls-top .top-show-controls {
@@ -245,16 +245,24 @@ body {
     margin-top: 10px;
     font-size: 20px;
   }
+  .top .titles h1 {
+    margin-top: 10px;
+    font-size: 32px;
+  }
 
   .top .titles {
     height: 5vh;
     margin-top: 0vh;
   }
 
+  .top .front {
+    margin-top: 1vh;
+  }
+
   .controls-top .top-show-controls {
     margin-top: 30px;
     display: grid;
-    grid-template-columns: repeat(3, 20%);
+    grid-template-columns: repeat(4, 20%);
     grid-template-rows: repeat(2, 40%);
     gap: 10px;
     /* justify-content: space-evenly; */
@@ -377,8 +385,8 @@ body {
 
 @media (max-width: 768px) {
   .content {
-    margin-top: 17vh;
-    height: 80vh;
+    margin-top: 2vh;
+    height: 100vh;
     width: 100vw;
   }
 
@@ -402,13 +410,18 @@ body {
   overflow-y: auto;
   white-space: nowrap; /* Prevent children from wrapping */
   scroll-behavior: smooth;
-  scrollbar-color: rgba(100, 100, 100, 0.5) transparent; /* thumb color, then track */
-  scrollbar-width: thin;
-  height: 80vh;
+  scrollbar-color: rgb(232, 212, 212) transparent; /* thumb color, then track */
+  scrollbar-width: auto;
+  height: 77vh;
+}
+
+#articlesSection .front {
+  margin-top: 15vh;
 }
 
 #article-thumbnails::-webkit-scrollbar {
-  height: 8px; /* or width, for vertical */
+  height: 8px;
+  width: 12px;
 }
 
 #article-thumbnails::-webkit-scrollbar-track {
@@ -416,52 +429,72 @@ body {
 }
 
 #article-thumbnails::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 100, 100, 0.5); /* semi-transparent thumb */
+  background-color: rgba(100, 100, 100, 1); /* semi-transparent thumb */
   border-radius: 4px;
 }
 
 .article-thumbnail {
   position: relative;
-  height: 25vh;
+  height: 32vh;
+  width: 100%;
+  min-width: 180px;
+  max-width: 330px;
   cursor: pointer;
   padding: 10px;
   margin: 30px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #f9f9f9a1;
+  border-radius: 3px;
+  background: #f5eeeea1;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.4s ease, box-shadow 0.3s ease;
   user-select: none;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
+  overflow: hidden;
   z-index: 0;
-  transition: transform 0.3s ease;
+  display: flex;
+  align-items: flex-end; /* push title to bottom */
+  color: #222;
+  font-size: 1rem;
+  line-height: 1.3;
 }
 
-/* Blurred background effect */
+.book-title {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 8px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  font-weight: 600;
+  white-space: normal; /* allow wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-top: 1px solid #ddd;
+}
+
 .article-thumbnail::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 12%;
   height: 100%;
-  background: inherit;
-  border-radius: inherit;
-  /* filter: blur(4px); */
-  transform: scale(1);
-  transition: transform 0.3s ease, filter 0.3s ease;
-  z-index: -1;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.3), transparent);
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  z-index: 1;
 }
 
-.article-thumbnail:hover::before {
-  transform: scale(1.1);
-  /* filter: blur(8px); */
-  overflow: hidden;
-}
-
+/* Add inner blur or lift effect on hover */
 .article-thumbnail:hover {
-  background-color: #e0e0ff;
-  border: solid white 5px;
-  overflow: hidden;
+  transform: translateY(-8px) rotateY(-3deg); /* Simulate opening */
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+  border: none;
+  background-color: transparent;
+}
+
+/* Optional: more blur on background on hover (if you want the effect) */
+.article-thumbnail:hover::before {
+  transform: scale(1.05);
 }
 
 #contentContainer {
@@ -589,13 +622,15 @@ body {
 @media (max-width: 768px) {
   #article-thumbnails {
     display: grid;
-    grid-template-columns: repeat(3, 33%);
+    grid-template-columns: repeat(2, 50%);
     /* grid-template-rows: repeat(2, 45%); */
     height: 80vh;
+    gap: 10px;
+    overflow-x: hidden;
   }
 
   .article-thumbnail {
-    width: 27vw;
+    width: 100%;
     height: 20vh;
     padding: 10px;
     margin: 10px;
@@ -675,12 +710,53 @@ body {
     margin-left: 1vw;
     margin-right: 1vw;
     overflow: hidden;
-  margin-top: -10vh;
+    margin-top: -10vh;
   }
 
   #flipContainer .page {
-  height: 100%;
-  width: 50%;
-  /* padding: 20px 0 10px 0; */
+    height: 100%;
+    width: 50%;
+    /* padding: 20px 0 10px 0; */
+  }
 }
+
+.copy {
+  margin-top: 10px;
 }
+
+.foundItems {
+  margin-top: 11vh;
+  margin-bottom: -18vh;
+}
+
+@media (max-width: 768px) {
+  .foundItems {
+    margin-top: 5vh;
+    margin-bottom: -13vh;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  #article-thumbnails {
+    display: grid;
+    grid-template-columns: repeat(3, 33%);
+    /* grid-template-rows: repeat(2, 45%); */
+    height: 80vh;
+    gap: 10px;
+    overflow-x: hidden;
+  }
+
+  .article-thumbnail {
+    width: 100%;
+    height: 20vh;
+    padding: 10px;
+    margin: 10px;
+    margin-top: 15px;
+  }
+
+  .foundItems {
+    margin-top: 8vh;
+    margin-bottom: -13vh;
+  }
+}
+
