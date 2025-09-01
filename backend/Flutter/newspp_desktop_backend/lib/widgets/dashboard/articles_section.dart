@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
 import 'package:newspp_desktop_backend/services/mags_service.dart';
@@ -143,7 +144,7 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'Issue ${article['issue'] ?? '-'} - ${article['date'] ?? '-'}',
+                                'Issue ${article['issueNumber'] ?? '-'}  ${DateFormat('dd-MM-yyyy').format(DateTime.parse(article['publishDate']))}',
                                 style: const TextStyle(
                                   color: Colors.white70,
                                   fontSize: 12,

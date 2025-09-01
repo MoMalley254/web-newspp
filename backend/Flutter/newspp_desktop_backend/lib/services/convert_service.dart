@@ -328,29 +328,39 @@ class Pdf2HtmlConverter {
     }
   }
 
-  Future<void> openOnlineHtml(String htmlUrl, String magName) async {
-    try {
-      toastHelper.showProcessingtoast('Opening $magName please wait...', 2);
+ Future<void> openOnlineHtml(String htmlUrl, String magName) async {
+  try {
+    toastHelper.showProcessingtoast('Opening $magName, please wait...', 2);
 
-      if (Platform.isWindows) {
-        // Open in default app (browser for .html, PDF reader for .pdf)
-        await Process.run('explorer', [htmlUrl]);
-      } else {
-        // keep url_launcher for non-Windows
-        final uri = Uri.file(htmlUrl);
-        final launched = await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-        );
-        if (!launched) {
-          toastHelper.showErrortoast('Unable to open HTML file: $uri');
-        }
-      }
-    } catch (error) {
-      print('Unable to open html $error');
-      toastHelper.showErrortoast('Error opening html file $error');
+    Uri uri;
+
+    // Handle both absolute paths and already-formatted file:// URLs
+    if (htmlUrl.startsWith('http://') || htmlUrl.startsWith('https://')) {
+      uri = Uri.parse(htmlUrl);
+    } else {
+      // Convert file path to file:// URI
+      uri = Uri.file(htmlUrl);
     }
+
+    // Use url_launcher to open in browser (works on all platforms, including Windows)
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (!launched) {
+      // Fallback: try in default browser via platform-specific command
+      if (Platform.isWindows) {
+        await Process.start('cmd', ['/c', 'start', '', uri.toString()]);
+      } else {
+        toastHelper.showErrortoast('Could not open $magName in browser.');
+      }
+    }
+  } catch (error) {
+    print('Unable to open HTML file: $error');
+    toastHelper.showErrortoast('Error opening HTML file: $error');
   }
+}
 
   // Future<Map<String, dynamic>> extractTextFromHtml(String htmlFilePath) async {
   //   try {

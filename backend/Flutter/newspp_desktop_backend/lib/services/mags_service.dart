@@ -28,8 +28,7 @@ class MagsService {
             responseData.map((mag) {
               // Ensure mag is a Map<String, dynamic>
               if (mag is Map<String, dynamic>) {
-                mag['html'] =
-                    '$baseHost$baseMagUrl${(mag['htmlPath'].toString().replaceAll('\\', '/'))}';
+                mag['html'] = '$baseHost/front/view?article=${mag['id']}';
                 mag['cover'] =
                     '$baseHost$baseMagUrl${(mag['coverImage'].toString().replaceAll('\\', '/'))}';
               }
@@ -170,11 +169,9 @@ class MagsService {
           response.data['mag'],
         );
 
-        print('Mag found $magazine');
+        magazine['html'] = '$baseHost/front/view?article=${magazine['id']}';
         magazine['cover'] =
-            '$baseHost$baseMagUrl/public/${magazine['coverImage']}';
-        magazine['html'] =
-            '$baseHost$baseMagUrl/public/${magazine['htmlPath']}';
+            '$baseHost$baseMagUrl${(magazine['coverImage'].toString().replaceAll('\\', '/'))}';
         return {'status': true, 'magazine': magazine};
       } else {
         final error = response.data['error'];
@@ -213,7 +210,7 @@ class MagsService {
       'id': id,
       'name': name,
       'field': 'htmlPath',
-      'value': convert['htmlPath'],
+      'value': convert['images'],
     };
 
     bool uploadToServer = await updateMagazine(mapToUpdate, true);
@@ -228,6 +225,7 @@ class MagsService {
       return false;
     }
 
+    await convertHelper.deleteImages();
     return true;
   }
 

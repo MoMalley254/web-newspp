@@ -509,8 +509,6 @@ class _ArticleInfoState extends State<ArticleInfo> {
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Call your convertService.openOnlineHtml here
-                    // Example:
                     convertService.openOnlineHtml(article['html'], article['title']);
                   },
                   icon: const Icon(Icons.open_in_new),
