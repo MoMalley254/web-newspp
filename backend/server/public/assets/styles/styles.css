@@ -388,6 +388,7 @@ body {
     margin-top: 2vh;
     height: 100vh;
     width: 100vw;
+    overflow: hidden;
   }
 
   .loading-articles h2 {
@@ -584,6 +585,7 @@ body {
   margin-top: 25vh;
   font-size: 50px;
   font-weight: 600;
+  height: 100vh;
 }
 
 #flipbook {
@@ -734,6 +736,15 @@ body {
     margin-top: 5vh;
     margin-bottom: -13vh;
   }
+
+  .loader {
+    margin-top: 5vh;
+    font-size: 50px;
+    font-weight: 600;
+    height: 50vh;
+  }
+
+  
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
@@ -759,4 +770,3 @@ body {
     margin-bottom: -13vh;
   }
 }
-
