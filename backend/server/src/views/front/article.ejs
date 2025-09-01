@@ -123,7 +123,13 @@
               <i class="material-icons">skip_next</i>
             </button> -->
 
-            <button id="btn-share" aria-label="Share">
+            <button 
+              id="btn-share" 
+              aria-label="Share"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#magShareCnvas"
+              aria-controls="magShareCnvas"
+              >
               <i class="material-icons">share</i>
             </button>
           </div>
@@ -197,6 +203,69 @@
           <% } %>
         </div>
       </div>
+
+      <div
+  class="offcanvas offcanvas-bottom text-bg-dark"
+  tabindex="-1"
+  id="magShareCnvas"
+  aria-labelledby="magShareCnvasLabel"
+  style="height: 75vh;"
+>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="magShareCnvasLabel">Share <%= mag.title %></h5>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+<div class="offcanvas-body">
+  <h5 class="mb-3">Share this magazine</h5>
+
+  <div class="d-flex flex-column flex-md-row">
+    <a 
+    id="whatsapp-share"
+    href="#"
+    class="btn btn-success mb-2 me-2 d-flex align-items-center" 
+    target="_blank"
+  >
+    <span class="material-icons me-2"></span> Share on WhatsApp
+  </a>
+
+  <a 
+    id="sms-share"
+    href="#"
+    class="btn btn-primary mb-2 me-2 d-flex align-items-center"
+  >
+    <span class="material-icons me-2">sms</span> Share via SMS
+  </a>
+
+  <button 
+    class="btn btn-secondary mb-2 me-2 d-flex align-items-center" 
+    onclick="copyLink()"
+  >
+    <span class="material-icons me-2">content_copy</span> Copy Link
+  </button>
+
+  <button 
+    class="btn btn-info text-white mb-2 me-2 d-flex align-items-center" 
+    onclick="shareNative()"
+  >
+    <span class="material-icons me-2">share</span> Share via Device
+  </button>
+  </div>
+</div>
+
+
+  <div class="offcanvas-footer p-3 text-end">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">
+      Close
+    </button>
+  </div>
+</div>
+
+
       </section>
 
       
@@ -254,5 +323,6 @@
     <script src="view/public/assets/scripts/article.js"></script>
     <script src="view/public/assets/scripts/script.js"></script>
     <script src="view/public/assets/scripts/page-flip.browser.js"></script>
+    <script src="view/public/assets/scripts/share.js"></script>
   </body>
 </html>
