@@ -232,3 +232,32 @@ export const updateMagazineService = async (
     };
   }
 };
+
+export const deleteMagService = async(magId: string, adminId: string) => {
+  try {
+    const adminExists = await prisma.admin.findUnique({
+      where: { id: adminId }
+    });
+    if (!adminExists) {
+      return {
+        status: false,
+        error: 'Unauthorized'
+      }
+    }
+
+    const deletedMag = await prisma.magazine.delete({
+      where: { id: magId }
+    });
+
+    return {
+      status: true,
+      data: deletedMag
+    };
+  } catch(deleteMagServiceError: any) {
+    console.error(`Delete mag service error ${deleteMagServiceError}`);
+    return {
+      status: false,
+      error: deleteMagServiceError.message || 'Unknown error occurred'
+    }
+  }
+}

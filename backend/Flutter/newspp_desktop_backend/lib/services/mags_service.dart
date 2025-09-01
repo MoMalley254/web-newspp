@@ -267,4 +267,26 @@ class MagsService {
       return false;
     }
   }
+
+  Future<bool> deleteMagazine(String magId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String adminId = prefs.getString('adminId') ?? '';
+
+      final response = await _dio.post('$baseMagUrl/del', data: {'magId': magId, 'admin': adminId});
+      if (response.statusCode == 200) {
+        toastHelper.showSuccesstoast('Magazine deleted successfully');
+        return true;
+      }
+
+      final error = await response.data['error'];
+        print('Error deleting $error');
+        toastHelper.showErrortoast(error.toString());
+        return false; 
+    } catch (deleteMagazineError) {
+      print('Delete magazine error $deleteMagazineError');
+      toastHelper.showErrortoast(deleteMagazineError.toString());
+      return false;
+    }
+  }
 }

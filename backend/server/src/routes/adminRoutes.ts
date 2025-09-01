@@ -15,6 +15,7 @@ import {
   createNewMag,
   findMagazine,
   updateMagazine,
+  deleteMagazine
 } from "../controllers/admin/magController";
 
 const router = express.Router();
@@ -153,5 +154,7 @@ router.post(
   ]),
   updateMagazine
 );
+
+router.post("/mag/del", authenticateAccessToken, deleteMagazine);
 
 export default router;

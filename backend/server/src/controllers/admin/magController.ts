@@ -4,6 +4,7 @@ import {
   createMagService,
   findSingleMagService,
   updateMagazineService,
+  deleteMagService
 } from "../../services/admin/magService";
 import path from "path";
 
@@ -155,5 +156,26 @@ export const updateMagazine = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ error: updateMagazineError.message || "Server error" });
+  }
+};
+
+export const deleteMagazine = async (req: Request, res: Response) => {
+  try {
+    const { magId, admin } = req.body;
+
+    if (!magId || magId === '' || !admin || admin === '') {
+      return res.status(400).json({ error: 'Bad request: magId and admin are required' });
+    }
+
+    const deleteResult = await deleteMagService(magId, admin);
+
+    if (!deleteResult.status) {
+      return res.status(500).json({ error: deleteResult.error });
+    }
+
+    return res.status(200).json({ mag: deleteResult.data });
+  } catch (deleteMagazineError: any) {
+    console.error(`Delete magazine error: ${deleteMagazineError.message || deleteMagazineError}`);
+    return res.status(500).json({ error: deleteMagazineError.message || 'Internal server error' });
   }
 };

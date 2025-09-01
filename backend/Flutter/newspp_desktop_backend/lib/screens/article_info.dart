@@ -509,7 +509,10 @@ class _ArticleInfoState extends State<ArticleInfo> {
                 const SizedBox(height: 10),
                 ElevatedButton.icon(
                   onPressed: () {
-                    convertService.openOnlineHtml(article['html'], article['title']);
+                    convertService.openOnlineHtml(
+                      article['html'],
+                      article['title'],
+                    );
                   },
                   icon: const Icon(Icons.open_in_new),
                   label: const Text('Open in browser'),
@@ -548,6 +551,26 @@ class _ArticleInfoState extends State<ArticleInfo> {
                   },
                   icon: const Icon(Icons.upload_file),
                   label: const Text('Upload New PDF Document'),
+                ),
+
+                const SizedBox(height: 40),
+
+                ElevatedButton.icon(
+                  onPressed: () {
+                    deleteMag(context);
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.white),
+                  label: const Text(
+                    'Delete Magazine',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Red button background
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -714,7 +737,77 @@ class _ArticleInfoState extends State<ArticleInfo> {
     );
 
     // bool updateFile = await uploadService.processMagazine(newPdf!);
-    bool updateFile = await magsService.processMagazine(newPdf!, article['id'], article['title']);
+    bool updateFile = await magsService.processMagazine(
+      newPdf!,
+      article['id'],
+      article['title'],
+    );
     Navigator.of(context).pop();
   }
+
+  Future<void> deleteMag(BuildContext context) async {
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.delete_forever, color: Colors.red),
+            const SizedBox(width: 8),
+            const Expanded(
+              child: Text(
+                'Confirm Deletion',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to delete "${article['title'] ?? 'this item'}"?\n\nThis action is irreversible.',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirm != true) return;
+
+  // Show loading dialog
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 20),
+            Expanded(child: Text('Deleting... Please wait.')),
+          ],
+        ),
+      );
+    },
+  );
+
+  final articleId = article['id'];
+  bool deleteSuccess = await magsService.deleteMagazine(articleId);
+
+  Navigator.of(context).pop(); // Close the loading dialog
+
+  if (deleteSuccess) {
+    widget.navigateTo?.call('Dashboard');
+  } 
+}
+
 }
