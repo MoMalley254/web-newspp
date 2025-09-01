@@ -126,6 +126,32 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                           ),
                         ),
                         Positioned(
+                          top: 10,
+                          right: 10,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              deleteMagazine(
+                                context,
+                                article['id'],
+                                article['title'],
+                              );
+                            },
+                            icon: const Icon(Icons.delete, color: Colors.white),
+                            label: const Text(
+                              'Delete',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        Positioned(
                           bottom: 10,
                           left: 10,
                           right: 10,
@@ -197,5 +223,81 @@ class _ArticlesSectionState extends State<ArticlesSection> {
         );
       },
     );
+  }
+
+  Future<void> deleteMagazine(
+    BuildContext context,
+    String magId,
+    String magName,
+  ) async {
+    // 1. Show confirmation dialog
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: const [
+              Icon(Icons.delete_forever, color: Colors.red),
+              SizedBox(width: 8),
+              Text(
+                'Confirm Deletion',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete "$magName"?\nThis action cannot be undone.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    // 2. Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Expanded(child: Text('Deleting... Please wait.')),
+            ],
+          ),
+        );
+      },
+    );
+
+    // 3. Perform the delete
+    bool deleted = await magsService.deleteMagazine(magId);
+
+    // 4. Close the loading dialog
+    Navigator.of(context).pop();
+
+    // 5. Show result and reload screen
+    if (deleted) {
+      // widget.navigateTo('Dashboard');
+      refreshArticles();
+    }
+  }
+
+  void refreshArticles() {
+    setState(() {
+      fetchArticles = magsService.getAllMags();
+    });
   }
 }
