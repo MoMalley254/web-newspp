@@ -80,42 +80,52 @@ class MagsService {
       if (formData['usePdf'] && pageImages.isNotEmpty) {
         print('📦 Preparing ${pageImages.length} images for upload...');
 
-        final List<MultipartFile> imageFiles = [];
+        // final List<MultipartFile> imageFiles = [];
+        final List<MultipartFile> imageFiles = await prepareImages(
+          pageImages,
+          formData['usePdf'],
+          formData['compress'],
+        );
 
-        for (final img in pageImages) {
-          print('Image $img');
-          // final page = img['page'];
-          // final bytes = img['bytes'] as Uint8List;
-          // final fileName = '$page.jpg'; // or .png
-          final page = img['file'];
-          // final bytes = img['bytes'] as Uint8List;
-          final fileName = img['page']; // or .png
+        // for (final img in pageImages) {
+        //   print('Image $img');
+        //   // final page = img['page'];
+        //   // final bytes = img['bytes'] as Uint8List;
+        //   // final fileName = '$page.jpg'; // or .png
+        //   final page = img['file'];
+        //   // final bytes = img['bytes'] as Uint8List;
+        //   final fileName = img['page']; // or .png
 
-          // final multipartFile = MultipartFile.fromBytes(
-          //   bytes,
-          //   filename: fileName,
-          // );
-          final multipartFile = await MultipartFile.fromFile(
-            page.path,
-            filename: fileName,
-          );
+        //   // final multipartFile = MultipartFile.fromBytes(
+        //   //   bytes,
+        //   //   filename: fileName,
+        //   // );
+        //   final multipartFile = await MultipartFile.fromFile(
+        //     page.path,
+        //     filename: fileName,
+        //   );
 
-          imageFiles.add(multipartFile);
-          // print('📎 Attached page $page as $fileName');
-          print('📎 Attached page $page as $fileName');
-        }
+        //   imageFiles.add(multipartFile);
+        //   // print('📎 Attached page $page as $fileName');
+        //   print('📎 Attached page $page as $fileName');
+        // }
 
         // ✅ Attach all images under one key
         mapData['images'] = imageFiles;
       } else {
         List<File> pages = formData['images'];
-        final List<MultipartFile> imageFiles = [];
-        if (pages.isNotEmpty) {
-          for (final image in pages) {
-            final imageFile = await MultipartFile.fromFile(image.path);
-            imageFiles.add(imageFile);
-          }
-        }
+        // final List<MultipartFile> imageFiles = [];
+        final List<MultipartFile> imageFiles = await prepareImages(
+          pages,
+          formData['usePdf'],
+          formData['compress'],
+        );
+        // if (pages.isNotEmpty) {
+        //   for (final image in pages) {
+        //     final imageFile = await MultipartFile.fromFile(image.path);
+        //     imageFiles.add(imageFile);
+        //   }
+        // }
         // ✅ Attach all images under one key
         mapData['images'] = imageFiles;
       }
@@ -273,20 +283,108 @@ class MagsService {
       final prefs = await SharedPreferences.getInstance();
       String adminId = prefs.getString('adminId') ?? '';
 
-      final response = await _dio.post('$baseMagUrl/del', data: {'magId': magId, 'admin': adminId});
+      final response = await _dio.post(
+        '$baseMagUrl/del',
+        data: {'magId': magId, 'admin': adminId},
+      );
       if (response.statusCode == 200) {
         toastHelper.showSuccesstoast('Magazine deleted successfully');
         return true;
       }
 
       final error = await response.data['error'];
-        print('Error deleting $error');
-        toastHelper.showErrortoast(error.toString());
-        return false; 
+      print('Error deleting $error');
+      toastHelper.showErrortoast(error.toString());
+      return false;
     } catch (deleteMagazineError) {
       print('Delete magazine error $deleteMagazineError');
       toastHelper.showErrortoast(deleteMagazineError.toString());
       return false;
     }
+  }
+
+  Future<List<MultipartFile>> prepareImages(
+    List<dynamic> images,
+    bool usePdfFile,
+    bool compress,
+  ) async {
+    try {
+      print('Should compress $compress');
+      final List<MultipartFile> multipartImages = [];
+
+      // Step 2: Compress images if needed
+      if (compress) {
+        // Step 1: Extract image paths
+        final List<String> imagePaths =
+            images
+                .map((image) {
+                  if (usePdfFile) {
+                    final file = image['file'];
+                    if (file is File) {
+                      return file.path;
+                    } else {
+                      print('WARN: Unexpected file type: ${file.runtimeType}');
+                      return null;
+                    }
+                  } else {
+                    return image.path;
+                  }
+                })
+                .whereType<String>()
+                .toList();
+
+        final List<dynamic> compressedImages = await convertHelper
+            .compressImages(imagePaths);
+
+        if (compressedImages.isNotEmpty) {
+          for (final img in compressedImages) {
+            final file = img['file'];
+            if (file is File) {
+              final imageFile = await MultipartFile.fromFile(file.path);
+              multipartImages.add(imageFile);
+            }
+          }
+        } else {
+          // Compression failed — fall back to original images
+          return await _fallbackMultipartImages(images, usePdfFile);
+        }
+      } else {
+        // No compression — use original images
+        return await _fallbackMultipartImages(images, usePdfFile);
+      }
+
+      return multipartImages;
+    } catch (e) {
+      print('Prepare images error $e');
+      toastHelper.showErrortoast(e.toString());
+      return [];
+    }
+  }
+
+  Future<List<MultipartFile>> _fallbackMultipartImages(
+    List<dynamic> images,
+    bool usePdfFile,
+  ) async {
+    print('Fallback to no compress');
+    final List<MultipartFile> result = [];
+
+    for (final image in images) {
+      if (usePdfFile) {
+        // image is File
+        final imageFile = await MultipartFile.fromFile(image['file'].path);
+        result.add(imageFile);
+      } else {
+        // image is Map with 'file' and 'page'
+        print('Image $image');
+          final multipartFile = await MultipartFile.fromFile(
+            image.path,
+          );
+          result.add(multipartFile);
+      }
+    }
+
+    print('Result $result');
+
+    return result;
   }
 }

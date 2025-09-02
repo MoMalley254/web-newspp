@@ -13,8 +13,6 @@ import 'package:url_launcher/url_launcher.dart';
 class Pdf2HtmlConverter {
   final toastHelper = ToastService();
 
-  /// Prepares the executable and required data folder.
-  /// Returns true if successfully prepared.
   Future<Map<String, dynamic>> prepareExecutable() async {
     try {
       final supportDir = await getApplicationSupportDirectory();
@@ -235,12 +233,12 @@ class Pdf2HtmlConverter {
       //               f is File && p.extension(f.path).toLowerCase() == '.page',
       //         )
       //         .toList();
-      final pageFiles =
-          allFiles
-              .where(
-                (f) => f is File && p.extension(f.path).toLowerCase() == '.png',
-              )
-              .toList();
+      final pageFiles = allFiles
+    .where((f) =>
+        f is File &&
+        ['.png', '.jpg'].contains(p.extension(f.path).toLowerCase()))
+    .toList();
+
 
       print('📄 Total files found: ${allFiles.length}');
       print('📄 .page files found: ${pageFiles.length}');
@@ -328,39 +326,39 @@ class Pdf2HtmlConverter {
     }
   }
 
- Future<void> openOnlineHtml(String htmlUrl, String magName) async {
-  try {
-    toastHelper.showProcessingtoast('Opening $magName, please wait...', 2);
+  Future<void> openOnlineHtml(String htmlUrl, String magName) async {
+    try {
+      toastHelper.showProcessingtoast('Opening $magName, please wait...', 2);
 
-    Uri uri;
+      Uri uri;
 
-    // Handle both absolute paths and already-formatted file:// URLs
-    if (htmlUrl.startsWith('http://') || htmlUrl.startsWith('https://')) {
-      uri = Uri.parse(htmlUrl);
-    } else {
-      // Convert file path to file:// URI
-      uri = Uri.file(htmlUrl);
-    }
-
-    // Use url_launcher to open in browser (works on all platforms, including Windows)
-    final launched = await launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    );
-
-    if (!launched) {
-      // Fallback: try in default browser via platform-specific command
-      if (Platform.isWindows) {
-        await Process.start('cmd', ['/c', 'start', '', uri.toString()]);
+      // Handle both absolute paths and already-formatted file:// URLs
+      if (htmlUrl.startsWith('http://') || htmlUrl.startsWith('https://')) {
+        uri = Uri.parse(htmlUrl);
       } else {
-        toastHelper.showErrortoast('Could not open $magName in browser.');
+        // Convert file path to file:// URI
+        uri = Uri.file(htmlUrl);
       }
+
+      // Use url_launcher to open in browser (works on all platforms, including Windows)
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        // Fallback: try in default browser via platform-specific command
+        if (Platform.isWindows) {
+          await Process.start('cmd', ['/c', 'start', '', uri.toString()]);
+        } else {
+          toastHelper.showErrortoast('Could not open $magName in browser.');
+        }
+      }
+    } catch (error) {
+      print('Unable to open HTML file: $error');
+      toastHelper.showErrortoast('Error opening HTML file: $error');
     }
-  } catch (error) {
-    print('Unable to open HTML file: $error');
-    toastHelper.showErrortoast('Error opening HTML file: $error');
   }
-}
 
   // Future<Map<String, dynamic>> extractTextFromHtml(String htmlFilePath) async {
   //   try {
@@ -491,5 +489,105 @@ class Pdf2HtmlConverter {
     // Simple check for common image file extensions
     final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
     return imageExtensions.any((ext) => filePath.toLowerCase().endsWith(ext));
+  }
+
+  Future<Map<String, dynamic>> prepareCompressExecutable() async {
+    try {
+      final supportDir = await getApplicationSupportDirectory();
+      final toolDir = Directory(p.join(supportDir.path, 'compressImages'));
+
+      print('📁 Support directory: ${supportDir.path}');
+      print('🔧 Tool directory: ${toolDir.path}');
+
+      final exePath = p.join(toolDir.path, 'compress.exe');
+
+      final exeFile = File(exePath);
+
+      if (!await exeFile.exists()) {
+        print('⚙️ Extracting compress.exe...');
+
+        await toolDir.create(recursive: true);
+        final exeBytes = await rootBundle.load(
+          'assets/bin/windows/compress.exe',
+        );
+        await exeFile.writeAsBytes(exeBytes.buffer.asUint8List());
+
+        print('✅ compressor prepared at $exePath');
+      } else {
+        print('✅ compressor already exists at $exePath');
+      }
+
+      return {'status': true, 'toolDir': toolDir.path};
+    } catch (e) {
+      print('❌ Error preparing executable: $e');
+      return {'status': false, 'error': e};
+    }
+  }
+
+  Future<List<dynamic>> compressImages(List<dynamic> imagePaths) async {
+    try {
+      print('Image paths $imagePaths');
+      final normalizedImagePaths = imagePaths.map((p) => p.replaceAll('\\', '/')).toList();
+      print('Normalized paths $normalizedImagePaths');
+
+      final toolDir = await prepareCompressExecutable();
+      (!toolDir['status']) ? throw Exception(toolDir['error']) : null;
+      toastHelper.showSuccesstoast('Converter ready');
+
+      String toolPath = toolDir['toolDir'];
+      final exePath = p.join(toolDir['toolDir'], 'compress.exe');
+
+      final compressedImagesDir = p.join(toolDir['toolDir'], 'compressed');
+      final outputDirExists = await Directory(compressedImagesDir).exists();
+      if (!outputDirExists) {
+        await Directory(compressedImagesDir).create(recursive: true);
+        print('📁 Created output directory: $compressedImagesDir');
+      } else {
+        print('📁 Output directory already exists: $compressedImagesDir');
+      }
+
+      toastHelper.showProcessingtoast(
+        'Compressing images, do not close this window',
+        7,
+      );
+
+      final process = await Process.start(exePath, [compressedImagesDir, ...normalizedImagePaths], runInShell: true);
+
+      // Listen to stdout
+      process.stdout.transform(SystemEncoding().decoder).listen((line) {
+        print("LOG: $line");
+        toastHelper.showProcessingtoast(line, 3);
+      });
+
+      // Listen to stderr
+      process.stderr.transform(SystemEncoding().decoder).listen((line) {
+        print("LOG: $line");
+        toastHelper.showWarningtoast(line);
+      });
+
+      final exitCode = await process.exitCode;
+      if (exitCode == 1) {
+        toastHelper.showWarningtoast(
+          'Compression failed, using uncompressed files',
+        );
+        return [];
+      }
+      print('✅ Compression complete. Exit code: $exitCode');
+
+      Map<String, dynamic> getImages = await getImagesFromFiles(
+        compressedImagesDir,
+      );
+      if (!getImages['status']) {
+        toastHelper.showErrortoast(getImages['error'].toString());
+        return [];
+      }
+
+      // return {'status': true, 'htmlPath': htmlPath};
+      return getImages['images'];
+    } catch (compressImagesError) {
+      print('Compress images error $compressImagesError');
+      toastHelper.showErrortoast(compressImagesError.toString());
+      return [];
+    }
   }
 }

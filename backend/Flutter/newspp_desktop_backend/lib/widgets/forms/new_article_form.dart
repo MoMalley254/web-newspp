@@ -31,6 +31,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
 
   bool usePdf = true;
   List<File?> _selectedImages = [];
+  bool useCompression = true;
 
   @override
   void dispose() {
@@ -399,6 +400,17 @@ class _NewArticleFormState extends State<NewArticleForm> {
                 ),
             const SizedBox(height: 24),
 
+            SwitchListTile(
+              title: Text("Use compression to reduce file sizes"),
+              value: useCompression,
+              onChanged: (bool value) {
+                setState(() {
+                  useCompression = value;
+                });
+              },
+            ),
+            const SizedBox(height: 10),
+
             // Submit Button
             ElevatedButton.icon(
               icon: const Icon(Icons.check_circle_outline),
@@ -456,6 +468,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     'desc': _descController.text,
                     'cover': _coverImage,
                     'usePdf': usePdf,
+                    'compress': useCompression
                   };
 
                   // 👇 Conditionally add either 'pdf' or 'images'

@@ -39,3 +39,4 @@ flutter:
     - assets/tessdata_config.json
     - assets/bin/windows/convert.exe
     - assets/bin/windows/poppler/bin/
+    - assets/bin/windows/compress.exe
