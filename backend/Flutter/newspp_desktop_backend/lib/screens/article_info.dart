@@ -542,7 +542,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
                         return;
                       }
 
-                      await updateMagFile(context, file);
+                      await updateMagFile(context, file, article['htmlPath']);
                       setState(() {
                         hasUpdated = true;
                       });
@@ -695,7 +695,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
     return true;
   }
 
-  Future<void> updateMagFile(BuildContext context, PlatformFile? newPdf) async {
+  Future<void> updateMagFile(BuildContext context, PlatformFile? newPdf, String pagesPath) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -741,6 +741,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
       newPdf!,
       article['id'],
       article['title'],
+      pagesPath
     );
     Navigator.of(context).pop();
   }

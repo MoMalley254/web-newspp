@@ -1,10 +1,11 @@
-import express from "express";
+import express, { NextFunction } from "express";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from 'uuid';
 
 import { authenticateAccessToken } from "../middlewares/admin/authMiddleware";
+import { deletePreviousMagazineFiles } from "../middlewares/admin/deletePreviousMiddleware";
 import {
   createAdmin,
   loginAdmin,
@@ -142,7 +143,18 @@ router.post(
   "/mag/update",
   authenticateAccessToken,
   upload.fields([
-    { name: "html", maxCount: 1 },
+    { name: "htmlPath", maxCount: 100 },
+    { name: "cover", maxCount: 1 },
+  ]),
+  updateMagazine
+);
+
+router.post(
+  "/mag/update/pdf",
+  authenticateAccessToken,
+  deletePreviousMagazineFiles,
+  upload.fields([
+    { name: "images", maxCount: 100 },
     { name: "cover", maxCount: 1 },
   ]),
   updateMagazine

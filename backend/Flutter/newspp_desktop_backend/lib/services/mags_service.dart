@@ -149,7 +149,9 @@ class MagsService {
 
         // ✅ Delete the HTML file after successful upload
         try {
-          Map<String, dynamic> clean = await convertHelper.deleteImages(formData['compress']);
+          Map<String, dynamic> clean = await convertHelper.deleteImages(
+            formData['compress'],
+          );
           if (!clean['status']) {
             toastHelper.showWarningtoast(
               'Files not cleaned, please delete manually from ${clean['pagesDir']}',
@@ -199,6 +201,7 @@ class MagsService {
     PlatformFile? newPdf,
     String id,
     String name,
+    String pagesPath,
   ) async {
     if (newPdf == null || newPdf.path == null) {
       toastHelper.showErrortoast('No PDF file provided.');
@@ -221,6 +224,7 @@ class MagsService {
       'name': name,
       'field': 'htmlPath',
       'value': convert['images'],
+      'pagesPath': pagesPath,
     };
 
     bool uploadToServer = await updateMagazine(mapToUpdate, true);
@@ -236,7 +240,7 @@ class MagsService {
     }
 
     // TODO:CONFIGURE DELETE COMPRESSED
-    await convertHelper.deleteImages(false);
+    await convertHelper.deleteImages(true);
     return true;
   }
 
@@ -245,11 +249,40 @@ class MagsService {
     hasFile,
   ) async {
     try {
+      String updateUrl = '$baseMagUrl/update';
+      Map<String, dynamic> queryParams = {};
       if (hasFile) {
         if (magazineData['field'] == 'htmlPath') {
-          magazineData['html'] = await MultipartFile.fromFile(
+          updateUrl += '/pdf';
+          queryParams['pagesPath'] = magazineData['pagesPath'];
+          final List<MultipartFile> imageFiles = await prepareImages(
             magazineData['value'],
+            true,
+            true,
           );
+
+          print('Image files: ${imageFiles.length}');
+          magazineData['htmlPath'] = '';
+
+          List<MultipartFile> finalHtmlFiles = [];
+
+          if (imageFiles.isNotEmpty) {
+            finalHtmlFiles = imageFiles;
+          } else {
+            // Fallback: create MultipartFile for each path in original data
+            final originalPaths = magazineData['value'];
+
+            if (originalPaths is List<String>) {
+              finalHtmlFiles = await Future.wait(
+                originalPaths.map((path) async {
+                  return await MultipartFile.fromFile(path);
+                }),
+              );
+            }
+          }
+
+          // Assign to the expected field as a list under a single key
+          magazineData['images'] = finalHtmlFiles;
         } else if (magazineData['field'] == 'coverImage') {
           magazineData['cover'] = await MultipartFile.fromFile(
             magazineData['value'],
@@ -258,9 +291,16 @@ class MagsService {
         }
       }
 
+      print('Magazine update data $magazineData');
+
       final update = FormData.fromMap(magazineData);
 
-      final response = await _dio.post('$baseMagUrl/update', data: update);
+      final response = await _dio.post(
+        updateUrl,
+        queryParameters: queryParams,
+        data: update,
+      );
+
       if (response.statusCode == 201) {
         toastHelper.showSuccesstoast(
           '${magazineData['name']}, updated successfully',
@@ -377,10 +417,8 @@ class MagsService {
       } else {
         // image is Map with 'file' and 'page'
         print('Image $image');
-          final multipartFile = await MultipartFile.fromFile(
-            image.path,
-          );
-          result.add(multipartFile);
+        final multipartFile = await MultipartFile.fromFile(image.path);
+        result.add(multipartFile);
       }
     }
 

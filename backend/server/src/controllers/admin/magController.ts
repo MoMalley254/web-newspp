@@ -116,7 +116,7 @@ export const findMagazine = async (req: Request, res: Response) => {
   }
 };
 
-export const updateMagazine = async (req: Request, res: Response) => {
+export const updateMagazine = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { id, name, field, value } = req.body;
 
@@ -131,12 +131,23 @@ export const updateMagazine = async (req: Request, res: Response) => {
         | undefined;
 
       if (files && files[cover] && files[cover][0]) {
-        valueToUse = files[cover][0].path.split("\\public\\").slice(1).join("\\public\\");
-        if (!valueToUse.includes('\\public\\')) {
-          valueToUse = `\\public\\${valueToUse}`;
-        }
+        // valueToUse = files[cover][0].path.split("\\public\\").slice(1).join("\\public\\");
+        valueToUse = "\\public\\" + files[cover][0].path.split("public\\").slice(1).join("public");
+        // if (!valueToUse.includes('\\public\\')) {
+        //   valueToUse = `\\public\\${valueToUse}`;
+        // }
       } else {
         console.warn(`No file uploaded for field: ${cover}`);
+      }
+
+      if (field === "htmlPath") {
+        // ✅ Directory path from multer setup
+        const uploadFolder = (req as any).uploadFolder;
+        const pagesDir = path.join(uploadFolder, "pages");
+        const relativeUploadPath =
+      "\\public\\" +
+      pagesDir.split("public\\").slice(1).join("public");
+      valueToUse = relativeUploadPath;
       }
     }
 
@@ -158,6 +169,29 @@ export const updateMagazine = async (req: Request, res: Response) => {
       .json({ error: updateMagazineError.message || "Server error" });
   }
 };
+
+export const updateMagazineWithPdf = async(req: Request, res: Response) => {
+  try {
+    const { id, name, field, value } = req.body;
+
+    // let valueToUse = ;
+
+    const relativeUploadPath = "\\public\\" + (req as any).uploadFolder.split("public\\").slice(1).join("public");
+
+    const updateMag = await updateMagazineService(
+      { id: id, name: name, field: 'htmlPath', value: relativeUploadPath },
+      false
+    );
+    if (updateMag?.status) {
+      return res.status(201).json({ message: `${name} updated` });
+    } else {
+      return res.status(500).json({ error: updateMag?.error });
+    }
+  } catch(updateMagazineWithPdfError: any) {
+    console.error(`Update magazine with pdf error ${updateMagazineWithPdfError}`);
+    return res.status(500).json({ error: updateMagazineWithPdfError.message || 'Internal server error'});
+  }
+}
 
 export const deleteMagazine = async (req: Request, res: Response) => {
   try {
