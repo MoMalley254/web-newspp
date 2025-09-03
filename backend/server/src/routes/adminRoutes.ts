@@ -2,6 +2,8 @@ import express from "express";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import { v4 as uuidv4 } from 'uuid';
+
 import { authenticateAccessToken } from "../middlewares/admin/authMiddleware";
 import {
   createAdmin,
@@ -19,18 +21,6 @@ import {
 } from "../controllers/admin/magController";
 
 const router = express.Router();
-
-// ✅ Generate a timestamp folder name
-function generateFolderName(): string {
-  const now = new Date();
-
-  const day = String(now.getDate()).padStart(2, "0"); // DD
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // MM (getMonth() is zero-based)
-  const year = now.getFullYear(); // YYYY
-
-  const formatted = `${day}-${month}-${year}`;
-  return formatted;
-}
 
 // 🕒 Generate folder name: "DD-MM-YYYY"
 function generateDateFolder(): string {
@@ -55,6 +45,8 @@ const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dateFolder = generateDateFolder();    // e.g. "27-08-2025"
     const timeFolder = generateTimeFolder();    // e.g. "14"
+    const uniqueId = uuidv4();
+    const magazineName = req.body.title || uniqueId;
     const folderPath = path.join(
       __dirname,
       "..",
@@ -62,7 +54,8 @@ const storage = multer.diskStorage({
       "public",
       "magazines",
       dateFolder,
-      timeFolder
+      timeFolder,
+      magazineName
     );
 
     // Create folder if it doesn't exist
