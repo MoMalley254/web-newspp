@@ -149,7 +149,7 @@ class MagsService {
 
         // ✅ Delete the HTML file after successful upload
         try {
-          Map<String, dynamic> clean = await convertHelper.deleteImages();
+          Map<String, dynamic> clean = await convertHelper.deleteImages(formData['compress']);
           if (!clean['status']) {
             toastHelper.showWarningtoast(
               'Files not cleaned, please delete manually from ${clean['pagesDir']}',
@@ -235,7 +235,8 @@ class MagsService {
       return false;
     }
 
-    await convertHelper.deleteImages();
+    // TODO:CONFIGURE DELETE COMPRESSED
+    await convertHelper.deleteImages(false);
     return true;
   }
 

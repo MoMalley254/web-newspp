@@ -233,12 +233,17 @@ class Pdf2HtmlConverter {
       //               f is File && p.extension(f.path).toLowerCase() == '.page',
       //         )
       //         .toList();
-      final pageFiles = allFiles
-    .where((f) =>
-        f is File &&
-        ['.png', '.jpg'].contains(p.extension(f.path).toLowerCase()))
-    .toList();
-
+      final pageFiles =
+          allFiles
+              .where(
+                (f) =>
+                    f is File &&
+                    [
+                      '.png',
+                      '.jpg',
+                    ].contains(p.extension(f.path).toLowerCase()),
+              )
+              .toList();
 
       print('📄 Total files found: ${allFiles.length}');
       print('📄 .page files found: ${pageFiles.length}');
@@ -445,7 +450,7 @@ class Pdf2HtmlConverter {
   //   }
   // }
 
-  Future<Map<String, dynamic>> deleteImages() async {
+  Future<Map<String, dynamic>> deleteImages(bool usedCompress) async {
     String pagesDir = '';
     try {
       toastHelper.showProcessingtoast('Cleaning up files, please wait...', 3);
@@ -471,6 +476,35 @@ class Pdf2HtmlConverter {
               print('Deleted image: ${file.path}');
             } catch (e) {
               print('Error deleting file ${file.path}: $e');
+            }
+          }
+        }
+      }
+
+      if (usedCompress) {
+        final compressToolDirectory = Directory(
+          p.join(supportDir.path, 'compressImages'),
+        );
+        if (!compressToolDirectory.existsSync()) {
+          throw Exception('File system not found');
+        }
+        final compressedImagesDir = p.join(
+          compressToolDirectory.path,
+          'compressed',
+        );
+        final compressedDirectory = Directory(compressedImagesDir);
+        if (await compressedDirectory.exists()) {
+          final files = compressedDirectory.listSync();
+
+          // Loop through each file and delete if it's an image
+          for (var file in files) {
+            if (file is File && _isImage(file.path)) {
+              try {
+                await file.delete();
+                print('Deleted image: ${file.path}');
+              } catch (e) {
+                print('Error deleting file ${file.path}: $e');
+              }
             }
           }
         }
@@ -527,7 +561,8 @@ class Pdf2HtmlConverter {
   Future<List<dynamic>> compressImages(List<dynamic> imagePaths) async {
     try {
       print('Image paths $imagePaths');
-      final normalizedImagePaths = imagePaths.map((p) => p.replaceAll('\\', '/')).toList();
+      final normalizedImagePaths =
+          imagePaths.map((p) => p.replaceAll('\\', '/')).toList();
       print('Normalized paths $normalizedImagePaths');
 
       final toolDir = await prepareCompressExecutable();
@@ -551,7 +586,10 @@ class Pdf2HtmlConverter {
         7,
       );
 
-      final process = await Process.start(exePath, [compressedImagesDir, ...normalizedImagePaths], runInShell: true);
+      final process = await Process.start(exePath, [
+        compressedImagesDir,
+        ...normalizedImagePaths,
+      ], runInShell: true);
 
       // Listen to stdout
       process.stdout.transform(SystemEncoding().decoder).listen((line) {
