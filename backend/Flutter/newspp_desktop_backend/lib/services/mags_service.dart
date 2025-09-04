@@ -249,6 +249,7 @@ class MagsService {
     hasFile,
   ) async {
     try {
+      print('Magazine data b4 clean $magazineData');
       String updateUrl = '$baseMagUrl/update';
       Map<String, dynamic> queryParams = {};
       if (hasFile) {
@@ -262,7 +263,6 @@ class MagsService {
           );
 
           print('Image files: ${imageFiles.length}');
-          magazineData['htmlPath'] = '';
 
           List<MultipartFile> finalHtmlFiles = [];
 
@@ -283,6 +283,8 @@ class MagsService {
 
           // Assign to the expected field as a list under a single key
           magazineData['images'] = finalHtmlFiles;
+    magazineData.remove('value');    // This key seems to hold raw files
+    magazineData.remove('field');    // No longer needed
         } else if (magazineData['field'] == 'coverImage') {
           magazineData['cover'] = await MultipartFile.fromFile(
             magazineData['value'],
@@ -291,7 +293,7 @@ class MagsService {
         }
       }
 
-      print('Magazine update data $magazineData');
+      print('Magazine after clean $magazineData');
 
       final update = FormData.fromMap(magazineData);
 

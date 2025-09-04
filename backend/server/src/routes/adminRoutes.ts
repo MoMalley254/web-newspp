@@ -45,33 +45,35 @@ function generateTimeFolder(): string {
 // ✅ Dynamic Multer storage config
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dateFolder = generateDateFolder();    // e.g. "27-08-2025"
-    const timeFolder = generateTimeFolder();    // e.g. "14"
-    const uniqueId = uuidv4();
-    const magazineName = req.body.title || uniqueId;
-    const folderPath = path.join(
-      __dirname,
-      "..",
-      "..",
-      "public",
-      "magazines",
-      dateFolder,
-      timeFolder,
-      magazineName
-    );
+    if (!(req as any).uploadFolder) {
+      const dateFolder = generateDateFolder();    // e.g. "27-08-2025"
+      const timeFolder = generateTimeFolder();    // e.g. "14"
+      const uniqueId = uuidv4();
+      const magazineName = req.body.title || uniqueId;
 
-    // Create folder if it doesn't exist
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
+      const folderPath = path.join(
+        __dirname,
+        "..",
+        "..",
+        "public",
+        "magazines",
+        dateFolder,
+        timeFolder,
+        magazineName
+      );
+
+      // Create folder if it doesn't exist
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+      }
+
+      (req as any).uploadFolder = folderPath;
     }
-
-    // Attach folder path to req so controller can find uploaded file if needed
-    (req as any).uploadFolder = folderPath;
 
     const targetFolder =
       file.fieldname === "images"
-        ? path.join(folderPath, "pages")
-        : folderPath;
+        ? path.join((req as any).uploadFolder, "pages")
+        : (req as any).uploadFolder;
 
     if (!fs.existsSync(targetFolder)) {
       fs.mkdirSync(targetFolder, { recursive: true });
@@ -83,6 +85,7 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+
 
 const upload = multer({
   storage: storage,
@@ -158,7 +161,24 @@ router.post(
     { name: "images", maxCount: 100 },
     { name: "cover", maxCount: 1 },
   ]),
-  updateMagazineWithPdf
+  // updateMagazineWithPdf
+  async(req, res, next) => {
+    try {
+      console.log(`Request body ${JSON.stringify(req.body)}`);
+      const files = req.files as {
+        images?: Express.Multer.File[];
+      };
+
+      const images = files.images || [];
+      console.log(`Images ${images.length}`);
+
+      // ✅ Hand off to controller
+      await updateMagazineWithPdf(req, res);
+    } catch (err) {
+      console.error("Error processing magazine pages:", err);
+      res.status(500).json({ error: "Failed to update magazine" });
+    }
+  }
 );
 
 router.post("/mag/del", authenticateAccessToken, deleteMagazine);

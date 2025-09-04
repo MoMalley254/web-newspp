@@ -176,7 +176,8 @@ export const updateMagazineWithPdf = async(req: Request, res: Response) => {
 
     // let valueToUse = ;
 
-    const relativeUploadPath = "\\public\\" + (req as any).uploadFolder.split("public\\").slice(1).join("public");
+    const fullUploadPath = path.join((req as any).uploadFolder, "pages");
+    const relativeUploadPath = "\\public\\" + fullUploadPath.split("public\\").slice(1).join("public");
 
     const updateMag = await updateMagazineService(
       { id: id, name: name, field: 'htmlPath', value: relativeUploadPath },
