@@ -35,7 +35,6 @@ function detectDeviceType() {
   return false;
 }
 
-// Animate loading dots
 const dotsInterval = setInterval(() => {
   dotCount = (dotCount + 1) % 4;
   dotsSpan.textContent = ".".repeat(dotCount);
@@ -45,7 +44,6 @@ const articlesPath = `/assets/articles`;
 getArticles();
 
 async function getArticles() {
-  // const allArticles = await fetchPromises();
   const allArticles = await fetchMagazinesFromServer();
 
   // Stop if all fetches failed
@@ -80,10 +78,6 @@ async function getArticles() {
   if (articlesLoader) articlesLoader.style.display = "none";
 
   allArticles.mags.forEach((magazine) => {
-    // console.log(` `);
-    // console.log(`Mag ${JSON.stringify(magazine)}`);
-    // console.log(``);
-    // console.log(``);
 
     const thumb1 = createArticleThumbnail(magazine);
 
@@ -92,7 +86,6 @@ async function getArticles() {
   foundItems.textContent = allArticles.mags.length;
 }
 
-// Create thumbnail element
 function createArticleThumbnail(mag) {
   const thumb = document.createElement("div");
   const actualArticleName = mag["title"];
@@ -108,7 +101,6 @@ function createArticleThumbnail(mag) {
     let imageUrl = `${baseUrl}${mag["coverImage"]
       .replace(/\\/g, "/")
       .replace(/\/+/g, "/")}`;
-    // thumb.style.backgroundImage = `linear-gradient(to right, rgba(255,255,255,0.2), rgba(255,255,255,0.2)), url(${imageUrl})`;
     thumb.style.backgroundImage = `
       radial-gradient(
         circle at bottom left,
@@ -121,7 +113,7 @@ function createArticleThumbnail(mag) {
 
     thumb.style.backgroundSize = "cover";
     thumb.style.backgroundPosition = "center";
-    thumb.style.color = "#f2eaeaff"; // Optional: make text readable on light overlay
+    thumb.style.color = "#f2eaeaff"; 
   }
 
   thumb.addEventListener("click", () => {
@@ -130,8 +122,6 @@ function createArticleThumbnail(mag) {
     window.location.href = `/front/view?article=${encodeURIComponent(
       articleId
     )}`;
-    // window.open(`/front/view?article=${encodeURIComponent(articleId)}`);
-    // thumbnailsContainer.style.display = "none";
   });
 
   return thumb;

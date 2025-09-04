@@ -60,13 +60,11 @@ function detectDeviceType() {
   return false;
 }
 
-// Animate loading dots
 const dotsInterval = setInterval(() => {
   dotCount = (dotCount + 1) % 4;
   dotsSpan.textContent = ".".repeat(dotCount);
 }, 500);
 
-const PRIORITY_LOAD_COUNT = 4; // First N images to load sequentially
 async function prepareFlipBook() {
   try {
     const resourceUrl = flipContainer.getAttribute("data-resource-url");
@@ -106,7 +104,6 @@ async function prepareFlipBook() {
     const imagePages = data.images.map((image) => {
       const imageUrl = `view${image}`;
 
-      // Create DOM elements
       const pageElement = document.createElement("div");
       pageElement.classList.add("page");
 
@@ -119,21 +116,19 @@ async function prepareFlipBook() {
       const img = document.createElement("img");
       img.src = imageUrl;
       img.setAttribute('loading', 'lazy');
-      img.classList.add("image-hidden"); // Hide initially
+      img.classList.add("image-hidden"); 
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "contain";
       img.style.display = "block";
 
-      // When the image finishes loading
       img.addEventListener("load", () => {
         wrapper.style.backgroundColor = 'transparent';
-        loader.remove(); // Remove loader
-        img.classList.remove("image-hidden"); // Show image
+        loader.remove(); 
+        img.classList.remove("image-hidden"); 
         img.classList.add("image-loaded");
       });
 
-      // In case of error
       img.addEventListener("error", () => {
         loader.style.animation = "none";
         loader.textContent = "Failed to load";
@@ -141,7 +136,6 @@ async function prepareFlipBook() {
         loader.style.color = "red";
       });
 
-      // Build the DOM structure
       wrapper.appendChild(loader);
       wrapper.appendChild(img);
       pageElement.appendChild(wrapper);
@@ -161,21 +155,12 @@ async function prepareFlipBook() {
   }
 }
 
-// async function showFlipbook(imageUrls, hasMore, moreImages = []) {
 async function showFlipbook(imageUrls) {
   const flipBook = new St.PageFlip(flipContainer, {
-    // width: isMobile ? flipContainer.clientWidth :  flipContainer.clientWidth / 2,
-    // height: flipContainer.clientHeight,
-    // size: "fixed",
-    // minWidth: 300,
-    // minHeight: 400,
-    // maxWidth: 2000,
-    // maxHeight: 3000,
-    width: isMobile ? 350 : 500, // base page width
-    height: isMobile ? 500 : 700, // base page height
+    width: isMobile ? 350 : 500, 
+    height: isMobile ? 500 : 700, 
 
     size: "fixed",
-    // set threshold values:
     minWidth: 315,
     maxWidth: 1000,
     minHeight: 420,
@@ -185,46 +170,8 @@ async function showFlipbook(imageUrls) {
     mobileScrollSupport: true,
   });
 
-  // Load the initial chunk
-  // flipBook.loadFromImages(imageUrls);
   flipBook.loadFromHTML(document.querySelectorAll(".page"));
 
-  // Keep track of remaining images
-  //   let remainingImages = [...moreImages];
-  //   let isLoading = false; // Prevent duplicate loads
-
-  // Add listener to load more pages when near the end
-  //   flipBook.on("flip", async (e) => {
-  //     const totalPages = flipBook.getPageCount();
-  //     const currentPage = e.data;
-
-  //     // If user is on the last or second-last page, load more
-  //     if (
-  //       hasMore &&
-  //       !isLoading &&
-  //       remainingImages.length > 0 &&
-  //       currentPage >= totalPages - 2
-  //     ) {
-  //       isLoading = true;
-
-  //       const nextChunk = remainingImages.splice(0, 5); // Load next 5 pages
-  //       for (let img of nextChunk) {
-  //         const cleanLink = `view${img}`;
-  //         console.log(`Img ${img}`);
-  //         console.log(`Cleaned ${cleanLink}`);
-  //         flipBook.loadFromImages(cleanLink);
-  //       }
-
-  //       // If nothing left, stop future loading
-  //       if (remainingImages.length === 0) {
-  //         hasMore = false;
-  //       }
-
-  //       isLoading = false;
-  //     }
-  //   });
-
-  // Store for global access if needed
   window.flipBookInstance = flipBook;
 
   initButtons(flipBook);
