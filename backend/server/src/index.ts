@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import adminRoutes from './routes/adminRoutes';
 import frontendRoutes from './routes/frontendRoutes';
+import dataRoutes from './routes/dataRoute';
 import path from 'path';
 
 const app = express();
@@ -21,6 +22,7 @@ app.get('/', async (req: Request, res: Response) => {
 
 app.use('/front', frontendRoutes);
 app.use('/admin', adminRoutes);
+app.use('/data', dataRoutes);
 
 const PORT = process.env.PORT || 3005;
 app.listen(PORT, () => {

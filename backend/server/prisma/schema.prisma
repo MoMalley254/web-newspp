@@ -47,3 +47,28 @@ model Magazine {
   credits Json?
 }
 
+model MagzineReadingSession {
+  id String @id @default(uuid())
+
+  // Device/session metadata
+  fingerprint  String
+  location     String?   // optional, from IP geolocation
+  deviceType   String    // e.g. "desktop", "mobile", etc.
+  language     String    // e.g. "en-US"
+
+  // Magazine context
+  magazineId   String    // required, refers to specific magazine
+
+  // Reading behavior
+  startedAt    DateTime
+  endedAt      DateTime?
+  completed    Boolean   @default(false) // did they reach the last page?
+
+  // Per-page data
+  pages        Json      // e.g. [{ "pageNumber": 1, "timeSpent": 12 }, ...]
+
+  //Make querying these easier
+  @@index([fingerprint])
+  @@index([magazineId])
+}
+
