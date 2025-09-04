@@ -65,6 +65,8 @@ const dotsInterval = setInterval(() => {
   dotCount = (dotCount + 1) % 4;
   dotsSpan.textContent = ".".repeat(dotCount);
 }, 500);
+
+const PRIORITY_LOAD_COUNT = 4; // First N images to load sequentially
 async function prepareFlipBook() {
   try {
     const resourceUrl = flipContainer.getAttribute("data-resource-url");
@@ -101,28 +103,52 @@ async function prepareFlipBook() {
       throw new Error("No images found in response.");
     }
 
-    // const imageUrls = data.images.map((image) => `view${image}`);
-    // showFlipbook(imageUrls, data.hasMore, data.remaining);
-
     const imagePages = data.images.map((image) => {
       const imageUrl = `view${image}`;
 
-      // Create an actual DOM element
+      // Create DOM elements
       const pageElement = document.createElement("div");
       pageElement.classList.add("page");
 
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("image-wrapper");
+
+      const loader = document.createElement("div");
+      loader.classList.add("image-loader");
+
       const img = document.createElement("img");
       img.src = imageUrl;
+      img.setAttribute('loading', 'lazy');
+      img.classList.add("image-hidden"); // Hide initially
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "contain";
       img.style.display = "block";
 
-      pageElement.appendChild(img);
+      // When the image finishes loading
+      img.addEventListener("load", () => {
+        wrapper.style.backgroundColor = 'transparent';
+        loader.remove(); // Remove loader
+        img.classList.remove("image-hidden"); // Show image
+        img.classList.add("image-loaded");
+      });
+
+      // In case of error
+      img.addEventListener("error", () => {
+        loader.style.animation = "none";
+        loader.textContent = "Failed to load";
+        loader.style.border = "none";
+        loader.style.color = "red";
+      });
+
+      // Build the DOM structure
+      wrapper.appendChild(loader);
+      wrapper.appendChild(img);
+      pageElement.appendChild(wrapper);
       flipContainer.appendChild(pageElement);
 
       return {
-        html: pageElement, // ✅ Must be a real DOM Node
+        html: pageElement,
       };
     });
 
@@ -161,7 +187,7 @@ async function showFlipbook(imageUrls) {
 
   // Load the initial chunk
   // flipBook.loadFromImages(imageUrls);
-  flipBook.loadFromHTML(document.querySelectorAll('.page'));
+  flipBook.loadFromHTML(document.querySelectorAll(".page"));
 
   // Keep track of remaining images
   //   let remainingImages = [...moreImages];
@@ -268,7 +294,7 @@ function initPageCounter(flipBook) {
   totalPagesEl.textContent = totalPages.toString();
 
   // Set initial current page
-  const current = flipBook.getCurrentPageIndex() + 1; 
+  const current = flipBook.getCurrentPageIndex() + 1;
   currentPageEl.textContent = current.toString();
 
   // Listen for page changes
