@@ -18,7 +18,8 @@ import {
   createNewMag,
   findMagazine,
   updateMagazine,
-  deleteMagazine
+  deleteMagazine,
+  updateMagazineWithPdf
 } from "../controllers/admin/magController";
 
 const router = express.Router();
@@ -157,7 +158,7 @@ router.post(
     { name: "images", maxCount: 100 },
     { name: "cover", maxCount: 1 },
   ]),
-  updateMagazine
+  updateMagazineWithPdf
 );
 
 router.post("/mag/del", authenticateAccessToken, deleteMagazine);
