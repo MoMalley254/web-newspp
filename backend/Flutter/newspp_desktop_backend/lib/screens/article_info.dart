@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -272,19 +273,24 @@ class _ArticleInfoState extends State<ArticleInfo> {
 
                                     ElevatedButton.icon(
                                       onPressed: () async {
-                                        final result = await showEditDialog(
-                                          context,
-                                          entry.key[0].toUpperCase() +
-                                              entry.key.substring(1),
-                                          publishDate,
-                                        );
+                                        // final result = await showEditDialog(
+                                        //   context,
+                                        //   entry.key[0].toUpperCase() +
+                                        //       entry.key.substring(1),
+                                        //   publishDate,
+                                        // );
+                                        final result =
+                                            await showDatePickerDialog(
+                                              context,
+                                              DateTime.parse(entry.value),
+                                            );
 
                                         // You can handle the result here
                                         if (result != null) {
                                           bool sendToServer = await sendUpdate(
                                             context,
                                             entry.key,
-                                            result,
+                                            result.toString(),
                                           );
 
                                           if (sendToServer) {
@@ -635,6 +641,10 @@ class _ArticleInfoState extends State<ArticleInfo> {
     String editField,
     String newValue,
   ) async {
+    final formattedValue =
+        editField == 'publishDate'
+            ? DateFormat('dd-MM-yyyy').format(DateTime.parse(newValue))
+            : newValue.toString();
     // Step 1: Ask for confirmation
     final confirm = await showDialog<bool>(
       context: context,
@@ -642,7 +652,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
         return AlertDialog(
           title: Text('Confirm Update'),
           content: Text(
-            'Are you sure you want to update "$editField" to:\n\n"$newValue"?',
+            'Are you sure you want to update "$editField" to:\n\n"$formattedValue"?',
           ),
           actions: [
             TextButton(
@@ -695,7 +705,11 @@ class _ArticleInfoState extends State<ArticleInfo> {
     return true;
   }
 
-  Future<void> updateMagFile(BuildContext context, PlatformFile? newPdf, String pagesPath) async {
+  Future<void> updateMagFile(
+    BuildContext context,
+    PlatformFile? newPdf,
+    String pagesPath,
+  ) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -741,74 +755,102 @@ class _ArticleInfoState extends State<ArticleInfo> {
       newPdf!,
       article['id'],
       article['title'],
-      pagesPath
+      pagesPath,
     );
     Navigator.of(context).pop();
   }
 
   Future<void> deleteMag(BuildContext context) async {
-  final confirm = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.delete_forever, color: Colors.red),
-            const SizedBox(width: 8),
-            const Expanded(
-              child: Text(
-                'Confirm Deletion',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.delete_forever, color: Colors.red),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  'Confirm Deletion',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                ),
               ),
+            ],
+          ),
+          content: Text(
+            'Are you sure you want to delete "${article['title'] ?? 'this item'}"?\n\nThis action is irreversible.',
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete'),
             ),
           ],
-        ),
-        content: Text(
-          'Are you sure you want to delete "${article['title'] ?? 'this item'}"?\n\nThis action is irreversible.',
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+        );
+      },
+    );
+
+    if (confirm != true) return;
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Expanded(child: Text('Deleting... Please wait.')),
+            ],
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+        );
+      },
+    );
+
+    final articleId = article['id'];
+    bool deleteSuccess = await magsService.deleteMagazine(articleId);
+
+    Navigator.of(context).pop(); // Close the loading dialog
+
+    if (deleteSuccess) {
+      widget.navigateTo?.call('Dashboard');
+    }
+  }
+
+  Future<DateTime?> showDatePickerDialog(
+    BuildContext context,
+    DateTime initialDate,
+  ) async {
+    final List<DateTime?>? pickedDates = await showDialog<List<DateTime?>>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Select a date'),
+          content: SizedBox(
+            width: 300, // Explicit width
+            height: 400, // Explicit height to contain the calendar
+            child: CalendarDatePicker2(
+              config: CalendarDatePicker2Config(
+                calendarType: CalendarDatePicker2Type.single,
+              ),
+              value: [initialDate],
+              onValueChanged: (dates) {
+                Navigator.of(context).pop(dates);
+              },
+            ),
           ),
-        ],
-      );
-    },
-  );
+        );
+      },
+    );
 
-  if (confirm != true) return;
-
-  // Show loading dialog
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return const AlertDialog(
-        content: Row(
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(width: 20),
-            Expanded(child: Text('Deleting... Please wait.')),
-          ],
-        ),
-      );
-    },
-  );
-
-  final articleId = article['id'];
-  bool deleteSuccess = await magsService.deleteMagazine(articleId);
-
-  Navigator.of(context).pop(); // Close the loading dialog
-
-  if (deleteSuccess) {
-    widget.navigateTo?.call('Dashboard');
-  } 
-}
-
+    return pickedDates?.first;
+  }
 }
