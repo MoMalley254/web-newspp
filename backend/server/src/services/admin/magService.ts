@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import prisma from "../../config/prismaClient";
 
 export const getAllMagsService = async () => {
@@ -73,7 +74,21 @@ export const createMagService = async (
       };
     }
 
-    console.log(`Publish date ${magData.publishDate}`);
+    let dateToUse;
+
+    const dateTime = DateTime.fromFormat(
+      magData.publishDate,
+      "yyyy-MM-dd HH:mm:ss.SSS",
+      {
+        zone: "Africa/Nairobi",
+      }
+    );
+
+    if (dateTime.isValid) {
+      dateToUse = dateTime.toJSDate(); // Convert to JS Date in UTC
+    } else {
+      throw new Error("Invalid date format for publishDate");
+    }
 
     // Create the Magazine
     const magazine = await prisma.magazine.create({
@@ -87,8 +102,7 @@ export const createMagService = async (
           connect: tagsResult.tagIds!.map((id) => ({ id })),
         },
         issueNumber: magData.issueNumber,
-        // publishDate: new Date(magData.publishDate),
-        publishDate: new Date('2025-08-08'),
+        publishDate: dateToUse,
         htmlPath: magData.htmlPath,
         credits: magData.credits,
         coverImage: hasImage ? magData.coverImage : null,
@@ -181,13 +195,13 @@ export const updateMagazineService = async (
       if (!update) {
         return {
           status: false,
-          error: 'Unable to update magazine'
-        }
+          error: "Unable to update magazine",
+        };
       }
 
       return {
         status: true,
-        data: update
+        data: update,
       };
     } else {
       let valueToUse = magData.value;
@@ -195,9 +209,19 @@ export const updateMagazineService = async (
       if (magData.field === "issueNumber") {
         valueToUse = Number(magData.value);
       } else if (magData.field === "publishDate") {
-        const date = new Date(magData.value);
-        if (!isNaN(date.getTime())) {
-          valueToUse = date;
+        const cleanedValue = magData.value.replace(/^Date\s+/, "").trim();
+
+        // Step 2: Parse using Luxon with EAT timezone
+        const dateTime = DateTime.fromFormat(
+          cleanedValue,
+          "yyyy-MM-dd HH:mm:ss.SSS",
+          {
+            zone: "Africa/Nairobi",
+          }
+        );
+
+        if (dateTime.isValid) {
+          valueToUse = dateTime.toJSDate(); // Convert to JS Date (UTC under the hood)
         } else {
           throw new Error("Invalid date format for publishDate");
         }
@@ -233,31 +257,31 @@ export const updateMagazineService = async (
   }
 };
 
-export const deleteMagService = async(magId: string, adminId: string) => {
+export const deleteMagService = async (magId: string, adminId: string) => {
   try {
     const adminExists = await prisma.admin.findUnique({
-      where: { id: adminId }
+      where: { id: adminId },
     });
     if (!adminExists) {
       return {
         status: false,
-        error: 'Unauthorized'
-      }
+        error: "Unauthorized",
+      };
     }
 
     const deletedMag = await prisma.magazine.delete({
-      where: { id: magId }
+      where: { id: magId },
     });
 
     return {
       status: true,
-      data: deletedMag
+      data: deletedMag,
     };
-  } catch(deleteMagServiceError: any) {
+  } catch (deleteMagServiceError: any) {
     console.error(`Delete mag service error ${deleteMagServiceError}`);
     return {
       status: false,
-      error: deleteMagServiceError.message || 'Unknown error occurred'
-    }
+      error: deleteMagServiceError.message || "Unknown error occurred",
+    };
   }
-}
+};

@@ -136,9 +136,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                   lastDate: DateTime(2100),
                 );
                 if (picked != null) {
-                  _publishDateController.text = DateFormat(
-                    'yyyy-MM-dd',
-                  ).format(picked);
+                  _publishDateController.text = picked.toLocal().toString();
                 }
               },
               validator: (value) {
