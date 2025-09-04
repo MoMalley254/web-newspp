@@ -91,6 +91,9 @@ class _ArticleInfoState extends State<ArticleInfo> {
                         if (excludedKeys.contains(entry.key)) {
                           return SizedBox(); // handled on the right
                         } else if (entry.key == 'credits') {
+                          if (article['credits'] == null || article['credits'] is! Map) {
+                            return SizedBox.shrink();
+                          } 
                           Map<String, dynamic> credits =
                               Map<String, dynamic>.from(article['credits']);
 
