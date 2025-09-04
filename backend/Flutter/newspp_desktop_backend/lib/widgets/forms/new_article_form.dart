@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:toastification/toastification.dart';
 
 class NewArticleForm extends StatefulWidget {
@@ -117,20 +118,34 @@ class _NewArticleFormState extends State<NewArticleForm> {
             ),
             const SizedBox(height: 16),
 
-            // Publish Date
             const Text('Publish Date'),
             const SizedBox(height: 6),
             TextFormField(
               controller: _publishDateController,
+              readOnly: true, // Prevent keyboard from opening
               decoration: InputDecoration(
                 hintText: 'e.g., 2025-08-14',
                 border: OutlineInputBorder(),
+                suffixIcon: Icon(Icons.calendar_today),
               ),
+              onTap: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (picked != null) {
+                  _publishDateController.text = DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(picked);
+                }
+              },
               validator: (value) {
                 if (value == null || value.isEmpty)
                   return 'Publish date is required';
                 try {
-                  DateTime.parse(value);
+                  DateTime.parse(value); // Still use ISO format validation
                 } catch (_) {
                   return 'Invalid date format (use YYYY-MM-DD)';
                 }
@@ -468,7 +483,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     'desc': _descController.text,
                     'cover': _coverImage,
                     'usePdf': usePdf,
-                    'compress': useCompression
+                    'compress': useCompression,
                   };
 
                   // 👇 Conditionally add either 'pdf' or 'images'
