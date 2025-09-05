@@ -57,6 +57,34 @@
           <span class="dots"></span>
         </h2>
         <div id="flipContainer" data-resource-url="<%= mag.htmlPath %>"></div>
+
+        <div
+        class="offcanvas offcanvas-start text-bg-dark"
+        tabindex="-1"
+        id="thumbnailsCanvas"
+        aria-labelledby="thumbnailsCanvasLabel"
+      >
+        <div class="offcanvas-header center">
+          <h5 class="offcanvas-title" id="thumbnailsCanvasLabel">
+            <%= mag.title %>
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="offcanvas-body bg-dark">
+          <p><strong>Thumbnails</strong></p>
+          <div id="thumbNailsContainer"></div>
+
+          
+
+          <br />
+        </div>
+      </div>
+
       </section>
       <section class="top">
         <!-- <div class="titles">
@@ -274,6 +302,17 @@
 
       <section class="bottom">
         <div class="controls-bottom">
+
+            <button
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#thumbnailsCanvas"
+              aria-controls="thumbnailsCanvas"
+              aria-label="Thumbnails"
+            >
+              <i class="material-icons">grid_view</i>
+            </button>
+
           <button class="btn-skip-backward" aria-label="Skip Page Backward">
             <i class="material-icons">skip_previous</i>
           </button>
@@ -284,8 +323,8 @@
 
           <div class="page-counts">
             <h4>
-              <span id="current-page">0</span> of
-              <span id="total-pages">0</span> pages
+              <span id="current-page">0</span> /
+              <span id="total-pages">0</span> 
             </h4>
           </div>
 

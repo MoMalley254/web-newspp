@@ -1,6 +1,7 @@
 const articlesLoader = document.querySelector(".loader");
 const dotsSpan = document.querySelector(".loader .dots");
 const flipContainer = document.getElementById("flipContainer");
+const thumbNailsContainer = document.getElementById("thumbNailsContainer");
 
 const nextBtns = document.querySelectorAll(".btn-next-page");
 const prevBtns = document.querySelectorAll(".btn-prev-page");
@@ -115,17 +116,17 @@ async function prepareFlipBook() {
 
       const img = document.createElement("img");
       img.src = imageUrl;
-      img.setAttribute('loading', 'lazy');
-      img.classList.add("image-hidden"); 
+      img.setAttribute("loading", "lazy");
+      img.classList.add("image-hidden");
       img.style.width = "100%";
       img.style.height = "100%";
       img.style.objectFit = "contain";
       img.style.display = "block";
 
       img.addEventListener("load", () => {
-        wrapper.style.backgroundColor = 'transparent';
-        loader.remove(); 
-        img.classList.remove("image-hidden"); 
+        wrapper.style.backgroundColor = "transparent";
+        loader.remove();
+        img.classList.remove("image-hidden");
         img.classList.add("image-loaded");
       });
 
@@ -146,7 +147,7 @@ async function prepareFlipBook() {
       };
     });
 
-    showFlipbook(imagePages);
+    showFlipbook(data.images);
   } catch (error) {
     console.error(`Prepare flipbook error: ${error}`);
     showErrorDiv(flipContainer, error.message || "Unknown error");
@@ -157,8 +158,8 @@ async function prepareFlipBook() {
 
 async function showFlipbook(imageUrls) {
   const flipBook = new St.PageFlip(flipContainer, {
-    width: isMobile ? 350 : 500, 
-    height: isMobile ? 500 : 700, 
+    width: isMobile ? 350 : 500,
+    height: isMobile ? 500 : 700,
 
     size: "fixed",
     minWidth: 315,
@@ -176,6 +177,7 @@ async function showFlipbook(imageUrls) {
 
   initButtons(flipBook);
   initPageCounter(flipBook);
+  populateThumbnails(imageUrls, flipBook);
 }
 
 function initButtons(flipBook) {
@@ -240,15 +242,50 @@ function initPageCounter(flipBook) {
   const totalPages = flipBook.getPageCount();
   totalPagesEl.textContent = totalPages.toString();
 
-  // Set initial current page
   const current = flipBook.getCurrentPageIndex() + 1;
   currentPageEl.textContent = current.toString();
 
-  // Listen for page changes
   flipBook.on("flip", (e) => {
     const pageNum = e.data + 1;
-    currentPageEl.textContent = pageNum.toString();
+
+    if (isMobile) {
+      currentPageEl.textContent = pageNum.toString();
+    } else {
+      if (pageNum >= totalPages || pageNum <= 1) {
+        currentPageEl.textContent = `${pageNum}`;
+      } else if (pageNum > current) {
+        currentPageEl.textContent = `${pageNum} - ${pageNum + 1}`;
+      } else {
+        currentPageEl.textContent = `${pageNum - 1} - ${pageNum}`;
+      }
+    }
   });
 
   pageCounts.style.display = "block";
+}
+
+function populateThumbnails(images, flipBook) {
+  images.forEach((image, index) => {
+    const imageUrl = `view${image}`;
+    const imageDiv = document.createElement("div");
+    imageDiv.classList.add("thumbnail-div");
+
+    imageDiv.addEventListener("click", (e) => {
+      flipBook.turnToPage(index);
+
+      const offcanvasEl = document.querySelector("#thumbnailsCanvas");
+      const offcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+      offcanvas.hide();
+    });
+
+    const imageImg = document.createElement("img");
+    imageImg.src = imageUrl;
+    imageImg.setAttribute("loading", "lazy");
+    imageDiv.appendChild(imageImg);
+
+    const imageNumber = document.createElement("span");
+    imageNumber.textContent = `${index + 1}`;
+    imageDiv.appendChild(imageNumber);
+    thumbNailsContainer.appendChild(imageDiv);
+  });
 }
