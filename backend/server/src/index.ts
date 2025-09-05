@@ -12,6 +12,7 @@ app.set('view engine', 'ejs');
 // Optional: Set the directory for EJS templates
 app.set('views', path.join(__dirname, 'views'));
 // Serve files from the "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/admin/mag/public', express.static(path.join(__dirname, '..', 'public')));
 app.use('/front/public', express.static(path.join(__dirname, '..', 'public')));
 app.use('/front/view/public', express.static(path.join(__dirname, '..', 'public')));
