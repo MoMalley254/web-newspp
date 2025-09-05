@@ -98,9 +98,12 @@ function createArticleThumbnail(mag) {
 
   // If there's a cover image, set it as background with a white overlay
   if (mag["coverImage"] && mag["coverImage"] !== "") {
-    let imageUrl = `${baseUrl}${mag["coverImage"]
-      .replace(/\\/g, "/")
-      .replace(/\/+/g, "/")}`;
+    let imageUrl = `${baseUrl}${encodeURI(
+  mag["coverImage"]
+    .replace(/\\/g, "/")         
+    .replace(/\/+/g, "/")        
+)}`;
+
     thumb.style.backgroundImage = `
       radial-gradient(
         circle at bottom left,
