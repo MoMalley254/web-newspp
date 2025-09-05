@@ -70,3 +70,40 @@ export const fetchSingleMagazineService = async (magId: string) => {
     };
   }
 };
+
+export const fetchSingleTagService = async(tagId: string) => {
+  try {
+    const tagExist = await prisma.tag.findUnique({
+      where: { id: tagId}
+    }); 
+
+    if (!tagExist) {
+      return {
+        status: false,
+        error: 'Tag not found'
+      }
+    }
+
+    const magsForTag = await prisma.magazine.findMany({
+      where: { 
+        tags: {
+          some: {
+            id: tagId
+          }
+        }
+      }
+    });
+
+    return {
+      status: true,
+      tag: tagExist,
+      magazines: magsForTag
+    }
+  } catch(fetchSingleTagServiceError) {
+    console.error(`Fetch single tag service error ${fetchSingleTagServiceError}`);
+    return {
+      status: false,
+      error: fetchSingleTagServiceError
+    }
+  }
+}

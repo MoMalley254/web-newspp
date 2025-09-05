@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import {
   fetchMagazinesService,
   fetchSingleMagazineService,
+  fetchSingleTagService
 } from "../../services/front/frontMagService";
 import path from "path";
 import { promises as fs } from 'fs';
@@ -117,3 +118,25 @@ export const returnImageUrls = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Failed to generate image URLs' });
   }
 };
+
+export const renderGroupedPage = async(req: Request, res: Response) => {
+  try {
+    const tagId = req.query.tag as string;
+    if (!tagId || tagId === '') {
+      return res
+      .status(400)
+      .json({ error: "Tag not available" });
+    }
+
+    const getMags = await fetchSingleTagService(tagId);
+    if (getMags.status) {
+      return res.render("front/grouped", { tag: getMags.tag, mags: getMags.magazines});
+      // return res.render("front/grouped", { error: 'Felt like it'});
+    } else {
+      return res.render("front/grouped", { error: getMags.error});
+    }
+  } catch(renderGroupedPageError: any) {
+    console.error(`Render grouped page error ${renderGroupedPageError}`);
+    return res.render("front/grouped", { error: renderGroupedPageError.message || "Server error"});
+  }
+}
