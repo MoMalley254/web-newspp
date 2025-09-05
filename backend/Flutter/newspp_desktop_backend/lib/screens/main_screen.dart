@@ -47,14 +47,14 @@ class _MainScreenState extends State<MainScreen> {
           _navigateTo(menu);
         },
       ),
-      ScreenItem(
-        title: 'Statistics',
-        icon: Icons.auto_graph,
-        screenBuilder: (navigateTo, [args]) => StatisticsScreen(),
-        navigateFunc: (menu) {
-          _navigateTo(menu);
-        },
-      ),
+      // ScreenItem(
+      //   title: 'Statistics',
+      //   icon: Icons.auto_graph,
+      //   screenBuilder: (navigateTo, [args]) => StatisticsScreen(),
+      //   navigateFunc: (menu) {
+      //     _navigateTo(menu);
+      //   },
+      // ),
       ScreenItem(
         title: 'Settings',
         icon: Icons.settings,
