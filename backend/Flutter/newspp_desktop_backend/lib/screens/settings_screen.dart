@@ -20,6 +20,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   final TextEditingController _newUsernameController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
+  final TextEditingController _newEmailController = TextEditingController();
+
   final TextEditingController _oldPasswordController = TextEditingController();
   final TextEditingController _newPassController = TextEditingController();
   final TextEditingController _confirmPassController = TextEditingController();
@@ -101,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showCreateUserDialog() {
+  Future<void> _showCreateUserDialog() async {
     showDialog(
       context: context,
       builder:
@@ -111,8 +113,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  controller: _newEmailController,
+                  decoration: const InputDecoration(labelText: "User email"),
+                ),
+                TextField(
                   controller: _newUsernameController,
-                  decoration: const InputDecoration(labelText: "Username"),
+                  decoration: const InputDecoration(labelText: "User name"),
                 ),
                 TextField(
                   controller: _newPasswordController,
@@ -123,11 +129,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: () {
-                  setState(() {
-                    isLoading = true;
-                  });
-                  Navigator.pop(context);
+                onPressed: () async {
+                  print('Create user');
+                  if (_newEmailController.text.isEmpty ||
+                      _newUsernameController.text.isEmpty ||
+                      _newPasswordController.text.isEmpty) {
+                    toastHelper.showWarningtoast('Please fill in all fields');
+                  } else {
+                    setState(() {
+                      isLoading = true;
+                    });
+                    Map<String, dynamic> newAdminData = {
+                      'name': _newUsernameController.text,
+                      'email': _newEmailController.text,
+                      'password': _newPasswordController.text,
+                    };
+                    bool createdUser = await authHelper.createNewAdmin(
+                      newAdminData,
+                    );
+
+                    setState(() {
+                      isLoading = false;
+                    });
+                    if (createdUser) {
+                      Navigator.pop(context);
+                    }
+                  }
                 },
                 child: const Text("Create"),
               ),

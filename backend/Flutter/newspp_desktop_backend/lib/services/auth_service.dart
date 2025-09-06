@@ -137,4 +137,32 @@ class AuthService {
       return false;
     }
   }
+
+  Future<bool> createNewAdmin(Map<String, dynamic> newAdminData) async {
+    try {
+      Map<String, dynamic> adminData = await getAdminData();
+      if (!adminData['status'] || adminData['id'] == '' || adminData['role'] != 'ADMIN') {
+        return false;
+      }
+
+      final response = await _dio.post(
+        '/admin/create',
+        data: { ...newAdminData},
+      );
+      if (response.statusCode == 200) {
+        //Force login
+        await logout();
+        toastHelper.showSuccesstoast(
+          'User created',
+        );
+        return true;
+      } else {
+        print('Error ${response.data}');
+        throw response.data['error'];
+      }
+    } catch (createNewAdminError) {
+      toastHelper.showErrortoast(createNewAdminError.toString());
+      return false;
+    }
+  }
 }

@@ -3,8 +3,18 @@ import * as argon2 from "argon2";
 import { AdminData, RefreshTokenValidationResult } from "../../types/adminTypes";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-export const createAdminService = async (newAdminData: AdminData) => {
+export const createAdminService = async (newAdminData: AdminData, creatorId: string) => {
   try {
+    const creator = await prisma.admin.findUnique({
+      where: { id: creatorId}
+    });
+
+    if (!creator || creator.role !== 'ADMIN') {
+      return {
+        status: false,
+        error: "Unauthorized"
+      }
+    }
     // Hash the password
     const hashedPass = await argon2.hash(newAdminData.password);
 

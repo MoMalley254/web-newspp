@@ -10,13 +10,14 @@ import {
 export const createAdmin = async(req: Request, res: Response) => {
     try {
         console.log('Creating new admin fr');
+        const { email, name, password, creator } = req.body;
         const sampleAdmin: AdminData  = {
-            email: 'notclankr@gmail.com', 
-            name: 'Not Clankr', 
-            password: 'superClankr1'
+            email: email, 
+            name: name, 
+            password: password
         };
 
-        const createAdminResult = await createAdminService(sampleAdmin);
+        const createAdminResult = await createAdminService(sampleAdmin, creator);
         if (createAdminResult.status) {
             console.log('Created new admin');
             return res.status(201).json(`Logged in successfully admin: ${createAdminResult}`);
