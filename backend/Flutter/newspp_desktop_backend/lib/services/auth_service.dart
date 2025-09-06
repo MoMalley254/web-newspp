@@ -49,6 +49,7 @@ class AuthService {
       await prefs.setString('adminId', adminData['id']);
       await prefs.setString('adminEmail', adminData['email']);
       await prefs.setString('adminName', adminData['name']);
+      await prefs.setString('adminRole', adminData['role']);
 
       await prefs.setBool('loggedIn', true);
 
@@ -90,7 +91,50 @@ class AuthService {
       };
     } catch (getAdminDataError) {
       print('Get admin data error $getAdminDataError');
+      toastHelper.showErrortoast(getAdminDataError.toString());
       return {'status': false, 'error': getAdminDataError.toString()};
+    }
+  }
+
+  Future<bool> changePassword(String oldPass, String newPass) async {
+    try {
+      Map<String, dynamic> adminData = await getAdminData();
+      if (!adminData['status'] || adminData['id'] == '') {
+        return false;
+      }
+      final response = await _dio.post(
+        '/admin/update',
+        data: {
+          'admin': adminData['id'],
+          'oldPass': oldPass,
+          'newPass': newPass,
+        },
+      );
+      if (response.statusCode == 200) {
+        //Force login
+        await logout();
+        toastHelper.showSuccesstoast(
+          'Changed password successfully please wait for redirect...',
+        );
+        return true;
+      } else {
+        print('Error ${response.data}');
+        throw response.data['error'];
+      }
+    } catch (changePasswordError) {
+      toastHelper.showErrortoast(changePasswordError.toString());
+      return false;
+    }
+  }
+
+  Future<bool> logout() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      return true;
+    } catch (logoutError) {
+      toastHelper.showErrortoast(logoutError.toString());
+      return false;
     }
   }
 }

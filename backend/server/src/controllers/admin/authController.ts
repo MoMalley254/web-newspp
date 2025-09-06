@@ -59,15 +59,12 @@ export const loginAdmin = async(req: Request, res: Response) => {
 
 export const updateAdminPass = async(req: Request, res: Response) => {
     try {
-        const newPass: string = 'superClankr1';
-        const email: string = 'notclankr@gmail.com';
-        const oldPass: string = 'newClankrPass';
+        const { admin, oldPass, newPass } = req.body;
 
-        const tryUpdate = await updateAdminPassword(email, oldPass, newPass);
+        const tryUpdate = await updateAdminPassword(admin, oldPass, newPass);
         if (!tryUpdate.status) {
             return res.status(500).json({ error: tryUpdate.error});
         } else {
-            console.log(`Update successful to ${newPass}`);
             return res.status(201).json({ message: 'Update successful'});
         }
 

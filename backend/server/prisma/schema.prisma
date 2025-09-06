@@ -17,6 +17,13 @@ model Admin {
   updatedAt DateTime @updatedAt
 
   magazines Magazine[]
+  role Role @default(EDITOR)
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
 }
 
 model Tag {

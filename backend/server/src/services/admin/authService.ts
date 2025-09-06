@@ -121,19 +121,19 @@ function generateTokens(userId: string) {
 }
 
 export const updateAdminPassword = async (
-  email: string,
+  id: string,
   oldPass: string,
   newPass: string
 ) => {
   try {
     const adminToUpdate = await prisma.admin.findFirst({
-      where: { email: email },
+      where: { id },
     });
 
     if (!adminToUpdate) {
       return {
         status: false,
-        error: `${email} does not exist`,
+        error: `User does not exist`,
       };
     }
 
@@ -151,7 +151,7 @@ export const updateAdminPassword = async (
 
     const newHash = await argon2.hash(newPass);
     const update = await prisma.admin.update({
-      where: { email: email },
+      where: { id },
       data: { password: newHash },
     });
 

@@ -21,6 +21,7 @@ class _LandingScreenState extends State<LandingScreen> {
 
   Future<void> _checkLoginStatus() async {
     final prefs = await SharedPreferences.getInstance();
+    // await prefs.clear();
     final loggedIn = prefs.getBool('loggedIn') ?? false;
 
     // Give time for build() to complete (optional, but safe)
@@ -30,7 +31,8 @@ class _LandingScreenState extends State<LandingScreen> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => loggedIn ? const MainScreen() : const LoginScreen(),
+        builder:
+            (context) => loggedIn ? const MainScreen() : const LoginScreen(),
       ),
     );
   }
@@ -38,10 +40,6 @@ class _LandingScreenState extends State<LandingScreen> {
   @override
   Widget build(BuildContext context) {
     // Temporary loading UI
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
