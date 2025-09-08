@@ -113,7 +113,7 @@ class AuthService {
           'newPass': newPass,
         },
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         //Force login
         await logout();
         toastHelper.showSuccesstoast(
