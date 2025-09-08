@@ -173,7 +173,7 @@ class AuthService {
       Map<String, dynamic> adminData = await getAdminData();
       if (!adminData['status'] ||
           adminData['id'] == '' ||
-          adminData['role'] != 'EDITOR') {
+          adminData['role'] != 'ADMIN') {
         toastHelper.showWarningtoast('Unauthorized');
         return {'status': false, 'error': 'Not authorized'};
       }

@@ -252,7 +252,7 @@ export const getAdminsService = async(adminId: string) => {
       where: { id: adminId}
     });
 
-    if (!getAdmin || getAdmin.role !== 'EDITOR') {
+    if (!getAdmin || getAdmin.role !== 'ADMIN') {
       return {
         status: false,
         error: 'Unable to authorize'

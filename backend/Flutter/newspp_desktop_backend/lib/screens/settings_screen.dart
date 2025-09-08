@@ -206,8 +206,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     String role = prefs.getString('adminRole') ?? '';
     setState(() {
-      // hasPermissions = role == 'ADMIN';
-      hasPermissions = role == 'ADMIN' || role == 'EDITOR';
+      hasPermissions = role == 'ADMIN';
     });
   }
 
