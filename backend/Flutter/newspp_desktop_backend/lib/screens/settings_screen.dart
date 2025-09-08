@@ -104,8 +104,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _showCreateUserDialog() async {
-    final List<String> _roles = ['ADMIN', 'EDITOR', 'USER'];
-    String _selectedRole = 'USER'; // default role
+    final List<String> _roles = ['ADMIN', 'EDITOR', 'VIEWER'];
+    String _selectedRole = 'VIEWER'; // default role
     showDialog(
       context: context,
       builder:
@@ -155,6 +155,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     toastHelper.showWarningtoast('Please fill in all fields');
                     return;
                   }
+                    Navigator.pop(context); // Close the dialog
 
                   setState(() {
                     isLoading = true;
@@ -178,7 +179,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   });
 
                   if (createdUser) {
-                    Navigator.pop(context); // Close the dialog
                     toastHelper.showSuccesstoast('User created successfully');
                   } else {
                     toastHelper.showErrortoast('Failed to create user');

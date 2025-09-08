@@ -2,8 +2,9 @@ import prisma from "../../config/prismaClient";
 import * as argon2 from "argon2";
 import { AdminData, RefreshTokenValidationResult } from "../../types/adminTypes";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { Role } from "@prisma/client";
 
-export const createAdminService = async (newAdminData: AdminData, role:string, creatorId: string) => {
+export const createAdminService = async (newAdminData: AdminData, role: Role, creatorId: string) => {
   try {
     const creator = await prisma.admin.findUnique({
       where: { id: creatorId}
@@ -23,7 +24,6 @@ export const createAdminService = async (newAdminData: AdminData, role:string, c
       email: newAdminData.email,
       name: newAdminData.name,
       password: hashedPass,
-      Role: role
     };
 
     // Check if admin with the same email exists
@@ -40,7 +40,7 @@ export const createAdminService = async (newAdminData: AdminData, role:string, c
 
     // Create the new admin in the database
     const createdAdmin = await prisma.admin.create({
-      data: newAdminWithPass,
+      data: {...newAdminWithPass, role: role},
     });
 
     // Exclude password from returned object

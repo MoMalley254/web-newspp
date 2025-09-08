@@ -10,7 +10,6 @@ import {
 
 export const createAdmin = async(req: Request, res: Response) => {
     try {
-        console.log('Creating new admin fr');
         const { email, name, password, role, creator } = req.body;
         const sampleAdmin: AdminData  = {
             email: email, 
@@ -20,17 +19,15 @@ export const createAdmin = async(req: Request, res: Response) => {
 
         const createAdminResult = await createAdminService(sampleAdmin, role, creator);
         if (createAdminResult.status) {
-            console.log('Created new admin');
-            return res.status(201).json(`Logged in successfully admin: ${createAdminResult}`);
+            return res.status(201).json();
         } else {
-            return res.status(200).json(`Error : ${createAdminResult.error}`);
+            return res.status(500).json({error : createAdminResult.error});
         }
 
         
     } catch(createAdminError: any) {
         console.error('Error creating admin:', createAdminError);
-        const status = createAdminError.status || 500;
-        return res.status(status).json({ error: createAdminError.message || 'Internal server error' });
+        return res.status(500).json({ error: createAdminError.message || 'Internal server error' });
     }
 }
 

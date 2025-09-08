@@ -44,6 +44,7 @@ class AuthService {
   }
 
   Future<bool> saveAdminData(Map<String, dynamic> adminData) async {
+    print('Admin data $adminData');
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('adminId', adminData['id']);
@@ -145,18 +146,16 @@ class AuthService {
       Map<String, dynamic> adminData = await getAdminData();
       if (!adminData['status'] ||
           adminData['id'] == '' ||
-          adminData['role'] != 'EDITOR') {
+          adminData['role'] != 'ADMIN') {
         toastHelper.showWarningtoast('Unauthorized');
         return false;
       }
 
       final response = await _dio.post(
         '/admin/create',
-        data: {...newAdminData},
+        data: {...newAdminData, 'creator': adminData['id']},
       );
       if (response.statusCode == 200) {
-        //Force login
-        await logout();
         toastHelper.showSuccesstoast('User created');
         return true;
       } else {
