@@ -194,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             validator:
                 (value) =>
-                    value == null || value.length < 6
+                    value == null || value.length < 3
                         ? 'Password too short'
                         : null,
           ),
