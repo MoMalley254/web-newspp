@@ -155,7 +155,7 @@ class AuthService {
         '/admin/create',
         data: {...newAdminData, 'creator': adminData['id']},
       );
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         toastHelper.showSuccesstoast('User created');
         return true;
       } else {
@@ -183,7 +183,7 @@ class AuthService {
       );
       if (response.statusCode == 200) {
         final admins = await response.data['admins'];
-        return {'status': true, 'admins': admins ?? []};
+        return {'status': true, 'admins': admins};
       } else {
         final error = await response.data['error'];
         return {'status': false, 'error': error ?? 'Server error'};
