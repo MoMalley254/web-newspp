@@ -353,6 +353,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           trailing: Text(admin['role'] ?? 'No role'),
                         ),
                         buildAccountButtons(context, admin),
+                        const SizedBox(height: 10,),
                       ],
                     ),
                   );
@@ -465,7 +466,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BuildContext context,
     Map<String, dynamic> admin,
   ) async {
-    String selectedRole = admin['role']; // e.g., "ADMIN"
+    String selectedRole = admin['role']; 
 
     showDialog(
       context: context,
@@ -476,7 +477,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             isExpanded: true,
             value: selectedRole,
             items:
-                ['ADMIN', 'USER', 'MODERATOR'].map((role) {
+                ['ADMIN', 'USER', 'EDITOR'].map((role) {
                   return DropdownMenuItem<String>(
                     value: role,
                     child: Text(role),
