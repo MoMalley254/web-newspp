@@ -4,20 +4,21 @@ import {
     createAdminService,
     loginService,
     updateAdminPassword,
-    refreshAccessTokenService
+    refreshAccessTokenService,
+    getAdminsService
 } from "../../services/admin/authService";
 
 export const createAdmin = async(req: Request, res: Response) => {
     try {
         console.log('Creating new admin fr');
-        const { email, name, password, creator } = req.body;
+        const { email, name, password, role, creator } = req.body;
         const sampleAdmin: AdminData  = {
             email: email, 
             name: name, 
             password: password
         };
 
-        const createAdminResult = await createAdminService(sampleAdmin, creator);
+        const createAdminResult = await createAdminService(sampleAdmin, role, creator);
         if (createAdminResult.status) {
             console.log('Created new admin');
             return res.status(201).json(`Logged in successfully admin: ${createAdminResult}`);
@@ -94,3 +95,39 @@ export const refreshAccessToken = async(req: Request, res: Response) => {
         return res.status(500).json({ error: refreshAccessTokenError || 'Unable to refresh access token'});
     }
 }
+
+export const getAdmins = async(req: Request, res: Response) => {
+    try {
+        const { admin } = req.body;
+        if(!admin || admin === '') {
+            return res.status(500).json({ error: 'Not authorized'});
+        }
+
+        const allAdmins = await getAdminsService(admin);
+        if (allAdmins.status) {
+            return res.status(200).json({ admins: allAdmins.admins});
+        } else {
+            return res.status(500).json({ error : allAdmins.error});
+        }
+    } catch (error) {
+        console.error(`Get admins error ${error}`);
+        return res.status(500).json({ error: error || 'Server error'});
+    }
+}
+
+export const updateAccount = async (req: Request, res: Response) => {
+  try {
+    const { account, field, value, admin } = req.body;
+
+    if (!account || !field || !value || !admin) {
+      return res.status(500).json({ error: 'Missing required fields' });
+    }
+
+    return res.status(200).json({ message: 'Account updated successfully' });
+
+  } catch (updateAccountError: any) {
+    console.error(`Update account error ${updateAccountError}`);
+    return res.status(500).json({ error: updateAccountError });
+  }
+};
+

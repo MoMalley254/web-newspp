@@ -11,6 +11,8 @@ import {
   loginAdmin,
   updateAdminPass,
   refreshAccessToken,
+  getAdmins,
+  updateAccount
 } from "../controllers/admin/authController";
 
 import {
@@ -19,7 +21,7 @@ import {
   findMagazine,
   updateMagazine,
   deleteMagazine,
-  updateMagazineWithPdf
+  updateMagazineWithPdf,
 } from "../controllers/admin/magController";
 
 const router = express.Router();
@@ -102,6 +104,8 @@ router.post("/create", authenticateAccessToken, createAdmin);
 router.post("/login", loginAdmin);
 router.post("/update", authenticateAccessToken, updateAdminPass);
 router.post("/refresh", refreshAccessToken);
+router.post("/all", authenticateAccessToken, getAdmins);
+router.post("/change", authenticateAccessToken, updateAccount);
 
 router.post(
   "/mag/new",

@@ -3,7 +3,7 @@ import * as argon2 from "argon2";
 import { AdminData, RefreshTokenValidationResult } from "../../types/adminTypes";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
-export const createAdminService = async (newAdminData: AdminData, creatorId: string) => {
+export const createAdminService = async (newAdminData: AdminData, role:string, creatorId: string) => {
   try {
     const creator = await prisma.admin.findUnique({
       where: { id: creatorId}
@@ -19,10 +19,11 @@ export const createAdminService = async (newAdminData: AdminData, creatorId: str
     const hashedPass = await argon2.hash(newAdminData.password);
 
     // Prepare new admin object with hashed password
-    const newAdminWithPass: AdminData = {
+    const newAdminWithPass= {
       email: newAdminData.email,
       name: newAdminData.name,
       password: hashedPass,
+      Role: role
     };
 
     // Check if admin with the same email exists
@@ -242,5 +243,39 @@ async function validateRefreshToken(rToken: string): Promise<RefreshTokenValidat
       valid: false,
       error: err,
     };
+  }
+}
+
+export const getAdminsService = async(adminId: string) => {
+  try {
+    const getAdmin = await prisma.admin.findUnique({
+      where: { id: adminId}
+    });
+
+    if (!getAdmin || getAdmin.role !== 'EDITOR') {
+      return {
+        status: false,
+        error: 'Unable to authorize'
+      }
+    }
+
+    const allAdmins = await prisma.admin.findMany({
+      select: {
+        name: true,
+        id: true,
+        email: true,
+        role: true
+      }
+    });
+
+    return {
+      status: true,
+      admins: allAdmins || []
+    }
+  } catch(getAdminsServiceError: any) {
+    return {
+      status: false,
+      error: getAdminsServiceError.message
+    }
   }
 }

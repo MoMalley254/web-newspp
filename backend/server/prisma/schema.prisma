@@ -18,6 +18,7 @@ model Admin {
 
   magazines Magazine[]
   role Role @default(EDITOR)
+  creator String?
 }
 
 enum Role {

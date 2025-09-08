@@ -78,6 +78,7 @@ class AuthService {
       String? adminId = await prefs.getString('adminId');
       String? adminEmail = await prefs.getString('adminEmail');
       String? adminName = await prefs.getString('adminName');
+      String? adminRole = await prefs.getString('adminRole');
 
       if (adminId == null || adminEmail == null || adminName == null) {
         return {'status': false, 'error': 'Missing fields please login again'};
@@ -88,6 +89,7 @@ class AuthService {
         'name': adminName,
         'email': adminEmail,
         'id': adminId,
+        'role': adminRole,
       };
     } catch (getAdminDataError) {
       print('Get admin data error $getAdminDataError');
@@ -141,20 +143,21 @@ class AuthService {
   Future<bool> createNewAdmin(Map<String, dynamic> newAdminData) async {
     try {
       Map<String, dynamic> adminData = await getAdminData();
-      if (!adminData['status'] || adminData['id'] == '' || adminData['role'] != 'ADMIN') {
+      if (!adminData['status'] ||
+          adminData['id'] == '' ||
+          adminData['role'] != 'EDITOR') {
+        toastHelper.showWarningtoast('Unauthorized');
         return false;
       }
 
       final response = await _dio.post(
         '/admin/create',
-        data: { ...newAdminData},
+        data: {...newAdminData},
       );
       if (response.statusCode == 200) {
         //Force login
         await logout();
-        toastHelper.showSuccesstoast(
-          'User created',
-        );
+        toastHelper.showSuccesstoast('User created');
         return true;
       } else {
         print('Error ${response.data}');
@@ -162,6 +165,78 @@ class AuthService {
       }
     } catch (createNewAdminError) {
       toastHelper.showErrortoast(createNewAdminError.toString());
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> getAdmins() async {
+    try {
+      Map<String, dynamic> adminData = await getAdminData();
+      if (!adminData['status'] ||
+          adminData['id'] == '' ||
+          adminData['role'] != 'EDITOR') {
+        toastHelper.showWarningtoast('Unauthorized');
+        return {'status': false, 'error': 'Not authorized'};
+      }
+      final response = await _dio.post(
+        '/admin/all',
+        data: {'admin': adminData['id']},
+      );
+      if (response.statusCode == 200) {
+        final admins = await response.data['admins'];
+        return {'status': true, 'admins': admins ?? []};
+      } else {
+        final error = await response.data['error'];
+        return {'status': false, 'error': error ?? 'Server error'};
+      }
+    } catch (getAdminsError) {
+      toastHelper.showErrortoast(getAdminsError.toString());
+      return {'status': false, 'error': getAdminsError.toString()};
+    }
+  }
+
+  Future<bool> updateAccount(
+    String accountId,
+    String field,
+    String value,
+  ) async {
+    try {
+      Map<String, dynamic> adminData = await getAdminData();
+      if (!adminData['status'] ||
+          adminData['id'] == '' ||
+          adminData['role'] != 'EDITOR') {
+        toastHelper.showWarningtoast('Unauthorized');
+        return false;
+      }
+      final response = await _dio.post(
+        '/admin/change',
+        data: {
+          'admin': adminData['id'],
+          'account': accountId,
+          'field': field,
+          'value': value,
+        },
+      );
+
+      if (response.statusCode == 201) {
+        toastHelper.showSuccesstoast('Account updated');
+        return true;
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
+    } catch (updateAccountError) {
+      toastHelper.showErrortoast(updateAccountError.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteAcount(String accountId) async {
+    try {
+      return true;
+    } catch (deleteAccountError) {
+      toastHelper.showErrortoast(deleteAccountError.toString());
       return false;
     }
   }
