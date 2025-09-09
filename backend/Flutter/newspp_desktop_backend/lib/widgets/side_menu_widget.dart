@@ -20,9 +20,9 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
   String _activeMenu = "Dashboard";
 
   final authService = AuthService();
-  Map<String, dynamic> adminData = {
-    'name': 'John Doe'
-  };
+  Map<String, dynamic> adminData = {'name': 'John Doe'};
+
+  bool hasPermission = true;
 
   @override
   void initState() {
@@ -35,9 +35,25 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
     if (getAdminData['status']) {
       setState(() {
         adminData['name'] = getAdminData['name'];
+        adminData['role'] = getAdminData['role'];
+        hasPermission =
+            getAdminData['role'] == 'EDITOR' || getAdminData['role'] == 'ADMIN';
         // adminData['name'] = getAdminData['name'];
         // adminData['name'] = getAdminData['name'];
       });
+    }
+  }
+
+  Color _getRoleColor(String? role) {
+    switch (role) {
+      case 'ADMIN':
+        return Colors.redAccent;
+      case 'EDITOR':
+        return Colors.blueAccent;
+      case 'VIEWER':
+        return Colors.grey;
+      default:
+        return Colors.black45;
     }
   }
 
@@ -81,6 +97,22 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
               fontWeight: FontWeight.w500,
             ),
           ),
+          const SizedBox(height: 4), // Spacing between name and role
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: _getRoleColor(adminData['role']),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              adminData['role'] ?? '',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           const SizedBox(height: 6),
           // TextButton(
           //   onPressed: () {},
@@ -100,7 +132,12 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
           // Menu Buttons
           // Dynamically build menu buttons from screens
           ...widget.screens
-              .where((screenItem) => screenItem.title != 'Article')
+              .where((screenItem) {
+                if (screenItem.title == 'Article') return false;
+                if (!hasPermission && screenItem.title == 'New Article')
+                  return false;
+                return true;
+              })
               .map((screenItem) {
                 final label = screenItem.title;
                 final icon = screenItem.icon;
