@@ -50,7 +50,6 @@ class _ArticlesSectionState extends State<ArticlesSection> {
   }
 
   void getSearchInput(String userInput) {
-    print('User input = $userInput');
     final query = userInput.toLowerCase();
 
     setState(() {
@@ -65,8 +64,6 @@ class _ArticlesSectionState extends State<ArticlesSection> {
               // You can add more fields here to filter by if needed
               return title.contains(query) || publisher.contains(query);
             }).toList();
-
-        print('Items found ${filteredArticles.length}');
       }
     });
   }
@@ -77,6 +74,11 @@ class _ArticlesSectionState extends State<ArticlesSection> {
       children: [
         SearchBarWidget(onChanged: getSearchInput),
         const SizedBox(height: 10),
+        Text(
+          'Showing ${filteredArticles.length} item(s)',
+          style: GoogleFonts.lora(color: Colors.white, fontSize: 14),
+        ),
+        const SizedBox(height: 15,),
         Expanded(child: buildArticles(context)),
       ],
     );
@@ -119,9 +121,9 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           padding: const EdgeInsets.all(10.0),
           child: ScrollbarTheme(
             data: ScrollbarThemeData(
-              thumbColor: MaterialStateProperty.all(Colors.yellow[600]),
-              trackColor: MaterialStateProperty.all(Colors.grey[300]),
-              thickness: MaterialStateProperty.all(8),
+              thumbColor: WidgetStateProperty.all(Colors.yellow[600]),
+              trackColor: WidgetStateProperty.all(Colors.grey[300]),
+              thickness: WidgetStateProperty.all(8),
               radius: const Radius.circular(10),
             ),
             child: Scrollbar(
