@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
 import 'package:newspp_desktop_backend/services/mags_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ArticlesSection extends StatefulWidget {
   final void Function(String menu, [dynamic arguments]) navigateTo;
@@ -19,10 +20,21 @@ class _ArticlesSectionState extends State<ArticlesSection> {
   final Pdf2HtmlConverter convertService = Pdf2HtmlConverter();
   final ScrollController _scrollController = ScrollController();
 
+  bool hasPermission = false;
+
   @override
   void initState() {
     super.initState();
     fetchArticles = magsService.getAllMags();
+    initPref();
+  }
+
+  Future<void> initPref() async {
+    final prefs = await SharedPreferences.getInstance();
+    String role = prefs.getString('adminRole') ?? '';
+    setState(() {
+      hasPermission = role == 'ADMIN' || role == 'EDITOR';
+    });
   }
 
   @override
@@ -125,7 +137,7 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                             ),
                           ),
                         ),
-                        Positioned(
+                        if (hasPermission) Positioned(
                           top: 10,
                           right: 10,
                           child: ElevatedButton.icon(
@@ -201,7 +213,7 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  ElevatedButton.icon(
+                                  if (hasPermission) ElevatedButton.icon(
                                     onPressed: () {
                                       widget.navigateTo('Article', article);
                                     },
