@@ -13,7 +13,8 @@ import {
   refreshAccessToken,
   getAdmins,
   updateAccount,
-  deleteAccount
+  deleteAccount,
+  logout
 } from "../controllers/admin/authController";
 
 import {
@@ -108,6 +109,7 @@ router.post("/refresh", refreshAccessToken);
 router.post("/all", authenticateAccessToken, getAdmins);
 router.post("/change", authenticateAccessToken, updateAccount);
 router.post("/destroy", authenticateAccessToken, deleteAccount);
+router.post("/logout", authenticateAccessToken, logout);
 
 router.post(
   "/mag/new",

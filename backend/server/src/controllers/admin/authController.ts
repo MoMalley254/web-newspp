@@ -8,6 +8,7 @@ import {
   getAdminsService,
   updateAccountService,
   deleteAccountService,
+  logoutService
 } from "../../services/admin/authService";
 
 export const createAdmin = async (req: Request, res: Response) => {
@@ -168,3 +169,23 @@ export const deleteAccount = async (req: Request, res: Response) => {
       .json({ error: deleteAccountError.message || "Server error" });
   }
 };
+
+export const logout = async(req: Request, res: Response) => {
+    try {
+        console.log(`Request body ${JSON.stringify(req.body)}`);
+        const { admin, aToken, rToken } = req.body;
+        if (!admin || !aToken || !rToken) {
+            return res.status(500).json({ error: "Missing required fields"});
+        }
+
+        const doLogout = await logoutService(admin, aToken, rToken);
+        if (doLogout?.status) {
+            return res.status(203).json();
+        } else {
+            return res.status(500).json({ error: doLogout?.error});
+        }
+    } catch(logoutError: any) {
+        console.error(`Logout error ${logoutError}`);
+        return res.status(500).json({ error: logoutError.message || "Server error"});
+    }
+}

@@ -238,6 +238,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label: "Change Password",
               onTap: _showChangePasswordDialog,
             ),
+            _buildButtonTile(
+              icon: Icons.logout,
+              label: "Logout",
+              onTap: _logout,
+            ),
             if (hasPermissions)
               _buildButtonTile(
                 icon: Icons.person_add,
@@ -431,7 +436,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               child: const Text('Save'),
               onPressed: () async {
-                if (passwordController.text.isEmpty || confirmController.text.isEmpty) {
+                if (passwordController.text.isEmpty ||
+                    confirmController.text.isEmpty) {
                   toastHelper.showWarningtoast('Please fill in all fields');
                   return;
                 }
@@ -569,5 +575,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       isLoading = value;
     });
+  }
+
+  Future<void> _logout() async {
+    final confirm = await _showFinalConfirmation(
+      context,
+      "Are you sure you want to logout?",
+    );
+    if (confirm) {
+      _setLoading(true);
+      bool logout = await authHelper.logoutAdmin();
+      if (logout) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LandingScreen()),
+        );
+      }
+      _setLoading(false);
+    }
   }
 }

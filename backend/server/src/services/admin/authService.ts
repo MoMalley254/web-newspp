@@ -396,4 +396,19 @@ export const deleteAccountService = async(adminId: string, accountId: string) =>
       error: deleteAccountServiceError.message || "Unable to delete"
     };
   }
+};
+
+export const logoutService = async(admin: string, aToken: string, rToken: string) => {
+  try {
+    return {
+      status: true,
+      message: "Logged out successfully",
+    };
+  } catch(logoutServiceError: any) {
+    console.error(`Logout service error ${logoutServiceError}`);
+    return {
+      status: false,
+      error: logoutServiceError.message || "Unable to logout"
+    }
+  }
 }

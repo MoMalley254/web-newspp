@@ -269,4 +269,50 @@ class AuthService {
       return false;
     }
   }
+
+  Future<bool> logoutAdmin() async {
+    try {
+      Map<String, dynamic> adminData = await getAdminData();
+      if (!adminData['status'] || adminData['id'] == '') {
+        toastHelper.showWarningtoast('No Account');
+        return false;
+      }
+
+      String aToken = await DioClient().getAToken();
+      String rToken = await DioClient().getRToken();
+
+      if (aToken.isEmpty || rToken.isEmpty) {
+        //Force login
+        return true;
+      }
+
+      final response = await _dio.post(
+        '/admin/logout',
+        data: {
+          'admin': adminData['id'],
+          'aToken': aToken,
+          'rToken': rToken
+        },
+      );
+
+      if (response.statusCode == 203) {
+        bool deletePrefs = await logout();
+        if (deletePrefs) {
+          toastHelper.showSuccesstoast(
+            'Logged out successfully please wait for clean up...',
+          );
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast('$error');
+        return false;
+      }
+    } catch (logoutError) {
+      toastHelper.showErrortoast(logoutError.toString());
+      return false;
+    }
+  }
 }
