@@ -28,12 +28,9 @@ class _TopBarWidgetState extends State<TopBarWidget> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        SearchBarWidget(onChanged: getSearchInput),
       ],
     );
   }
 
-  void getSearchInput(String userInput) {
-    print('User input = $userInput');
-  }
+  
 }

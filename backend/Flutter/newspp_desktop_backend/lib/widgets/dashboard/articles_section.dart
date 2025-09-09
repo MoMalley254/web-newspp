@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
 import 'package:newspp_desktop_backend/services/mags_service.dart';
+import 'package:newspp_desktop_backend/widgets/search_bar_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ArticlesSection extends StatefulWidget {
@@ -21,6 +23,10 @@ class _ArticlesSectionState extends State<ArticlesSection> {
   final ScrollController _scrollController = ScrollController();
 
   bool hasPermission = false;
+
+  // Store all articles and filtered articles
+  List<dynamic> allArticles = [];
+  List<dynamic> filteredArticles = [];
 
   @override
   void initState() {
@@ -43,8 +49,40 @@ class _ArticlesSectionState extends State<ArticlesSection> {
     super.dispose();
   }
 
+  void getSearchInput(String userInput) {
+    print('User input = $userInput');
+    final query = userInput.toLowerCase();
+
+    setState(() {
+      if (query.isEmpty) {
+        filteredArticles = List.from(allArticles);
+      } else {
+        filteredArticles =
+            allArticles.where((article) {
+              final title = (article['title'] ?? '').toString().toLowerCase();
+              final publisher =
+                  (article['publisher'] ?? '').toString().toLowerCase();
+              // You can add more fields here to filter by if needed
+              return title.contains(query) || publisher.contains(query);
+            }).toList();
+
+        print('Items found ${filteredArticles.length}');
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SearchBarWidget(onChanged: getSearchInput),
+        const SizedBox(height: 10),
+        Expanded(child: buildArticles(context)),
+      ],
+    );
+  }
+
+  Widget buildArticles(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
       future: fetchArticles,
       builder: (context, snapshot) {
@@ -65,10 +103,14 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           );
         }
 
-        List articles = snapshot.data!['mags'];
+        // Only set allArticles and filteredArticles once when data is received
+        if (allArticles.isEmpty) {
+          allArticles = List.from(snapshot.data!['mags']);
+          filteredArticles = List.from(allArticles);
+        }
 
-        if (articles.isEmpty) {
-          return const Center(child: Text('No articles available'));
+        if (filteredArticles.isEmpty) {
+          return buildNoArticles(context);
         }
 
         int columnCount = 3;
@@ -77,10 +119,10 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           padding: const EdgeInsets.all(10.0),
           child: ScrollbarTheme(
             data: ScrollbarThemeData(
-              thumbColor: WidgetStateProperty.all(Colors.yellow[600]),
-              trackColor: WidgetStateProperty.all(Colors.grey[300]),
-              thickness: WidgetStateProperty.all(8),
-              radius: Radius.circular(10),
+              thumbColor: MaterialStateProperty.all(Colors.yellow[600]),
+              trackColor: MaterialStateProperty.all(Colors.grey[300]),
+              thickness: MaterialStateProperty.all(8),
+              radius: const Radius.circular(10),
             ),
             child: Scrollbar(
               controller: _scrollController,
@@ -88,7 +130,6 @@ class _ArticlesSectionState extends State<ArticlesSection> {
               thickness: 8.0,
               radius: const Radius.circular(8),
               scrollbarOrientation: ScrollbarOrientation.right,
-              // thumbColor: Colors.green,
               child: GridView.builder(
                 controller: _scrollController,
                 shrinkWrap: true,
@@ -98,9 +139,10 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                   mainAxisSpacing: 10,
                   childAspectRatio: 0.75,
                 ),
-                itemCount: articles.length,
+                itemCount: filteredArticles.length,
                 itemBuilder: (context, index) {
-                  final article = articles[index];
+                  final article = filteredArticles[index];
+                  // your existing UI code remains unchanged here
                   return ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: Stack(
@@ -137,32 +179,35 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                             ),
                           ),
                         ),
-                        if (hasPermission) Positioned(
-                          top: 10,
-                          right: 10,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              deleteMagazine(
-                                context,
-                                article['id'],
-                                article['title'],
-                              );
-                            },
-                            icon: const Icon(Icons.delete, color: Colors.white),
-                            label: const Text(
-                              'Delete',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
+                        if (hasPermission)
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                deleteMagazine(
+                                  context,
+                                  article['id'],
+                                  article['title'],
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                              label: const Text(
+                                'Delete',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-
                         Positioned(
                           bottom: 10,
                           left: 10,
@@ -213,13 +258,14 @@ class _ArticlesSectionState extends State<ArticlesSection> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                  if (hasPermission) ElevatedButton.icon(
-                                    onPressed: () {
-                                      widget.navigateTo('Article', article);
-                                    },
-                                    icon: const Icon(Icons.info_outline),
-                                    label: const Text('Edit'),
-                                  ),
+                                  if (hasPermission)
+                                    ElevatedButton.icon(
+                                      onPressed: () {
+                                        widget.navigateTo('Article', article);
+                                      },
+                                      icon: const Icon(Icons.info_outline),
+                                      label: const Text('Edit'),
+                                    ),
                                 ],
                               ),
                             ],
@@ -234,6 +280,21 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           ),
         );
       },
+    );
+  }
+
+  Widget buildNoArticles(context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * .5,
+      height: MediaQuery.of(context).size.height * 5,
+      margin: EdgeInsets.all(7),
+      padding: EdgeInsets.all(7),
+      child: Center(
+        child: Text(
+        'No articles available',
+        style: GoogleFonts.lora(color: Colors.white, fontSize: 22),
+      ),
+      )
     );
   }
 
