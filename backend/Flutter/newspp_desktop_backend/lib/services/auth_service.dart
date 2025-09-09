@@ -233,7 +233,34 @@ class AuthService {
 
   Future<bool> deleteAcount(String accountId) async {
     try {
-      return true;
+      Map<String, dynamic> adminData = await getAdminData();
+      if (!adminData['status'] ||
+          adminData['id'] == '' ||
+          adminData['role'] != 'ADMIN') {
+        toastHelper.showWarningtoast('Unauthorized');
+        return false;
+      }
+
+      if (adminData['id'] == accountId) {
+        toastHelper.showWarningtoast('Cannot delete logged in account');
+        return false;
+      }
+      final response = await _dio.post(
+        '/admin/destroy',
+        data: {
+          'admin': adminData['id'],
+          'account': accountId,
+        },
+      );
+
+      if (response.statusCode == 203) {
+        toastHelper.showSuccesstoast('Account deleted');
+        return true;
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
     } catch (deleteAccountError) {
       toastHelper.showErrortoast(deleteAccountError.toString());
       return false;

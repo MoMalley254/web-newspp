@@ -348,3 +348,52 @@ export const updateAccountService = async (
     };
   }
 };
+
+export const deleteAccountService = async(adminId: string, accountId: string) => {
+  try {
+     // 1. Verify the updater is an ADMIN
+    const updater = await prisma.admin.findUnique({
+      where: { id: adminId }
+    });
+
+    if (!updater || updater.role !== 'ADMIN') {
+      return {
+        status: false,
+        error: "Unauthorized"
+      };
+    }
+
+    // 2. Verify the target account exists
+    const accountExists = await prisma.admin.findUnique({
+      where: { id: accountId }
+    });
+
+    if (!accountExists) {
+      return {
+        status: false,
+        error: "Account does not exist"
+      };
+    }
+
+    const deleteAccount = await prisma.admin.delete({
+      where: { id: accountId}
+    });
+
+    if (!deleteAccount) {
+      return {
+        status: false,
+        error: "Unable to delete"
+      };
+    }
+
+    return {
+      status: true
+    };
+  } catch(deleteAccountServiceError: any) {
+    console.error(`Delete account service error ${deleteAccountServiceError}`);
+    return {
+      status: false,
+      error: deleteAccountServiceError.message || "Unable to delete"
+    };
+  }
+}

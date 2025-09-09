@@ -12,7 +12,8 @@ import {
   updateAdminPass,
   refreshAccessToken,
   getAdmins,
-  updateAccount
+  updateAccount,
+  deleteAccount
 } from "../controllers/admin/authController";
 
 import {
@@ -106,6 +107,7 @@ router.post("/update", authenticateAccessToken, updateAdminPass);
 router.post("/refresh", refreshAccessToken);
 router.post("/all", authenticateAccessToken, getAdmins);
 router.post("/change", authenticateAccessToken, updateAccount);
+router.post("/destroy", authenticateAccessToken, deleteAccount);
 
 router.post(
   "/mag/new",
