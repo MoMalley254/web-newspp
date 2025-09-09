@@ -155,7 +155,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     toastHelper.showWarningtoast('Please fill in all fields');
                     return;
                   }
-                    Navigator.pop(context); // Close the dialog
+                  Navigator.pop(context); // Close the dialog
 
                   setState(() {
                     isLoading = true;
@@ -352,7 +352,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           trailing: Text(admin['role'] ?? 'No role'),
                         ),
                         buildAccountButtons(context, admin),
-                        const SizedBox(height: 10,),
+                        const SizedBox(height: 10),
                       ],
                     ),
                   );
@@ -431,10 +431,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ElevatedButton(
               child: const Text('Save'),
               onPressed: () async {
+                if (passwordController.text.isEmpty || confirmController.text.isEmpty) {
+                  toastHelper.showWarningtoast('Please fill in all fields');
+                  return;
+                }
                 if (passwordController.text != confirmController.text) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Passwords do not match')),
-                  );
+                  toastHelper.showWarningtoast('Passwords do not match');
                   return;
                 }
 
@@ -465,7 +467,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BuildContext context,
     Map<String, dynamic> admin,
   ) async {
-    String selectedRole = admin['role']; 
+    String selectedRole = admin['role'];
+    List<String> roles = ['ADMIN', 'VIEWER', 'EDITOR'];
 
     showDialog(
       context: context,
@@ -476,7 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             isExpanded: true,
             value: selectedRole,
             items:
-                ['ADMIN', 'USER', 'EDITOR'].map((role) {
+                roles.map((role) {
                   return DropdownMenuItem<String>(
                     value: role,
                     child: Text(role),
@@ -484,10 +487,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 }).toList(),
             onChanged: (value) {
               if (value != null) {
-                selectedRole = value;
+                setState(() {
+                  selectedRole = value;
+                });
               }
             },
           ),
+
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),

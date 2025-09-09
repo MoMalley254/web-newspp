@@ -279,3 +279,72 @@ export const getAdminsService = async(adminId: string) => {
     }
   }
 }
+
+export const updateAccountService = async (
+  adminId: string,
+  accountId: string,
+  field: string,
+  value: string
+) => {
+  try {
+    // 1. Verify the updater is an ADMIN
+    const updater = await prisma.admin.findUnique({
+      where: { id: adminId }
+    });
+
+    if (!updater || updater.role !== 'ADMIN') {
+      return {
+        status: false,
+        error: "Unauthorized"
+      };
+    }
+
+    // 2. Verify the target account exists
+    const accountExists = await prisma.admin.findUnique({
+      where: { id: accountId }
+    });
+
+    if (!accountExists) {
+      return {
+        status: false,
+        error: "Account does not exist"
+      };
+    }
+
+    // 3. Validate allowed fields
+    const allowedFields = ['name', 'email', 'role', 'password']; 
+    if (!allowedFields.includes(field)) {
+      return {
+        status: false,
+        error: `Field '${field}' is not allowed to be updated.`
+      };
+    }
+
+    // 4. Prepare update object dynamically
+    const updateData: Record<string, any> = {};
+    if (field === 'password') {
+      const hashedPass = await argon2.hash(value);
+      updateData[field] = hashedPass;
+    } else {
+      updateData[field] = value;
+    }
+
+    // 5. Perform update
+    const updatedAccount = await prisma.admin.update({
+      where: { id: accountId },
+      data: updateData
+    });
+
+    return {
+      status: true,
+      data: updatedAccount
+    };
+
+  } catch (updateAccountServiceError: any) {
+    console.error(`Update account service error:`, updateAccountServiceError);
+    return {
+      status: false,
+      error: updateAccountServiceError.message || "Unable to update"
+    };
+  }
+};

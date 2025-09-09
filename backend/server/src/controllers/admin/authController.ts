@@ -5,7 +5,8 @@ import {
     loginService,
     updateAdminPassword,
     refreshAccessTokenService,
-    getAdminsService
+    getAdminsService,
+    updateAccountService
 } from "../../services/admin/authService";
 
 export const createAdmin = async(req: Request, res: Response) => {
@@ -120,8 +121,13 @@ export const updateAccount = async (req: Request, res: Response) => {
       return res.status(500).json({ error: 'Missing required fields' });
     }
 
-    return res.status(200).json({ message: 'Account updated successfully' });
-
+    const doUpdate = await updateAccountService(admin, account, field, value);
+    if (doUpdate.status) {
+        return res.status(201).json({ message: 'Account updated successfully' });
+    } else {
+        return res.status(500).json({ error: doUpdate.error });
+    }
+    
   } catch (updateAccountError: any) {
     console.error(`Update account error ${updateAccountError}`);
     return res.status(500).json({ error: updateAccountError });
