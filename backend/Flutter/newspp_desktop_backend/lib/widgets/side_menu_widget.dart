@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:newspp_desktop_backend/models/screens.dart';
+import 'package:newspp_desktop_backend/screens/landing_screen.dart';
 import 'package:newspp_desktop_backend/services/auth_service.dart';
+import 'package:newspp_desktop_backend/services/toast_service.dart';
 
 class SideMenuWidget extends StatefulWidget {
   final List<ScreenItem> screens; // Pass screens
@@ -144,7 +146,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
                 final isActive = _activeMenu == label;
                 return _buildMenuButton(icon, label, isActive);
               }),
-
+          _buildLogoutButton(context),
           const Spacer(),
           const SizedBox(height: 20),
         ],
@@ -177,6 +179,33 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
             _activeMenu = label; // Update UI
           });
           widget.onMenuSelected(label); // Notify main screen
+        },
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton(context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        leading: Icon(Icons.logout, color: Colors.grey[400], size: 22),
+        title: Text(
+          'Logout',
+          style: GoogleFonts.poppins(color: Colors.grey[400], fontSize: 15),
+        ),
+        onTap: () async {
+          ToastService().showProcessingtoast('Logging out please wait', 5);
+          bool logout = await AuthService().logout();
+          if (logout) {
+            Navigator.pushReplacement(
+              context, 
+              MaterialPageRoute(builder: (context) => LandingScreen()),
+              );
+          }
         },
       ),
     );
