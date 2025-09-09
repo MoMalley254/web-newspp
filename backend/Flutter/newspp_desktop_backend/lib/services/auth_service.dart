@@ -182,8 +182,14 @@ class AuthService {
         data: {'admin': adminData['id']},
       );
       if (response.statusCode == 200) {
-        final admins = await response.data['admins'];
-        return {'status': true, 'admins': admins};
+        final List<Map<String, dynamic>> filteredAdmins =
+            List<Map<String, dynamic>>.from(
+              (response.data['admins'] ?? []).where(
+                (admin) => admin['id'] != adminData['id'],
+              ),
+            );
+
+        return {'status': true, 'admins': filteredAdmins};
       } else {
         final error = await response.data['error'];
         return {'status': false, 'error': error ?? 'Server error'};
@@ -247,10 +253,7 @@ class AuthService {
       }
       final response = await _dio.post(
         '/admin/destroy',
-        data: {
-          'admin': adminData['id'],
-          'account': accountId,
-        },
+        data: {'admin': adminData['id'], 'account': accountId},
       );
 
       if (response.statusCode == 203) {
