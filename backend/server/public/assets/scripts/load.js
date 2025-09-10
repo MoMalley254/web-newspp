@@ -15,6 +15,8 @@ const magazineTitle = document.getElementById("magazineTitle");
 const copySpan = document.getElementById("copy");
 const foundItems = document.getElementById("foundItems");
 
+const meinAlert = document.querySelector('.meinAlert');
+
 let dotCount = 0;
 let foundArticles = 0;
 const baseUrl = `${window.location.origin}/front`;
@@ -49,11 +51,10 @@ async function getArticles() {
   // Stop if all fetches failed
   if (
     !allArticles ||
-    !allArticles.status ||
-    allArticles.mags.every((item) => item === null)
+    !allArticles.status 
   ) {
     const errorContainer = document.createElement("div");
-    errorContainer.className = "alert alert-danger text-center mt-4 ms-2 me-2";
+    errorContainer.className = "alert alert-danger text-center mt-4 ms-4 me-4";
     errorContainer.role = "alert";
     errorContainer.innerHTML = `
     <strong>Error:</strong> Failed to load magazines. <br> ${allArticles.error}<br> <br> <br>
@@ -61,7 +62,27 @@ async function getArticles() {
   `;
 
     articlesSection.innerHTML = "";
-    articlesSection.appendChild(errorContainer);
+    meinAlert.appendChild(errorContainer);
+    meinAlert.style.display = 'block';
+
+    clearInterval(dotsInterval);
+
+    if (articlesLoader) articlesLoader.style.display = "none"; // Show content area
+    contentBody.style.opacity = "1";
+    return;
+
+  } else if (allArticles.mags.every((item) => item === null)) {
+    const noMagsContainer = document.createElement("div");
+    noMagsContainer.className = "alert alert-warning text-center mt-4 ms-4 me-4";
+    noMagsContainer.role = "alert";
+    noMagsContainer.innerHTML = `
+    <strong>Error:</strong> No Magazines available<br> <br> <br>
+    <button class="btn btn-danger mt-3" onclick="location.reload()">Reload Page</button>
+  `;
+
+    articlesSection.innerHTML = "";
+    meinAlert.appendChild(noMagsContainer);
+    meinAlert.style.display = 'block';
 
     clearInterval(dotsInterval);
 

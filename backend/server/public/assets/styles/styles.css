@@ -845,3 +845,8 @@ body {
   object-fit: contain;
 }
 
+.meinAlert {
+  margin-top: 15vh;
+  display: none;
+}
+
