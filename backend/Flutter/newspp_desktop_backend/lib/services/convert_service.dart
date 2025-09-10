@@ -143,7 +143,7 @@ class Pdf2HtmlConverter {
 
       toastHelper.showProcessingtoast(
         'Processing magazine, do not close this window',
-        7,
+        100,
       );
       // final process = await Process.start(exePath, args, runInShell: true);
       final process = await Process.start(exePath, [
@@ -155,7 +155,7 @@ class Pdf2HtmlConverter {
       // Listen to stdout
       process.stdout.transform(SystemEncoding().decoder).listen((line) {
         print("LOG: $line"); // You can send this to the UI
-        toastHelper.showProcessingtoast(line, 3);
+        toastHelper.showProcessingtoast(line, 10);
       });
 
       // Listen to stderr
