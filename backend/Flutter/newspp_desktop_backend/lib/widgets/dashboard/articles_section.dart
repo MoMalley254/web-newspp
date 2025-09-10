@@ -78,7 +78,7 @@ class _ArticlesSectionState extends State<ArticlesSection> {
           'Showing ${filteredArticles.length} item(s)',
           style: GoogleFonts.lora(color: Colors.white, fontSize: 14),
         ),
-        const SizedBox(height: 15,),
+        const SizedBox(height: 15),
         Expanded(child: buildArticles(context)),
       ],
     );
@@ -293,10 +293,10 @@ class _ArticlesSectionState extends State<ArticlesSection> {
       padding: EdgeInsets.all(7),
       child: Center(
         child: Text(
-        'No articles available',
-        style: GoogleFonts.lora(color: Colors.white, fontSize: 22),
+          'No articles available',
+          style: GoogleFonts.lora(color: Colors.white, fontSize: 22),
+        ),
       ),
-      )
     );
   }
 
@@ -373,6 +373,8 @@ class _ArticlesSectionState extends State<ArticlesSection> {
   void refreshArticles() {
     setState(() {
       fetchArticles = magsService.getAllMags();
+      allArticles = [];
+      filteredArticles = [];
     });
   }
 }

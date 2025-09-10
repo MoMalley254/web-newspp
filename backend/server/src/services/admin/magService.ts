@@ -1,5 +1,7 @@
 import { DateTime } from "luxon";
 import prisma from "../../config/prismaClient";
+import { promises as fs } from 'fs';
+import path from 'path';
 
 export const getAllMagsService = async () => {
   try {
@@ -269,9 +271,32 @@ export const deleteMagService = async (magId: string, adminId: string) => {
       };
     }
 
+    const magExists = await prisma.magazine.findUnique({
+      where: { id: magId}
+    });
+
+    if (!magExists) {
+      return {
+        status: false,
+        error: "Magazine not found"
+      };
+    }
+
     const deletedMag = await prisma.magazine.delete({
       where: { id: magId },
     });
+
+    if(!deletedMag) {
+      return {
+        status: false,
+        error: "Unable to delete"
+      }
+    }
+
+    const deleteMainFiles = await deleteFolder(magExists.htmlPath);
+    if (magExists.coverImage !== null) {
+      const deleteCoverImage = await deleteFolder(magExists.coverImage);
+    }
 
     return {
       status: true,
@@ -285,3 +310,14 @@ export const deleteMagService = async (magId: string, adminId: string) => {
     };
   }
 };
+
+async function deleteFolder(folderPath: string) {
+  try {
+    await fs.rm(folderPath, { recursive: true, force: true });
+    console.log(`Folder deleted: ${folderPath}`);
+    return true;
+  } catch (deleteFolderError: any) {
+    console.error(`Delete folder error: ${deleteFolderError}`);
+    return false;
+  }
+}
