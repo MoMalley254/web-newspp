@@ -318,7 +318,18 @@ class _ArticleInfoState extends State<ArticleInfo> {
                           );
                         } else if (entry.key == 'hasToc' ||
                             entry.key == 'tableOfContents') {
-                          return tableOfContents(context, entry.value);
+                          return Column(
+                            children: [
+                              Text(
+                                'Table of Contents',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              tableOfContents(context, entry.value),
+                            ],
+                          );
                         }
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
@@ -874,7 +885,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
       );
     } else {
       return FutureBuilder(
-        future: Future.delayed(Duration(seconds: 2)), // Simulate async load
+        future: magsService.getTocs(article['id']),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Column(
@@ -884,51 +895,218 @@ class _ArticleInfoState extends State<ArticleInfo> {
                 Text('Getting contents...'),
               ],
             );
+          } else if (snapshot.hasError || !snapshot.data!['status']) {
+            final error =
+                snapshot.error ?? snapshot.data?['error'] ?? 'Unknown error';
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.redAccent,
+                borderRadius: BorderRadius.circular(7),
+              ),
+              margin: EdgeInsets.only(top: 7, bottom: 7),
+              padding: EdgeInsets.only(top: 7, bottom: 7, left: 3, right: 3),
+              child: Text(
+                'Error : $error',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
           } else {
+            List<dynamic> tocs = snapshot.data!['tocs'];
             return Container(
               child: Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder:
-                            (context) => AlertDialog(
-                              title: Text('Remove Table of Contents'),
-                              content: Text(
-                                'Are you sure you want to remove all TOC entries?',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed:
-                                      () => Navigator.pop(context, false),
-                                  child: Text('Cancel'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  child: Text('Remove'),
-                                ),
-                              ],
-                            ),
-                      );
-
-                      if (confirm == true) {
-                        await removeTableOfContents(context);
-                      }
-                    },
-
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                    child: Text('Remove Table of Contents', style: TextStyle(color: Colors.white),),
+  mainAxisSize: MainAxisSize.min,
+  children: [
+    const SizedBox(height: 8),
+    buildTocs(context, tocs),
+    const SizedBox(height: 10),
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Flexible(
+          child: ElevatedButton(
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Remove Table of Contents'),
+                  content: Text(
+                    'Are you sure you want to remove all TOC entries?',
                   ),
-                ],
-              ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text('Cancel'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: Text('Remove'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirm == true) {
+                await removeTableOfContents(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            child: Text(
+              'Remove Table of Contents',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Flexible(
+          child: ElevatedButton(
+            onPressed: () async {
+              await addTableOfContents(context);
+            },
+            child: Text('Add Table of Contents'),
+          ),
+        ),
+      ],
+    ),
+    const SizedBox(height: 20,),
+  ],
+)
+
             );
           }
         },
       );
     }
+  }
+
+  Widget buildTocs(BuildContext context, List<dynamic> tocs) {
+    return Column(
+      children:
+          tocs.map<Widget>((toc) {
+            print('Single toc $toc');
+            return Card(
+              margin: EdgeInsets.symmetric(vertical: 8),
+              elevation: 3,
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+
+                    // Subtitle
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                TextSpan(
+                                  text: 'Title: \n',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: toc['title'] ?? ''),
+                              ],
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await editTocTitle(
+                              context,
+                              toc['id'],
+                              toc['title'],
+                            );
+                          },
+                          child: Text('Edit'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                TextSpan(
+                                  text: 'Subtitle: \n',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: toc['subTitle'] ?? ''),
+                              ],
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await editTocSubtitle(
+                              context,
+                              toc['id'],
+                              toc['subTitle'],
+                            );
+                          },
+                          child: Text('Edit'),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // Pages
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: RichText(
+                            text: TextSpan(
+                              style: DefaultTextStyle.of(context).style,
+                              children: [
+                                TextSpan(
+                                  text: 'Pages: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(text: toc['pages'] ?? ''),
+                              ],
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () async {
+                            await editTocPages(
+                              context,
+                              toc['id'],
+                              toc['pages'],
+                            );
+                          },
+                          child: Text('Edit'),
+                        ),
+                      ],
+                    ),
+
+                    // Delete button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          // TODO: handle delete
+                        },
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        label: Text(
+                          'Delete',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+    );
   }
 
   Future<void> addTableOfContents(BuildContext context) async {
@@ -1121,5 +1299,180 @@ class _ArticleInfoState extends State<ArticleInfo> {
       });
       loadArticle();
     }
+  }
+
+  Future<void> editTocTitle(
+    BuildContext context,
+    String tocId,
+    String currentValue,
+  ) async {
+    TextEditingController controller = TextEditingController(
+      text: currentValue,
+    );
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Title'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: 'New Title',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newTitle = controller.text.trim();
+                if (newTitle.isNotEmpty && newTitle != currentValue) {
+                  bool updatedTocTitle = await magsService.editSingleToc(
+                    tocId,
+                    'title',
+                    newTitle,
+                  );
+                  if (updatedTocTitle) {
+                    setState(() {
+                      hasUpdated = true;
+                    });
+                    loadArticle();
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  toastHelper.showWarningtoast('Please fill in all fields');
+                  return;
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> editTocSubtitle(
+    BuildContext context,
+    String tocId,
+    String currentValue,
+  ) async {
+    TextEditingController controller = TextEditingController(
+      text: currentValue,
+    );
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Subtitle'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: 'New Subtitle',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newSubtitle = controller.text.trim();
+                if (newSubtitle.isNotEmpty && newSubtitle != currentValue) {
+                  print('Updated subtitle for $tocId: $newSubtitle');
+
+                  bool updatedTocTitle = await magsService.editSingleToc(
+                    tocId,
+                    'subTitle',
+                    newSubtitle,
+                  );
+                  if (updatedTocTitle) {
+                    setState(() {
+                      hasUpdated = true;
+                    });
+                    loadArticle();
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  toastHelper.showWarningtoast('Please fill in all fields');
+                  return;
+                }
+                // Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> editTocPages(
+    BuildContext context,
+    String tocId,
+    String currentValue,
+  ) async {
+    TextEditingController controller = TextEditingController(
+      text: currentValue,
+    );
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Edit Pages'),
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              labelText: 'New Pages (comma-separated)',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newPages = controller.text.trim();
+                if (newPages.isNotEmpty && newPages != currentValue) {
+                  bool updatedTocTitle = await magsService.editSingleToc(
+                    tocId,
+                    'pages',
+                    newPages,
+                  );
+                  if (updatedTocTitle) {
+                    setState(() {
+                      hasUpdated = true;
+                    });
+                    loadArticle();
+                  }
+                  Navigator.of(context).pop(); // Close the dialog
+                } else {
+                  toastHelper.showWarningtoast('Please fill in all fields');
+                  return;
+                }
+                // Navigator.of(context).pop();
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

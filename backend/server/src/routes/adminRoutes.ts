@@ -25,7 +25,9 @@ import {
   deleteMagazine,
   updateMagazineWithPdf,
   addNewTocs,
-  removeAllTocs
+  removeAllTocs,
+  getMagTocs,
+  editToc
 } from "../controllers/admin/magController";
 
 const router = express.Router();
@@ -194,5 +196,7 @@ router.post(
 router.post("/mag/del", authenticateAccessToken, deleteMagazine);
 router.post("/mag/toc/new", authenticateAccessToken, addNewTocs);
 router.post("/mag/toc/destroy", authenticateAccessToken, removeAllTocs);
+router.get("/mag/toc/get", authenticateAccessToken, getMagTocs);
+router.post("/mag/toc/edit", authenticateAccessToken, editToc);
 
 export default router;

@@ -427,3 +427,61 @@ export const removeAllTocsService = async (
     };
   }
 };
+
+export const getMagTocsService = async(magazineId: string) => {
+  try {
+    const allTocs = await prisma.tableOfContents.findMany({
+      where: { magazineId }
+    });
+
+    return {
+      status: true,
+      tocs: allTocs || []
+    }
+  } catch(getMagTocsServiceError: any) {
+    console.error(`Get mag tocs service error ${getMagTocsServiceError}`);
+    return {
+      status: false,
+      error: getMagTocsServiceError,
+    };
+  }
+}
+
+export const editTocService = async(id: string, field: string, value: string) => {
+  try {
+    const tocExists = await prisma.tableOfContents.findUnique({
+      where: { id }
+    });
+
+    if (!tocExists) {
+      return {
+        status: false,
+        error: "Not found"
+      }
+    }
+
+    const update = await prisma.tableOfContents.update({
+      where: { id },
+        data: {
+          [field]: value,
+        },
+    });
+
+    if (!update) {
+      return {
+        status: false,
+        error: "Unable to update"
+      }
+    }
+
+    return {
+      status: true
+    };
+  } catch(editTocServiceError: any) {
+    console.error(`Edit toc service error ${editTocServiceError}`);
+    return {
+      status: false,
+      error: editTocServiceError
+    }
+  }
+}

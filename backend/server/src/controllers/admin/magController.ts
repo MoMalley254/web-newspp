@@ -6,7 +6,9 @@ import {
   updateMagazineService,
   deleteMagService,
   addTocsService,
-  removeAllTocsService
+  removeAllTocsService,
+  getMagTocsService,
+  editTocService
 } from "../../services/admin/magService";
 import path from "path";
 
@@ -252,5 +254,43 @@ export const removeAllTocs = async(req:Request, res: Response) => {
   } catch(removeAllTocsError: any) {
     console.error(`Add new tocs error ${removeAllTocsError}`);
     return res.status(500).json({ error: removeAllTocsError.message || "Internal server error"});
+  }
+}
+
+export const getMagTocs = async(req: Request, res: Response) => {
+  try {
+    const magazineId = req.query.mag as string;
+    if (!magazineId) {
+      return res.status(500).json({ error: "Missing field please retry"});
+    }
+
+    const getAllTocsForMag = await getMagTocsService(magazineId);
+    if (getAllTocsForMag.status) {
+      return res.status(200).json({ tocs: getAllTocsForMag.tocs});
+    } else {
+      return res.status(500).json({ error: getAllTocsForMag.error});
+    }
+  } catch(getMagTocsError: any) {
+    console.error(`get mag tocs error ${getMagTocsError}`);
+    return res.status(500).json({ error: getMagTocsError.message || "Internal server error"});
+  }
+};
+
+export const editToc = async(req: Request, res: Response) => {
+  try {
+    const { tocId, field, value } = req.body;
+    if (!tocId || !field || !value) {
+      return res.status(500).json({ error: "Missing required fields"});
+    }
+
+    const hasUpdated = await editTocService(tocId, field, value);
+    if (hasUpdated.status) {
+      return res.status(201).json({});
+    } else {
+      return res.status(500).json({ error: hasUpdated.error});
+    }
+  } catch(editTocError: any) {
+    console.error(`Edit toc error ${editTocError}`);
+    return res.status(500).json({ error: editTocError.message || "Internal server error"});
   }
 }

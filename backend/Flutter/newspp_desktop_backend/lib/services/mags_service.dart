@@ -461,7 +461,7 @@ class MagsService {
 
       final response = await _dio.post(
         '$baseMagUrl/toc/destroy',
-        data: {'admin': adminId, 'mag': magId, },
+        data: {'admin': adminId, 'mag': magId},
       );
 
       if (response.statusCode == 203) {
@@ -472,8 +472,47 @@ class MagsService {
         toastHelper.showErrortoast(error.toString());
         return false;
       }
-    } catch(removeTocsError) {
+    } catch (removeTocsError) {
       toastHelper.showErrortoast(removeTocsError.toString());
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>> getTocs(String magId) async {
+    try {
+      final response = await _dio.get('$baseMagUrl/toc/get?mag=$magId');
+
+      if (response.statusCode == 200) {
+        final tocs = await response.data['tocs'];
+        return {'status': true, 'tocs': tocs};
+      } else {
+        final error = await response.data['error'];
+        return {'status': false, 'error': error};
+      }
+    } catch (getTocsError) {
+      toastHelper.showErrortoast(getTocsError.toString());
+      return {'status': false, 'error': getTocsError.toString()};
+    }
+  }
+
+  Future<bool> editSingleToc(String tocId, String field, String value) async {
+    toastHelper.showProcessingtoast('Updating please wait...', 7);
+    try {
+      final response = await _dio.post(
+        '$baseMagUrl/toc/edit',
+        data: {'tocId': tocId, 'field': field, 'value': value},
+      );
+
+      if (response.statusCode == 201) {
+        toastHelper.showSuccesstoast('$field updated to $value');
+        return true;
+      } else {
+        final error = await response.data["error"];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
+    } catch (editSingleTocError) {
+      toastHelper.showErrortoast(editSingleTocError.toString());
       return false;
     }
   }
