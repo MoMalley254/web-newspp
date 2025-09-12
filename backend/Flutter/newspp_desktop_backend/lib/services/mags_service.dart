@@ -431,7 +431,6 @@ class MagsService {
   }
 
   Future<bool> addTocs(String magId, List<Map<String, dynamic>> tocs) async {
-    print('Tocs $tocs');
     try {
       final prefs = await SharedPreferences.getInstance();
       String adminId = prefs.getString('adminId') ?? '';
