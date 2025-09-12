@@ -912,70 +912,106 @@ class _ArticleInfoState extends State<ArticleInfo> {
             );
           } else {
             List<dynamic> tocs = snapshot.data!['tocs'];
-            return Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 8),
-                  buildTocs(context, tocs),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            return tocs.isNotEmpty
+                ? Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Flexible(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder:
-                                  (context) => AlertDialog(
-                                    title: Text('Remove Table of Contents'),
-                                    content: Text(
-                                      'Are you sure you want to remove all TOC entries?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.pop(context, false),
-                                        child: Text('Cancel'),
+                      const SizedBox(height: 8),
+                      buildTocs(context, tocs),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Flexible(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder:
+                                      (context) => AlertDialog(
+                                        title: Text('Remove Table of Contents'),
+                                        content: Text(
+                                          'Are you sure you want to remove all TOC entries?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  false,
+                                                ),
+                                            child: Text('Cancel'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed:
+                                                () => Navigator.pop(
+                                                  context,
+                                                  true,
+                                                ),
+                                            child: Text('Remove'),
+                                          ),
+                                        ],
                                       ),
-                                      ElevatedButton(
-                                        onPressed:
-                                            () => Navigator.pop(context, true),
-                                        child: Text('Remove'),
-                                      ),
-                                    ],
-                                  ),
-                            );
+                                );
 
-                            if (confirm == true) {
-                              await removeTableOfContents(context);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                                if (confirm == true) {
+                                  await removeTableOfContents(context);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                              child: Text(
+                                'Remove Table of Contents',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
                           ),
-                          child: Text(
-                            'Remove Table of Contents',
-                            style: TextStyle(color: Colors.white),
+                          const SizedBox(width: 12),
+                          Flexible(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                await addTableOfContents(context);
+                              },
+                              child: Text('Add Table of Contents'),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Flexible(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await addTableOfContents(context);
-                          },
-                          child: Text('Add Table of Contents'),
-                        ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                )
+                : Container(
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  width: MediaQuery.of(context).size.width * .9,
+                  margin: EdgeInsets.only(top: 7, bottom: 7),
+                  padding: EdgeInsets.only(
+                    top: 7,
+                    bottom: 7,
+                    left: 3,
+                    right: 3,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'No contents available please create some',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await addTableOfContents(context);
+                        },
+                        child: Text('Add Table of Contents'),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            );
+                );
           }
         },
       );
@@ -986,7 +1022,6 @@ class _ArticleInfoState extends State<ArticleInfo> {
     return Column(
       children:
           tocs.map<Widget>((toc) {
-            print('Single toc $toc');
             return Card(
               margin: EdgeInsets.symmetric(vertical: 8),
               elevation: 3,
@@ -1095,32 +1130,31 @@ class _ArticleInfoState extends State<ArticleInfo> {
                       child: TextButton.icon(
                         onPressed: () async {
                           final confirm = await showDialog<bool>(
-                              context: context,
-                              builder:
-                                  (context) => AlertDialog(
-                                    title: Text('Remove ${toc['title']}'),
-                                    content: Text(
-                                      'Are you sure you want to remove this table of content entry?',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.pop(context, false),
-                                        child: Text('Cancel'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed:
-                                            () => Navigator.pop(context, true),
-                                        child: Text('Remove'),
-                                      ),
-                                    ],
+                            context: context,
+                            builder:
+                                (context) => AlertDialog(
+                                  title: Text('Remove ${toc['title']}'),
+                                  content: Text(
+                                    'Are you sure you want to remove this table of content entry?',
                                   ),
-                            );
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, false),
+                                      child: Text('Cancel'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, true),
+                                      child: Text('Remove'),
+                                    ),
+                                  ],
+                                ),
+                          );
 
-                            if (confirm == true) {
-                              await deleteToc(context, toc['id']);
-                            }
-                          
+                          if (confirm == true) {
+                            await deleteToc(context, toc['id']);
+                          }
                         },
                         icon: Icon(Icons.delete, color: Colors.red),
                         label: Text(
