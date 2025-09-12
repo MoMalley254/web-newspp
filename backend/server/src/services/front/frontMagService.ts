@@ -46,6 +46,7 @@ export const fetchSingleMagazineService = async (magId: string) => {
         coverImage: true,
         tags: true,
         credits: true,
+        hasToc: true
       },
     });
 
@@ -104,6 +105,25 @@ export const fetchSingleTagService = async(tagId: string) => {
     return {
       status: false,
       error: fetchSingleTagServiceError
+    }
+  }
+};
+
+export const getTocsService = async(magazineId: string) => {
+  try {
+    const allTocsForMag = await prisma.tableOfContents.findMany({
+      where: { magazineId }
+    });
+
+    return {
+      status: true,
+      tocs: allTocsForMag
+    };
+  } catch(getTocsServiceError: any) {
+    console.error(`Get tocs service error ${getTocsServiceError}`);
+    return {
+      status: false,
+      error: getTocsServiceError.message || "Unable to get contents"
     }
   }
 }

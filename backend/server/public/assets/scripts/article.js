@@ -182,6 +182,7 @@ async function showFlipbook(imageUrls) {
 
   window.flipBookInstance = flipBook;
 
+  buildTableOfContents(flipBook);
   initButtons(flipBook);
   initPageCounter(flipBook);
   populateThumbnails(imageUrls, flipBook);
@@ -296,3 +297,31 @@ function populateThumbnails(images, flipBook) {
     thumbNailsContainer.appendChild(imageDiv);
   });
 }
+
+function buildTableOfContents(flipbook) {
+  const showTocsBtn = document.getElementById('showTocsBtn');
+  const hasTocs = showTocsBtn?.getAttribute('data-has-tocs');
+
+  if (hasTocs === 'true') {
+    const tocsCanvas = document.getElementById('tableOfContentsCanvas');
+    const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(tocsCanvas);
+
+    const allTocs = document.querySelectorAll('.toc-entry');
+
+    allTocs.forEach((tocEntry) => {
+      const pageEl = tocEntry.querySelector('.tocNumber');
+      if (!pageEl) return;
+
+      const tocFirstPage = parseInt(pageEl.textContent, 10);
+      if (isNaN(tocFirstPage)) return;
+
+      tocEntry.addEventListener('click', () => {
+        flipbook.turnToPage(tocFirstPage);
+        offcanvas.hide();
+      });
+    });
+
+    offcanvas.show();
+  }
+}
+

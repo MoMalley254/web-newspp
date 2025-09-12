@@ -3,7 +3,8 @@ import * as cheerio from "cheerio";
 import {
   fetchMagazinesService,
   fetchSingleMagazineService,
-  fetchSingleTagService
+  fetchSingleTagService,
+  getTocsService
 } from "../../services/front/frontMagService";
 import path from "path";
 import { promises as fs } from 'fs';
@@ -60,7 +61,15 @@ export const renderSingleMagazine = async (req: Request, res: Response) => {
       });
     }
 
-    return res.status(200).render("front/article", { mag: magazine, status: true });
+    let tocs: any[] = [];
+    if (magazine.hasToc) {
+      const getTocs = await getTocsService(magazine.id);
+      if (getTocs.status && Array.isArray(getTocs.tocs)) {
+        tocs = getTocs.tocs;
+      }
+    }
+
+    return res.status(200).render("front/article", { mag: magazine, status: true, tocs: tocs });
   } catch (renderSingleMagazineError: unknown) {
     const errorMessage =
       renderSingleMagazineError instanceof Error

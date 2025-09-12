@@ -118,10 +118,12 @@
 
             <button
               type="button"
+              id="showTocsBtn"
               data-bs-toggle="offcanvas"
               data-bs-target="#tableOfContentsCanvas"
               aria-controls="tableOfContentsCanvas"
               aria-label="Table of Contents"
+              data-has-tocs="<%= mag.hasToc %>"
             >
               <i class="material-icons">toc</i>
             </button>
@@ -303,8 +305,72 @@
   </div>
 </div>
 
+<div
+  class="offcanvas offcanvas-top text-bg-dark"
+  tabindex="-1"
+  id="tableOfContentsCanvas"
+  aria-labelledby="tableOfContentsCanvasLabel"
+  style="height: 75vh;"
+>
+  <div class="offcanvas-header justify-content-between align-items-center">
+    <h5 class="offcanvas-title" id="tableOfContentsCanvasLabel">
+      Table of Contents
+    </h5>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      data-bs-dismiss="offcanvas"
+      aria-label="Close"
+    ></button>
+  </div>
+
+  <div class="offcanvas-body bg-dark text-white">
+    <% if (mag.hasToc && tocs.length > 0) { 
+      tocs.sort((a, b) => {
+  const aPage = parseInt((a.pages || '').split(',')[0]) || 0;
+  const bPage = parseInt((b.pages || '').split(',')[0]) || 0;
+  return aPage - bPage;
+});
+
+      %>
+      <div class="mag-contents">
+        <strong>Click to go to the story:</strong>
+        <div class="book-toc">
+        <% tocs.forEach((toc, index) => { %>
+          <div class="toc-entry">
+            <div class="toc-title">
+              <%= toc.title %>
+              <% if (toc.subTitle) { %>
+                <br> <small class="toc-subtitle"> - <%= toc.subTitle %></small>
+              <% } %>
+            </div>
+            <div class="toc-leader"></div>
+            <div class="toc-page">
+              <% const tocsList = toc.pages.split(',')
+                if (tocsList.length > 1) {
+                  tocsList.forEach((tocPage, index) => { %>
+                    <span <%= index === 0 ? `class=tocNumber` : '' %>><%= tocPage %>, </span>
+
+                  <% })
+                } else { %>
+                  <span class="tocNumber"><%= toc.pages %></span>
+                <% }
+              %>
+              
+            </div>
+          </div>
+        <% }); %>
+      </div>
+      </div>
+    <% } else { %>
+      <p>No Table of Contents available.</p>
+    <% } %>
+  </div>
+</div>
 
       </section>
+
+      
 
       
 
