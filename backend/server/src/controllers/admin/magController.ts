@@ -4,7 +4,9 @@ import {
   createMagService,
   findSingleMagService,
   updateMagazineService,
-  deleteMagService
+  deleteMagService,
+  addTocsService,
+  removeAllTocsService
 } from "../../services/admin/magService";
 import path from "path";
 
@@ -214,3 +216,41 @@ export const deleteMagazine = async (req: Request, res: Response) => {
     return res.status(500).json({ error: deleteMagazineError.message || 'Internal server error' });
   }
 };
+
+export const addNewTocs = async(req:Request, res: Response) => {
+  try {
+    const { admin, mag, tocs} = req.body;
+    if (!admin || !mag || !tocs) {
+      return res.status(500).json({ error: "Missing required fields"});
+    }
+
+    const addedTocs = await addTocsService(admin, mag, tocs);
+    if (addedTocs.status) {
+      return res.status(201).json({});
+    } else {
+      return res.status(500).json({ error: addedTocs.error});
+    }
+  } catch(addNewTocsError: any) {
+    console.error(`Add new tocs error ${addNewTocsError}`);
+    return res.status(500).json({ error: addNewTocsError.message || "Internal server error"});
+  }
+}
+
+export const removeAllTocs = async(req:Request, res: Response) => {
+  try {
+    const { admin, mag} = req.body;
+    if (!admin || !mag) {
+      return res.status(500).json({ error: "Missing required fields"});
+    }
+
+    const removedTocs = await removeAllTocsService(admin, mag);
+    if (removedTocs.status) {
+      return res.status(203).json({});
+    } else {
+      return res.status(500).json({ error: removedTocs.error});
+    }
+  } catch(removeAllTocsError: any) {
+    console.error(`Add new tocs error ${removeAllTocsError}`);
+    return res.status(500).json({ error: removeAllTocsError.message || "Internal server error"});
+  }
+}

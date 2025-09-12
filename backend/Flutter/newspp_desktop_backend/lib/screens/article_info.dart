@@ -4,9 +4,11 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:newspp_desktop_backend/models/toc.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/fetch_service.dart';
 import 'package:newspp_desktop_backend/services/mags_service.dart';
+import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:newspp_desktop_backend/services/upload_service.dart';
 import 'package:toastification/toastification.dart';
 
@@ -28,6 +30,7 @@ class _ArticleInfoState extends State<ArticleInfo> {
   final fetchService = FetchService();
   final convertService = Pdf2HtmlConverter();
   final magsService = MagsService();
+  final toastHelper = ToastService();
 
   bool hasUpdated = false;
   late Map<String, dynamic> article;
@@ -91,9 +94,10 @@ class _ArticleInfoState extends State<ArticleInfo> {
                         if (excludedKeys.contains(entry.key)) {
                           return SizedBox(); // handled on the right
                         } else if (entry.key == 'credits') {
-                          if (article['credits'] == null || article['credits'] is! Map) {
+                          if (article['credits'] == null ||
+                              article['credits'] is! Map) {
                             return SizedBox.shrink();
-                          } 
+                          }
                           Map<String, dynamic> credits =
                               Map<String, dynamic>.from(article['credits']);
 
@@ -312,6 +316,9 @@ class _ArticleInfoState extends State<ArticleInfo> {
                               ],
                             ),
                           );
+                        } else if (entry.key == 'hasToc' ||
+                            entry.key == 'tableOfContents') {
+                          return tableOfContents(context, entry.value);
                         }
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
@@ -855,5 +862,264 @@ class _ArticleInfoState extends State<ArticleInfo> {
     );
 
     return pickedDates?.first;
+  }
+
+  Widget tableOfContents(BuildContext context, bool hasToc) {
+    if (!hasToc) {
+      return ElevatedButton(
+        onPressed: () async {
+          await addTableOfContents(context);
+        },
+        child: Text('Add Table of Contents'),
+      );
+    } else {
+      return FutureBuilder(
+        future: Future.delayed(Duration(seconds: 2)), // Simulate async load
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Column(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 8),
+                Text('Getting contents...'),
+              ],
+            );
+          } else {
+            return Container(
+              child: Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder:
+                            (context) => AlertDialog(
+                              title: Text('Remove Table of Contents'),
+                              content: Text(
+                                'Are you sure you want to remove all TOC entries?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed:
+                                      () => Navigator.pop(context, false),
+                                  child: Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  child: Text('Remove'),
+                                ),
+                              ],
+                            ),
+                      );
+
+                      if (confirm == true) {
+                        await removeTableOfContents(context);
+                      }
+                    },
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: Text('Remove Table of Contents', style: TextStyle(color: Colors.white),),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      );
+    }
+  }
+
+  Future<void> addTableOfContents(BuildContext context) async {
+    List<TocEntry> entries = [TocEntry()];
+
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Add Table of Contents'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ...entries.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final toc = entry.value;
+
+                      return Padding(
+                        key: ValueKey(index),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Entry ${index + 1}',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              initialValue: toc.title,
+                              decoration: InputDecoration(labelText: 'Title'),
+                              onChanged: (val) => toc.title = val,
+                            ),
+                            SizedBox(height: 8),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Subtitle
+                                Expanded(
+                                  flex: 2,
+                                  child: TextFormField(
+                                    initialValue: toc.subtitle,
+                                    decoration: InputDecoration(
+                                      labelText: 'Subtitle (optional)',
+                                    ),
+                                    onChanged: (val) => toc.subtitle = val,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+
+                                // Pages
+                                Expanded(
+                                  flex: 2,
+                                  child: TextFormField(
+                                    initialValue: toc.pages,
+                                    decoration: InputDecoration(
+                                      labelText: 'Pages (e.g. 1,2,3)',
+                                    ),
+                                    onChanged: (val) => toc.pages = val,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+
+                                // Remove button
+                                if (index != 0)
+                                  IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        entries.removeAt(index);
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.remove_circle,
+                                      color: Colors.red,
+                                    ),
+                                    tooltip: 'Remove entry',
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+
+                    // Add Entry button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            entries.add(TocEntry());
+                          });
+                        },
+                        icon: Icon(Icons.add),
+                        label: Text('Add Entry'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    List<Map<String, dynamic>> cleanedTocs = [];
+                    for (var e in entries) {
+                      if (e.title.isEmpty || e.pages.isEmpty) {
+                        toastHelper.showWarningtoast(
+                          'Please fill in all field or remove unused fields',
+                        );
+                        return;
+                      } else {
+                        Map<String, dynamic> toc = {
+                          'title': e.title,
+                          'subTitle': e.subtitle,
+                          'pages': e.pages,
+                        };
+                        cleanedTocs.add(toc);
+                      }
+                      // Navigator.of(context).pop();
+                    }
+
+                    Navigator.of(context).pop();
+
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return const AlertDialog(
+                          content: Row(
+                            children: [
+                              CircularProgressIndicator(),
+                              SizedBox(width: 20),
+                              Expanded(child: Text('Updating... Please wait.')),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+
+                    bool addedTocs = await magsService.addTocs(
+                      article['id'],
+                      cleanedTocs,
+                    );
+                    Navigator.of(context).pop();
+                    if (addedTocs) {
+                      setState(() {
+                        hasUpdated = true;
+                      });
+                      loadArticle();
+                    }
+                  },
+                  child: Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> removeTableOfContents(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Expanded(child: Text('Updating... Please wait.')),
+            ],
+          ),
+        );
+      },
+    );
+
+    bool deletedTocs = await magsService.removeTocs(article['id']);
+    Navigator.of(context).pop();
+    if (deletedTocs) {
+      setState(() {
+        hasUpdated = true;
+      });
+      loadArticle();
+    }
   }
 }

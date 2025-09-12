@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:newspp_desktop_backend/core/network/dio_client.dart';
 import 'package:newspp_desktop_backend/core/network/urls.dart';
+import 'package:newspp_desktop_backend/models/toc.dart';
 import 'package:newspp_desktop_backend/services/convert_service.dart';
 import 'package:newspp_desktop_backend/services/toast_service.dart';
 import 'package:path/path.dart' as p;
@@ -283,8 +284,8 @@ class MagsService {
 
           // Assign to the expected field as a list under a single key
           magazineData['images'] = finalHtmlFiles;
-    magazineData.remove('value');    // This key seems to hold raw files
-    magazineData.remove('field');    // No longer needed
+          magazineData.remove('value'); // This key seems to hold raw files
+          magazineData.remove('field'); // No longer needed
         } else if (magazineData['field'] == 'coverImage') {
           magazineData['cover'] = await MultipartFile.fromFile(
             magazineData['value'],
@@ -427,5 +428,54 @@ class MagsService {
     print('Result $result');
 
     return result;
+  }
+
+  Future<bool> addTocs(String magId, List<Map<String, dynamic>> tocs) async {
+    print('Tocs $tocs');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String adminId = prefs.getString('adminId') ?? '';
+
+      final response = await _dio.post(
+        '$baseMagUrl/toc/new',
+        data: {'admin': adminId, 'mag': magId, 'tocs': tocs},
+      );
+
+      if (response.statusCode == 201) {
+        toastHelper.showSuccesstoast('Table of contents updated');
+        return true;
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
+    } catch (addTocsError) {
+      toastHelper.showErrortoast(addTocsError.toString());
+      return false;
+    }
+  }
+
+  Future<bool> removeTocs(String magId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String adminId = prefs.getString('adminId') ?? '';
+
+      final response = await _dio.post(
+        '$baseMagUrl/toc/destroy',
+        data: {'admin': adminId, 'mag': magId, },
+      );
+
+      if (response.statusCode == 203) {
+        toastHelper.showSuccesstoast('Table of contents deleted');
+        return true;
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
+    } catch(removeTocsError) {
+      toastHelper.showErrortoast(removeTocsError.toString());
+      return false;
+    }
   }
 }

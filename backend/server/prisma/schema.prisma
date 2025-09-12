@@ -53,6 +53,22 @@ model Magazine {
   adminId String
 
   credits Json?
+
+  hasToc Boolean @default(false)
+  tableOfContents TableOfContents[]
+}
+
+model TableOfContents {
+  id String @id @default(uuid())
+  title String
+  subTitle String?
+  pages String
+
+  magazine Magazine @relation(fields: [magazineId], references: [id])
+  magazineId String
+
+  createdAt  DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model MagzineReadingSession {

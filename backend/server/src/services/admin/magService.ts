@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import prisma from "../../config/prismaClient";
-import { promises as fs } from 'fs';
-import path from 'path';
+import { promises as fs } from "fs";
+import path from "path";
 
 export const getAllMagsService = async () => {
   try {
@@ -272,13 +272,13 @@ export const deleteMagService = async (magId: string, adminId: string) => {
     }
 
     const magExists = await prisma.magazine.findUnique({
-      where: { id: magId}
+      where: { id: magId },
     });
 
     if (!magExists) {
       return {
         status: false,
-        error: "Magazine not found"
+        error: "Magazine not found",
       };
     }
 
@@ -286,11 +286,11 @@ export const deleteMagService = async (magId: string, adminId: string) => {
       where: { id: magId },
     });
 
-    if(!deletedMag) {
+    if (!deletedMag) {
       return {
         status: false,
-        error: "Unable to delete"
-      }
+        error: "Unable to delete",
+      };
     }
 
     const deleteMainFiles = await deleteFolder(magExists.htmlPath);
@@ -321,3 +321,109 @@ async function deleteFolder(folderPath: string) {
     return false;
   }
 }
+
+export const addTocsService = async (
+  admin: string,
+  mag: string,
+  tocs: string[]
+) => {
+  try {
+    const magExists = await prisma.magazine.findUnique({
+      where: { id: mag },
+    });
+
+    if (!magExists) {
+      return {
+        status: false,
+        error: "Magazine not found",
+      };
+    }
+
+    // Expand each toc.pages into individual page rows
+    const preparedTocs = (tocs as any[]).map((entry: any) => ({
+      title: (entry.title as string).trim(),
+      subTitle: (entry.subTitle as string).trim(),
+      pages: (entry.pages as string).trim(),
+      magazineId: mag
+    }));
+
+    if (preparedTocs.length === 0) {
+      return {
+        status: false,
+        error: "No valid table of contents entries provided"
+      };
+    }
+
+     const created = await prisma.tableOfContents.createMany({
+      data: preparedTocs
+    });
+
+    if (created && !magExists.hasToc) {
+      await prisma.magazine.update({
+        where: { id: mag },
+        data: {
+          hasToc: true,
+        },
+      });
+    // const create
+    return {
+      status: true,
+    };
+    } else {
+      return {
+        status: true
+      };
+    }
+  } catch (addTocsServiceError: any) {
+    console.error(`Add tocs to service error ${addTocsServiceError}`);
+    return {
+      status: false,
+      error: addTocsServiceError,
+    };
+  }
+};
+
+export const removeAllTocsService = async (
+  admin: string,
+  mag: string,
+) => {
+  try {
+    const magExists = await prisma.magazine.findUnique({
+      where: { id: mag },
+    });
+
+    if (!magExists) {
+      return {
+        status: false,
+        error: "Magazine not found",
+      };
+    }
+
+     const deletedAll = await prisma.tableOfContents.deleteMany({
+      where: { magazineId: mag}
+    });
+
+    if (deletedAll && magExists.hasToc) {
+      await prisma.magazine.update({
+        where: { id: mag },
+        data: {
+          hasToc: false,
+        },
+      });
+    // const create
+    return {
+      status: true,
+    };
+    } else {
+      return {
+        status: true
+      };
+    }
+  } catch (removeAllTocsServiceError: any) {
+    console.error(`Add tocs to service error ${removeAllTocsServiceError}`);
+    return {
+      status: false,
+      error: removeAllTocsServiceError,
+    };
+  }
+};
