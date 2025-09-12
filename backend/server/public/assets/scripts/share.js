@@ -9,6 +9,9 @@ document.getElementById(
 document.getElementById(
   "sms-share"
 ).href = `sms:?body=${encodedMessage}%20${link}`;
+document.getElementById("facebook-share").href = `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`;
+  document.getElementById("twitter-share").href = `https://twitter.com/intent/tweet?url=${encodedLink}&text=${encodedMessage}`;
+  document.getElementById("telegram-share").href = `https://t.me/share/url?url=${encodedLink}&text=${encodedMessage}`;
 
 // Copy to clipboard
 function copyLink() {
