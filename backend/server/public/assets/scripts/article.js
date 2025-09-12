@@ -11,6 +11,9 @@ const pageCounts = document.querySelector(".page-counts");
 const currentPageEl = document.getElementById("current-page");
 const totalPagesEl = document.getElementById("total-pages");
 
+const switchPageViewBtn = document.getElementById('switch-btn');
+let pageWidth
+
 let dotCount = 0;
 const isMobile = detectDeviceType();
 
@@ -65,6 +68,10 @@ const dotsInterval = setInterval(() => {
   dotCount = (dotCount + 1) % 4;
   dotsSpan.textContent = ".".repeat(dotCount);
 }, 500);
+
+switchPageViewBtn.addEventListener('click', () => {
+
+});
 
 async function prepareFlipBook() {
   try {
@@ -158,15 +165,15 @@ async function prepareFlipBook() {
 
 async function showFlipbook(imageUrls) {
   const flipBook = new St.PageFlip(flipContainer, {
-    width: isMobile ? 350 : 500,
-    height: isMobile ? 500 : 700,
+    width: isMobile ? 350 : 450,
+    height: isMobile ? 500 : 600,
 
     size: "fixed",
     minWidth: 315,
     maxWidth: 1000,
     minHeight: 420,
     maxHeight: 1350,
-    maxShadowOpacity: 0.5,
+    maxShadowOpacity: 0.7,
     showCover: true,
     mobileScrollSupport: true,
   });

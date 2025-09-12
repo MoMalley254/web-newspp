@@ -22,7 +22,11 @@ p, a, span, i {
 }
 
 body {
-    background: linear-gradient(to bottom right,  #232370, #4f0a8c);
+    /* background: linear-gradient(to bottom right,  #232370, #4f0a8c); */
+    background: url('../assets/images/bg.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
     background-attachment: fixed;
     overflow: hidden;
     text-overflow: ellipsis;
