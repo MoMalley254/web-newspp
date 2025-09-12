@@ -8,7 +8,8 @@ import {
   addTocsService,
   removeAllTocsService,
   getMagTocsService,
-  editTocService
+  editTocService,
+  deleteTocService
 } from "../../services/admin/magService";
 import path from "path";
 
@@ -292,5 +293,24 @@ export const editToc = async(req: Request, res: Response) => {
   } catch(editTocError: any) {
     console.error(`Edit toc error ${editTocError}`);
     return res.status(500).json({ error: editTocError.message || "Internal server error"});
+  }
+};
+
+export const deleteToc = async(req: Request, res: Response) => {
+  try {
+    const { toc } = req.body;
+    if (!toc) {
+      return res.status(500).json({ error: "Missing required fields"});
+    }
+
+    const hasDeleted = await deleteTocService(toc);
+    if (hasDeleted.status) {
+      return res.status(203).json({});
+    } else {
+      return res.status(500).json({ error: hasDeleted.error})
+    }
+  } catch(deleteTocError: any) {
+    console.error(`Delete toc error ${deleteTocError}`);
+    return res.status(500).json({ error: deleteTocError});
   }
 }

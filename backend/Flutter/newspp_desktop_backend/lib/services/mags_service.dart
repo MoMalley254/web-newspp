@@ -516,4 +516,28 @@ class MagsService {
       return false;
     }
   }
+
+  Future<bool> deleteOneToc(String tocId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String adminId = prefs.getString('adminId') ?? '';
+
+      final response = await _dio.post(
+        '$baseMagUrl/toc/del',
+        data: {'toc': tocId},
+      );
+
+      if (response.statusCode == 203) {
+        toastHelper.showSuccesstoast('Entry deleted');
+        return true;
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
+    } catch (deleteOneToc) {
+      toastHelper.showErrortoast(deleteOneToc.toString());
+      return false;
+    }
+  }
 }

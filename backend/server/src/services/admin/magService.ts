@@ -484,4 +484,40 @@ export const editTocService = async(id: string, field: string, value: string) =>
       error: editTocServiceError
     }
   }
+};
+
+export const deleteTocService = async(id: string) => {
+  try {
+    const tocExists = await prisma.tableOfContents.findUnique({
+      where: { id}
+    });
+
+    if (!tocExists) {
+      return {
+        status: false,
+        error: "Not found"
+      }
+    }
+
+    const deletedToc = await prisma.tableOfContents.delete({
+      where: { id }
+    });
+
+    if (deletedToc) {
+      return {
+        status: true,
+      }
+    } else {
+      return {
+        status: false,
+        error: "Unable to delete"
+      }
+    }
+  } catch(deleteTocServiceError: any) {
+    console.error(`Delete toc service error ${deleteTocServiceError}`);
+    return {
+      status: false,
+      error: deleteTocServiceError
+    }
+  }
 }
