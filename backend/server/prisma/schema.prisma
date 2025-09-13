@@ -56,6 +56,8 @@ model Magazine {
 
   hasToc Boolean @default(false)
   tableOfContents TableOfContents[]
+
+  links String[]
 }
 
 model TableOfContents {

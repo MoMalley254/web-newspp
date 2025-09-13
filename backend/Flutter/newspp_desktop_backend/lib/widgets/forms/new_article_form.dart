@@ -23,6 +23,9 @@ class _NewArticleFormState extends State<NewArticleForm> {
   final _authorController = TextEditingController();
   final _tagsController = TextEditingController();
   final _descController = TextEditingController();
+  final List<Map<String, TextEditingController>> _links = [
+    {'site': TextEditingController(), 'url': TextEditingController()},
+  ];
   List<Map<String, TextEditingController>> _credits = [
     {'role': TextEditingController(), 'names': TextEditingController()},
   ];
@@ -264,6 +267,83 @@ class _NewArticleFormState extends State<NewArticleForm> {
             ),
             const SizedBox(height: 16),
 
+            // Links Section
+            const Text('Links'),
+            const SizedBox(height: 6),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: _links.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          controller: _links[index]['site'],
+                          decoration: InputDecoration(
+                            hintText: 'Site (e.g., YouTube)',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Site required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          controller: _links[index]['url'],
+                          decoration: InputDecoration(
+                            hintText:
+                                'URL (e.g., https://www.youtube.com/v=P-dCRWeq5QU)',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'URL required';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      // const SizedBox(width: 10),
+                      // IconButton(
+                      //   icon: Icon(Icons.remove_circle, color: Colors.red),
+                      //   onPressed: () {
+                      //     setState(() {
+                      //       _links.removeAt(index);
+                      //     });
+                      //   },
+                      // ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            // Align(
+            //   alignment: Alignment.centerLeft,
+            //   child: ElevatedButton.icon(
+            //     onPressed: () {
+            //       setState(() {
+            //         _links.add({
+            //           'site': TextEditingController(),
+            //           'url': TextEditingController(),
+            //         });
+            //       });
+            //     },
+            //     icon: Icon(Icons.add),
+            //     label: Text('Add Another Role'),
+            //   ),
+            // ),
+            const SizedBox(height: 24),
+
             SwitchListTile(
               title: Text("Use PDF"),
               value: usePdf,
@@ -471,6 +551,15 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     }
                   }
 
+                  Map<String, String> linksData = {};
+                  for (var link in _links) {
+                    final site = link['site']!.text.trim();
+                    final urlRaw = link['url']!.text.trim();
+                    if (site.isNotEmpty && urlRaw.isNotEmpty) {
+                      linksData[site] = urlRaw;
+                    }
+                  }
+
                   Map<String, dynamic> formData = {
                     'title': _titleController.text,
                     'author': _authorController.text,
@@ -479,6 +568,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                     'tags': _tagsController.text,
                     'credits': creditsData,
                     'desc': _descController.text,
+                    'links': linksData,
                     'cover': _coverImage,
                     'usePdf': usePdf,
                     'compress': useCompression,

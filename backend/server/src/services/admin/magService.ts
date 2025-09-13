@@ -108,6 +108,7 @@ export const createMagService = async (
         htmlPath: magData.htmlPath,
         credits: magData.credits,
         coverImage: hasImage ? magData.coverImage : null,
+        links: magData.links
       },
     });
 

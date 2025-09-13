@@ -38,7 +38,7 @@ export const createNewMag = async (
   next: NextFunction
 ) => {
   try {
-    const { title, author, issue, date, tags, desc, adminId, credits } =
+    const { title, author, issue, date, tags, desc, adminId, credits, links } =
       req.body;
 
     const files = req.files as {
@@ -79,6 +79,7 @@ export const createNewMag = async (
       credits: credits,
       htmlPath: relativeUploadPath, // ✅ Save directory path, not HTML
       coverImage: "",
+      links: links
     };
 
     if (coverFile) {
