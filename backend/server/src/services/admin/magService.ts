@@ -158,6 +158,7 @@ export const updateMagazineService = async (
   isCredits: boolean
 ) => {
   try {
+    console.log(`Mag update data ${JSON.stringify(magData)}`);
     if (isCredits) {
       // 🔧 Handle credits-specific update
       const [, subKey] = magData.field.split(": "); // e.g., 'Graphics'
@@ -206,6 +207,50 @@ export const updateMagazineService = async (
         status: true,
         data: update,
       };
+    } else if (magData.field === 'links') {
+      const existing = await prisma.magazine.findUnique({
+        where: { id: magData.id },
+        select: { links: true },
+      });
+
+      if (
+        !existing
+      ) {
+        throw new Error("Magazine not found");
+      }
+
+      // Parse new link
+
+    const existingLinks = existing.links || [];
+
+    // Prevent duplicate entries
+    if (existingLinks.includes(magData.value)) {
+      return {
+        status: false,
+        error: "Link already exists",
+      };
+    }
+
+    const updatedLinks = [...existingLinks, magData.value];
+
+    const update = await prisma.magazine.update({
+      where: { id: magData.id },
+      data: {
+        links: updatedLinks,
+      },
+    });
+
+    if (!update) {
+      return {
+        status: false,
+        error: "Unable to update magazine",
+      };
+    }
+
+    return {
+      status: true,
+      data: update,
+    };
     } else {
       let valueToUse = magData.value;
 
@@ -519,6 +564,58 @@ export const deleteTocService = async(id: string) => {
     return {
       status: false,
       error: deleteTocServiceError
+    }
+  }
+};
+
+export const deleteLinkService = async(link: string, id: string) => {
+  try {
+    const magExists = await prisma.magazine.findUnique({
+      where: { id}
+    });
+
+    if (!magExists) {
+      return {
+        status: false,
+        error: "Magazine not found"
+      }
+    }
+
+    const existingLinks = magExists.links || [];
+
+    // Prevent duplicate entries
+    if (!existingLinks.includes(link)) {
+      return {
+        status: false,
+        error: "Link does not exist",
+      };
+    }
+
+    const newLinks = existingLinks.filter(existingLink => existingLink !== link);
+
+    const update = await prisma.magazine.update({
+      where: { id },
+      data: {
+        links: newLinks,
+      },
+    });
+
+    if (!update) {
+      return {
+        status: false,
+        error: "Unable to update magazine",
+      };
+    }
+
+    return {
+      status: true,
+      data: update,
+    };
+  } catch(deleteLinkServiceError: any) {
+    console.error(`Delete link service error ${deleteLinkServiceError}`);
+    return {
+      status: false,
+      error: deleteLinkServiceError
     }
   }
 }

@@ -535,8 +535,32 @@ class MagsService {
         toastHelper.showErrortoast(error.toString());
         return false;
       }
-    } catch (deleteOneToc) {
-      toastHelper.showErrortoast(deleteOneToc.toString());
+    } catch (deleteOneTocError) {
+      toastHelper.showErrortoast(deleteOneTocError.toString());
+      return false;
+    }
+  }
+
+  Future<bool> deleteOneLink(String link, String magId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      String adminId = prefs.getString('adminId') ?? '';
+
+      final response = await _dio.post(
+        '$baseMagUrl/link/del',
+        data: {'link': link, 'magId': magId},
+      );
+
+      if (response.statusCode == 203) {
+        toastHelper.showSuccesstoast('Link deleted');
+        return true;
+      } else {
+        final error = await response.data['error'];
+        toastHelper.showErrortoast(error.toString());
+        return false;
+      }
+    } catch (deleteOneLinkError) {
+      toastHelper.showErrortoast(deleteOneLinkError.toString());
       return false;
     }
   }

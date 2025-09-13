@@ -46,7 +46,8 @@ export const fetchSingleMagazineService = async (magId: string) => {
         coverImage: true,
         tags: true,
         credits: true,
-        hasToc: true
+        hasToc: true,
+        links: true
       },
     });
 

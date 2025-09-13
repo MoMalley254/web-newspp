@@ -9,7 +9,8 @@ import {
   removeAllTocsService,
   getMagTocsService,
   editTocService,
-  deleteTocService
+  deleteTocService,
+  deleteLinkService
 } from "../../services/admin/magService";
 import path from "path";
 
@@ -313,5 +314,24 @@ export const deleteToc = async(req: Request, res: Response) => {
   } catch(deleteTocError: any) {
     console.error(`Delete toc error ${deleteTocError}`);
     return res.status(500).json({ error: deleteTocError});
+  }
+};
+
+export const deleteLink = async(req: Request, res: Response) => {
+  try {
+  const { link, magId } = req.body;
+    if (!link || !magId) {
+      return res.status(500).json({ error: "Missing required fields"});
+    }
+
+    const hasDeleted = await deleteLinkService(link, magId);
+    if (hasDeleted.status) {
+      return res.status(203).json({});
+    } else {
+      return res.status(500).json({ error: hasDeleted.error})
+    }
+  } catch(deleteLinkError: any) {
+    console.error(`Delete toc error ${deleteLinkError}`);
+    return res.status(500).json({ error: deleteLinkError});
   }
 }

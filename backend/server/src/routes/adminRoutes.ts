@@ -28,7 +28,8 @@ import {
   removeAllTocs,
   getMagTocs,
   editToc,
-  deleteToc
+  deleteToc,
+  deleteLink
 } from "../controllers/admin/magController";
 
 const router = express.Router();
@@ -200,5 +201,6 @@ router.post("/mag/toc/destroy", authenticateAccessToken, removeAllTocs);
 router.get("/mag/toc/get", authenticateAccessToken, getMagTocs);
 router.post("/mag/toc/edit", authenticateAccessToken, editToc);
 router.post("/mag/toc/del", authenticateAccessToken, deleteToc);
+router.post("/mag/link/del", authenticateAccessToken, deleteLink);
 
 export default router;

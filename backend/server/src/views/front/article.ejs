@@ -371,7 +371,14 @@
 
       %>
       <div class="mag-contents">
-        <strong>Click to go to the story:</strong>
+        <% if(mag.links && mag.links.length > 0) {
+            mag.links.forEach((link) => {
+              console.log(`Link ${link}`)
+            })
+        } else {
+          console.log(`No links`);
+        }%>
+        <small>Click to go to the story:</small>
         <div class="book-toc">
         <% tocs.forEach((toc, index) => { %>
           <div class="toc-entry">

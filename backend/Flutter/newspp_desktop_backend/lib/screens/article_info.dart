@@ -234,6 +234,47 @@ class _ArticleInfoState extends State<ArticleInfo> {
                               ),
                             ],
                           );
+                        } else if (entry.key == 'links') {
+                          return Column(
+                            children: [
+                              Text(
+                                entry.key[0].toUpperCase() +
+                                    entry.key.substring(1),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (article['links'] == null ||
+                                  article['links'].isEmpty)
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    final result = await showAddLinks(context);
+
+                                    if (result != null && result.isNotEmpty) {
+                                      bool sendToServer = await sendUpdate(
+                                        context,
+                                        'links',
+                                        result,
+                                      );
+
+                                      if (sendToServer) {
+                                        setState(() {
+                                          hasUpdated = true;
+                                        });
+                                        loadArticle();
+                                      }
+                                    }
+                                  },
+                                  child: const Text('Add Links'),
+                                ),
+
+                              if (article['links'].isNotEmpty)
+                                buildShowLinks(context, article['links']),
+
+                              const SizedBox(height: 20,),
+                            ],
+                          );
                         } else if (entry.key == 'publishDate') {
                           final publishDate = DateFormat(
                             'yyyy-MM-dd',
@@ -1169,6 +1210,197 @@ class _ArticleInfoState extends State<ArticleInfo> {
             );
           }).toList(),
     );
+  }
+
+  Future<String?> showAddLinks(BuildContext context) async {
+    final _siteController = TextEditingController();
+    final _urlController = TextEditingController();
+    final _formKey = GlobalKey<FormState>();
+
+    return await showDialog<String>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Add New Social Link'),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _siteController,
+                    decoration: const InputDecoration(
+                      labelText: 'Site (e.g., YouTube)',
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a site name';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _urlController,
+                    decoration: const InputDecoration(labelText: 'URL'),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a URL';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context), // returns null
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    final newLink =
+                        '${_siteController.text.trim()} -- ${_urlController.text.trim()}';
+                    Navigator.pop(context, newLink); // ✅ pass back result
+                  }
+                },
+                child: const Text('Add'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Widget buildShowLinks(BuildContext context, List<dynamic> links) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+          ...links.map<Widget>((link) {
+            final site = link.split('--')[0];
+            final url = link.split('--')[1].trim();
+
+            final style = _getSocialStyle(site);
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  Icon(style['icon'], color: style['color']),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$site:',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: style['color'],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 3,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: style['color'],
+                      ),
+                      onPressed: () async {
+                        convertService.openOnlineHtml(url, site.trim());
+                      },
+                      child: Text(
+                        url,
+                        style: const TextStyle(color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: IconButton(
+                      icon: const Icon(Icons.delete),
+                      color: Colors.amberAccent,
+                      tooltip: 'Delete',
+                      onPressed: () async {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) {
+                            return const AlertDialog(
+                              content: Row(
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(width: 20),
+                                  Expanded(
+                                    child: Text('Updating... Please wait.'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+
+                        bool deleteLink = await magsService.deleteOneLink(
+                          link,
+                          article['id'],
+                        );
+
+                        Navigator.of(context).pop();
+
+                        if (deleteLink) {
+                          setState(() {
+                            hasUpdated = true;
+                          });
+                          loadArticle();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ElevatedButton(
+                                  onPressed: () async {
+                                    final result = await showAddLinks(context);
+
+                                    if (result != null && result.isNotEmpty) {
+                                      bool sendToServer = await sendUpdate(
+                                        context,
+                                        'links',
+                                        result,
+                                      );
+
+                                      if (sendToServer) {
+                                        setState(() {
+                                          hasUpdated = true;
+                                        });
+                                        loadArticle();
+                                      }
+                                    }
+                                  },
+                                  child: const Text('Add Links'),
+                                ),
+      ]
+    );
+  }
+
+  Map<String, dynamic> _getSocialStyle(String site) {
+    switch (site.toLowerCase().trim()) {
+      case 'youtube':
+        return {'color': Color(0xFFFF0000), 'icon': Icons.play_circle_fill};
+      case 'instagram':
+        return {'color': Color(0xFFC13584), 'icon': Icons.camera_alt};
+      case 'tiktok':
+        return {'color': Color(0xFF010101), 'icon': Icons.music_note};
+      case 'facebook':
+        return {'color': Color(0xFF1877F2), 'icon': Icons.facebook};
+      case 'twitter':
+        return {'color': Color(0xFF1DA1F2), 'icon': Icons.chat};
+      case 'linkedin':
+        return {'color': Color(0xFF0A66C2), 'icon': Icons.work};
+      default:
+        return {'color': Colors.grey, 'icon': Icons.link};
+    }
   }
 
   Future<void> addTableOfContents(BuildContext context) async {
