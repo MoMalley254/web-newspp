@@ -31,11 +31,12 @@ i {
 body {
   /* background: linear-gradient(to bottom right, #232370, #4f0a8c); */
   background-image: radial-gradient(
-        circle at bottom left,
-        rgba(35, 35, 112, 0.9) 100%,
-        rgba(0, 0, 0, 0.3) 40%,
-        transparent 80%
-      ), url("/front/public/assets/images/bg.jpg");
+      circle at bottom left,
+      rgba(35, 35, 112, 0.9) 100%,
+      rgba(0, 0, 0, 0.3) 40%,
+      transparent 80%
+    ),
+    url("/front/public/assets/images/bg.jpg");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -143,7 +144,7 @@ body {
 .controls-top #btn-hide-controls {
   flex: 1;
   transition: opacity 400ms ease;
-  background: rgba(255,175,47,255);
+  background: rgba(255, 175, 47, 255);
   border-radius: 0;
 }
 
@@ -290,7 +291,7 @@ body {
   }
 
   .controls-top .top-show-controls {
-    margin-top: 30px;
+    /* margin-top: 30px; */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -298,12 +299,13 @@ body {
   }
 
   .controls-row {
-    margin-top: 30px;
+    margin-top: 0px;
     display: grid;
     grid-template-columns: repeat(4, 20%);
     /* grid-template-rows: repeat(2, 40%); */
     gap: 5px;
     justify-content: space-evenly;
+    margin-bottom: 5px;
   }
 
   .controls-top button {
@@ -311,7 +313,7 @@ body {
     padding: 0px 8px;
   }
 
-  .controls-top  #btn-hide-controls {
+  .controls-top #btn-hide-controls {
     margin-top: 30px;
     padding: 15px 0;
   }
@@ -890,7 +892,7 @@ body {
 }
 
 .book-toc {
-  font-family: 'Georgia', serif;
+  font-family: "Georgia", serif;
   font-size: 1rem;
   line-height: 1.6;
   padding: 0.5rem 0;
@@ -933,4 +935,91 @@ body {
 
 #zoomWrapper {
   margin-top: 20px;
+}
+
+.showTocsBtnMobile {
+  display: none;
+}
+
+.articleInfoBtnInCanvas {
+  display: flex;
+  justify-content: space-between;
+}
+
+.articleInfoBtnInCanvas button {
+  position: relative;
+  background-color: transparent;
+  font-size: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 500ms ease-in-out, color 500ms ease-in-out,
+    transform 500ms ease-in-out;
+  padding: 4px 12px;
+  border: 1px dotted rgba(255, 255, 255, 0.3);
+}
+
+.articleInfoBtnInCanvas button::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: 100%; /* place above the button */
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background-color: #4f0a8c;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease-in-out, transform 300ms ease-in-out;
+  z-index: 10;
+  /* small arrow */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.articleInfoBtnInCanvas button:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-12px);
+  pointer-events: auto;
+}
+
+.articleInfoBtnInCanvas button i {
+  transition: color 500ms ease-in-out, transform 500ms ease-in-out;
+  font-size: 30px;
+}
+
+.articleInfoBtnInCanvas button:hover i {
+  /* color: #232370; */
+  transform: scale(1.17);
+}
+
+.articleInfoBtnInCanvas button i {
+  font-size: 24px;
+}
+
+@media (max-width: 768px) {
+  #btn-hide-controls {
+    display: none;
+  }
+
+  .controls-row .showTocsBtn {
+    display: none;
+  }
+
+  .showTocsBtnMobile {
+    display: block;
+  }
+
+  .thumbNailsBtn {
+    display: none;
+  }
+
+  .magInfoCanvasBtn {
+    display: none;
+  }
+
+  #btn-back {
+    display: none;
+  }
 }

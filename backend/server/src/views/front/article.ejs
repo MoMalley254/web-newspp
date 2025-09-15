@@ -113,6 +113,7 @@
 
             <button
               type="button"
+              class="magInfoCanvasBtn"
               data-bs-toggle="offcanvas"
               data-bs-target="#magInfoCanvas"
               aria-controls="magInfoCanvas"
@@ -123,7 +124,7 @@
 
             <button
               type="button"
-              id="showTocsBtn"
+              class="showTocsBtn"
               data-bs-toggle="offcanvas"
               data-bs-target="#tableOfContentsCanvas"
               aria-controls="tableOfContentsCanvas"
@@ -357,6 +358,25 @@
   </div>
 
   <div class="offcanvas-body bg-dark text-white">
+    <div class="articleInfo articleInfoBtnInCanvas">
+      <button
+              // class="btn-back"
+              aria-label="Back to articles"
+              onclick="history.back()"
+            >
+               <i class="material-icons">keyboard_backspace</i> <i>Back </i>
+            </button>
+      <button
+  type="button"
+  data-bs-toggle="offcanvas"
+  data-bs-target="#magInfoCanvas"
+  aria-controls="magInfoCanvas"
+  aria-label="Magazine Info"
+>
+  <i>Article Details</i> <i class="material-icons">arrow_forward</i>
+</button>
+ 
+    </div>
     <% if (mag.hasToc && tocs.length > 0) { 
       tocs.sort((a, b) => {
   const aPage = parseInt((a.pages || '').split(',')[0]) || 0;
@@ -487,12 +507,25 @@
 
             <button
               type="button"
+              class="thumbNailsBtn"
               data-bs-toggle="offcanvas"
               data-bs-target="#thumbnailsCanvas"
               aria-controls="thumbnailsCanvas"
               aria-label="Thumbnails"
             >
               <i class="material-icons">grid_view</i>
+            </button>
+
+            <button
+              type="button"
+              class="showTocsBtn showTocsBtnMobile"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#tableOfContentsCanvas"
+              aria-controls="tableOfContentsCanvas"
+              aria-label="Table of Contents"
+              data-has-tocs="<%= mag.hasToc %>"
+            >
+              <i class="material-icons">toc</i>
             </button>
 
           <button class="btn-skip-backward" aria-label="Skip Page Backward">

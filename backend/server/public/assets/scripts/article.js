@@ -17,7 +17,7 @@ let pageWidth;
 const zoomWrapper = document.getElementById("zoomWrapper");
 const zoomInBtn = document.getElementById("btn-zoom-in");
 const zoomOutBtn = document.getElementById("btn-zoom-out");
-const zoomSlider = document.getElementById('zoomSlider');
+const zoomSlider = document.getElementById("zoomSlider");
 
 let dotCount = 0;
 const isMobile = detectDeviceType();
@@ -305,29 +305,33 @@ function populateThumbnails(images, flipBook) {
 }
 
 function buildTableOfContents(flipbook) {
-  const showTocsBtn = document.getElementById("showTocsBtn");
-  const hasTocs = showTocsBtn?.getAttribute("data-has-tocs");
+  const showTocsBtns = document.querySelectorAll(".showTocsBtn");
+  if (showTocsBtns.length > 0) {
+    showTocsBtns.forEach((btn) => {
+      const hasTocs = btn?.getAttribute("data-has-tocs");
 
-  if (hasTocs === "true") {
-    const tocsCanvas = document.getElementById("tableOfContentsCanvas");
-    const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(tocsCanvas);
+      if (hasTocs === "true") {
+        const tocsCanvas = document.getElementById("tableOfContentsCanvas");
+        const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(tocsCanvas);
 
-    const allTocs = document.querySelectorAll(".toc-entry");
+        const allTocs = document.querySelectorAll(".toc-entry");
 
-    allTocs.forEach((tocEntry) => {
-      const pageEl = tocEntry.querySelector(".tocNumber");
-      if (!pageEl) return;
+        allTocs.forEach((tocEntry) => {
+          const pageEl = tocEntry.querySelector(".tocNumber");
+          if (!pageEl) return;
 
-      const tocFirstPage = parseInt(pageEl.textContent, 10);
-      if (isNaN(tocFirstPage)) return;
+          const tocFirstPage = parseInt(pageEl.textContent, 10);
+          if (isNaN(tocFirstPage)) return;
 
-      tocEntry.addEventListener("click", () => {
-        flipbook.turnToPage(tocFirstPage);
-        offcanvas.hide();
-      });
+          tocEntry.addEventListener("click", () => {
+            flipbook.turnToPage(tocFirstPage);
+            offcanvas.hide();
+          });
+        });
+
+        offcanvas.show();
+      }
     });
-
-    offcanvas.show();
   }
 }
 
@@ -342,33 +346,35 @@ function initZoom(flipBook) {
   const flipBookWidth = flipContainer.offsetWidth;
 
   // Create and setup overlay once
-  const overlay = document.createElement('div');
-  overlay.style.position = 'fixed';
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
   overlay.style.top = 0;
   overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = isMobile ? '63vh' : '85vh';
-  overlay.style.marginTop = isMobile ? '17vh' : '10vh';
+  overlay.style.width = "100vw";
+  overlay.style.height = isMobile ? "63vh" : "85vh";
+  overlay.style.marginTop = isMobile ? "17vh" : "10vh";
   overlay.style.zIndex = 9999;
-  overlay.style.background = 'transparent';
+  overlay.style.background = "transparent";
   // overlay.style.background = 'blue';
-  overlay.style.display = 'none'; 
+  overlay.style.display = "none";
   document.body.appendChild(overlay);
 
   function applyTransform() {
-    console.log(`Flipcontainer height ${flipBookHeight}, flipcontainerwidth ${flipBookWidth}`)
+    console.log(
+      `Flipcontainer height ${flipBookHeight}, flipcontainerwidth ${flipBookWidth}`
+    );
     zoomWrapper.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
 
     // Show overlay only when zoomed in (> 1)
     if (currentScale > 1) {
-      overlay.style.display = 'block';
-      zoomSlider.style.display = 'block';
+      overlay.style.display = "block";
+      zoomSlider.style.display = "block";
     } else {
-      overlay.style.display = 'none';
+      overlay.style.display = "none";
       translateX = 0;
       translateY = 0;
       zoomWrapper.style.transform = `scale(1) translate(0, 0)`;
-      zoomSlider.style.display = 'none';
+      zoomSlider.style.display = "none";
     }
 
     if (Math.abs(zoomSlider.value - currentScale) > 0.001) {
@@ -394,10 +400,10 @@ function initZoom(flipBook) {
     }
   });
 
-  zoomSlider.addEventListener('change', (e) => {
+  zoomSlider.addEventListener("change", (e) => {
     currentScale = parseFloat(e.target.value);
     applyTransform();
-  })
+  });
 
   // Dragging state on overlay instead of zoomWrapper
   let isDragging = false;
@@ -452,4 +458,3 @@ function initZoom(flipBook) {
   overlay.addEventListener("touchmove", onDragMove, { passive: false });
   overlay.addEventListener("touchend", onDragEnd);
 }
-
