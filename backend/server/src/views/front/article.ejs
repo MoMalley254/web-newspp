@@ -551,6 +551,30 @@
           <button class="btn-skip-forward" aria-label="Skip Page Forward">
             <i class="material-icons">skip_next</i>
           </button>
+
+          <% if (mag.links && mag.links.length > 0) { 
+            let foundYoutube = false;
+            for (let i = 0; i < mag.links.length; i++) {
+              const link = mag.links[i];
+              const parts = link.split('--');
+              const site = parts[0].trim();
+              const url = parts[1]?.trim();
+
+              if (site.toLowerCase() === 'youtube') {
+                const color = 'danger';
+                const icon = 'bi-youtube';
+                const label = site.charAt(0).toUpperCase() + site.slice(1);
+                foundYoutube = true;
+          %>
+                <a href="<%= url %>" target="_blank" class="m-1 me-3 btn btn-sm btn-<%= color %> yt-btn">
+                  <i class="bi <%= icon %>"></i> <%= label %>
+                </a>
+          <%    
+                break; // exit after first YouTube link
+              }
+            }
+          } %>
+
         </div>
       </section>
     </div>
