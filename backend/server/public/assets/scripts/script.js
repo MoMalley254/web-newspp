@@ -2,8 +2,6 @@ const hideMenuBtn = document.getElementById('btn-hide-controls');
 const topControls = document.querySelector('.top-show-controls');
 const content = document.querySelector('.content');
 
-const fullScreenBtn = document.getElementById('btn-fullscreen');
-const fullScreenContent = document.querySelector('.content-body');
 
 hideMenuBtn.addEventListener('click', (e) => {
 
@@ -72,38 +70,7 @@ function enlarge(state) {
     
 }
 
-fullScreenBtn.addEventListener('click', (e) => {
-    if (fullScreenBtn.getAttribute('aria-label') === 'Full Screen') {
-        if (fullScreenContent.requestFullscreen) {
-            fullScreenContent.requestFullscreen();
-        } else if (fullScreenContent.webkitRequestFullscreen) { // Safari
-            fullScreenContent.webkitRequestFullscreen();
-        } else if (fullScreenContent.msRequestFullscreen) { // IE11
-            fullScreenContent.msRequestFullscreen();
-        }
 
-        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen_exit</i>`;
-        fullScreenBtn.setAttribute('aria-label', 'Exit Full Screen');
-    } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { // Safari
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { // IE11
-            document.msExitFullscreen();
-        }
-
-        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
-        fullScreenBtn.setAttribute('aria-label', 'Full Screen');
-    }    
-});
-
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
-        fullScreenBtn.setAttribute('aria-label', 'Full Screen');
-    }
-});
 
 
 

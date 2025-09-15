@@ -23,6 +23,9 @@ const switchViewBtn = document.getElementById("switchViewBtn");
 let isSingleView = false;
 let isStretched = false;
 
+const fullScreenBtn = document.getElementById('btn-fullscreen');
+const fullScreenContent = document.querySelector('.content-body');
+
 let dotCount = 0;
 const isMobile = detectDeviceType();
 
@@ -257,6 +260,42 @@ function initButtons(flipBook) {
       }
     });
   });
+
+  fullScreenBtn.addEventListener('click', (e) => {
+    if (fullScreenBtn.getAttribute('aria-label') === 'Full Screen') {
+        if (fullScreenContent.requestFullscreen) {
+            fullScreenContent.requestFullscreen();
+        } else if (fullScreenContent.webkitRequestFullscreen) { // Safari
+            fullScreenContent.webkitRequestFullscreen();
+        } else if (fullScreenContent.msRequestFullscreen) { // IE11
+            fullScreenContent.msRequestFullscreen();
+        }
+
+        // enlargeContent(true, flipBook);
+        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen_exit</i>`;
+        fullScreenBtn.setAttribute('aria-label', 'Exit Full Screen');
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { // Safari
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { // IE11
+            document.msExitFullscreen();
+        }
+
+        // enlargeContent(false, flipBook);
+        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
+        fullScreenBtn.setAttribute('aria-label', 'Full Screen');
+    }    
+});
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+        // enlargeContent(false, flipBook);
+        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
+        fullScreenBtn.setAttribute('aria-label', 'Full Screen');
+    }
+});
 }
 
 function initPageCounter(flipBook) {
@@ -509,3 +548,18 @@ function initStretch(flipBook) {
     }
   });
 }
+
+// function enlargeContent(increase, flipBook) {
+//   const enlargeFactor = isMobile ? '30px' : '50px';
+//   if (increase) {
+//     flipBook.update({ 
+//       width: isMobile ? 340 : 750,
+//       height: isMobile ? 700 : 950, 
+//     });
+//   } else {
+//     flipBook.update({ 
+//       width: isMobile ? 340 : 450,
+//       height: isMobile ? 700 : 650, 
+//     });
+//   }
+// }
