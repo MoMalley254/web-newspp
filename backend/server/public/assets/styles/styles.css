@@ -731,11 +731,11 @@ body {
 #flipContainer {
   /* width: 80vw;
   height: 80vh;
-  margin-left: 10vw;
+  /* margin-left: 10vw;
   overflow: hidden; */
-  height: 100%;
-  width: 100%;
-  max-width: 1600px; /* enough for two A4 pages side by side */
+  /* height: 100%; */
+  /* width: 100%; */
+  max-width: 1600px; 
   margin: auto;
   overflow: hidden;
 }

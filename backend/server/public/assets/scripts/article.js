@@ -19,6 +19,9 @@ const zoomInBtn = document.getElementById("btn-zoom-in");
 const zoomOutBtn = document.getElementById("btn-zoom-out");
 const zoomSlider = document.getElementById("zoomSlider");
 
+const switchViewBtn = document.getElementById("switchViewBtn");
+let isSingleView = false;
+
 let dotCount = 0;
 const isMobile = detectDeviceType();
 
@@ -187,10 +190,12 @@ async function showFlipbook(imageUrls) {
 
   window.flipBookInstance = flipBook;
 
+  flipContainer.style.width = "100vw";
+
   buildTableOfContents(flipBook);
   initButtons(flipBook);
-  initPageCounter(flipBook);
-  populateThumbnails(imageUrls, flipBook);
+  initView(flipBook);
+  // populateThumbnails(imageUrls, flipBook);
   initZoom(flipBook);
 }
 
@@ -253,6 +258,7 @@ function initButtons(flipBook) {
 }
 
 function initPageCounter(flipBook) {
+  pageCounts.style.display = "none";
   const totalPages = flipBook.getPageCount();
   totalPagesEl.textContent = totalPages.toString();
 
@@ -263,6 +269,8 @@ function initPageCounter(flipBook) {
     const pageNum = e.data + 1;
 
     if (isMobile) {
+      currentPageEl.textContent = pageNum.toString();
+    } else if (isSingleView) {
       currentPageEl.textContent = pageNum.toString();
     } else {
       if (pageNum >= totalPages || pageNum <= 1) {
@@ -457,4 +465,25 @@ function initZoom(flipBook) {
   overlay.addEventListener("touchstart", onDragStart, { passive: false });
   overlay.addEventListener("touchmove", onDragMove, { passive: false });
   overlay.addEventListener("touchend", onDragEnd);
+}
+
+function initView(flipBook) {
+  if (switchViewBtn) {
+    switchViewBtn.addEventListener("click", (e) => {
+      if (!isSingleView) {
+        flipContainer.style.width = "30vw";
+        isSingleView = true;
+        switchViewBtn.setAttribute('aria-label', 'Double Page View');
+        switchViewBtn.querySelector('i').textContent = 'menu_book';
+        flipBook.update({ width: 768 });
+      } else {
+        flipContainer.style.width = "100vw";
+        isSingleView = false;
+        switchViewBtn.setAttribute('aria-label', 'Single Page View');
+        switchViewBtn.querySelector('i').textContent = 'article';
+        flipBook.update({ width: 450 });
+      }
+    });
+  }
+  initPageCounter(flipBook);
 }
