@@ -170,8 +170,8 @@ async function prepareFlipBook() {
 
 async function showFlipbook(imageUrls) {
   const flipBook = new St.PageFlip(flipContainer, {
-    width: isMobile ? 350 : 450,
-    height: isMobile ? 500 : 600,
+    width: isMobile ? 340 : 450,
+    height: isMobile ? 700 : 600,
 
     size: "fixed",
     minWidth: 315,
