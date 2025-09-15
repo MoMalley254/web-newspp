@@ -351,8 +351,8 @@ function initZoom(flipBook) {
   overlay.style.top = 0;
   overlay.style.left = 0;
   overlay.style.width = "100vw";
-  overlay.style.height = isMobile ? "63vh" : "85vh";
-  overlay.style.marginTop = isMobile ? "17vh" : "10vh";
+  overlay.style.height = isMobile ? "72vh" : "85vh";
+  overlay.style.marginTop = isMobile ? "9vh" : "10vh";
   overlay.style.zIndex = 9999;
   overlay.style.background = "transparent";
   // overlay.style.background = 'blue';
