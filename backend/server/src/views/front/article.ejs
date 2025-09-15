@@ -15,6 +15,8 @@
       rel="stylesheet"
     />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="view/public/assets/styles/stPageFlip.css" />
     <link rel="stylesheet" href="view/public/assets/styles/styles.css" />
     <title>Business Unusual</title>
@@ -371,13 +373,80 @@
 
       %>
       <div class="mag-contents">
-        <% if(mag.links && mag.links.length > 0) {
-            mag.links.forEach((link) => {
-              console.log(`Link ${link}`)
-            })
-        } else {
-          console.log(`No links`);
-        }%>
+        <% if (mag.links && mag.links.length > 0) { %>
+  <span>Interview Links</span>
+  <ul class="list-unstyled mt-2 d-flex flex-row">
+    <% mag.links.forEach((rawLink) => { 
+      const parts = rawLink.split('--');
+      const site = parts[0].trim();
+      const url = parts[1]?.trim();
+
+      // Basic safety check
+      if (!url) return;
+
+      let color = 'secondary';
+      let icon = 'bi-link-45deg';
+      let label = site.charAt(0).toUpperCase() + site.slice(1); 
+
+      switch (site.toLowerCase()) {
+        case 'youtube':
+          color = 'danger';
+          icon = 'bi-youtube';
+          break;
+        case 'spotify':
+          color = 'success';
+          icon = 'bi-spotify';
+          break;
+        case 'vimeo':
+          color = 'info';
+          icon = 'bi-play-btn';
+          break;
+        case 'apple':
+        case 'apple podcasts':
+          color = 'dark';
+          icon = 'bi-apple';
+          break;
+        case 'soundcloud':
+          color = 'warning';
+          icon = 'bi-soundwave'; // Bootstrap doesn't have this; customize if needed
+          break;
+        case 'instagram':
+          color = 'danger';
+          icon = 'bi-instagram';
+          break;
+        case 'facebook':
+          color = 'primary';
+          icon = 'bi-facebook';
+          break;
+        case 'twitter':
+        case 'x':
+          color = 'dark';
+          icon = 'bi-twitter-x';
+          break;
+        case 'linkedin':
+          color = 'primary';
+          icon = 'bi-linkedin';
+          break;
+        case 'tiktok':
+          color = 'dark';
+          icon = 'bi-tiktok'; // Not available in Bootstrap Icons — fallback to globe
+          break;
+        default:
+          color = 'secondary';
+          icon = 'bi-globe';
+      }
+    %>
+      <li class="m-1">
+        <a href="<%= url %>" target="_blank" class="btn btn-sm btn-<%= color %>">
+          <i class="bi <%= icon %>"></i> <%= label %>
+        </a>
+      </li>
+    <% }) %>
+  </ul>
+<% } else { %>
+  <p>No links available.</p>
+<% } %>
+
         <small>Click to go to the story:</small>
         <div class="book-toc">
         <% tocs.forEach((toc, index) => { %>
