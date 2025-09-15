@@ -999,6 +999,10 @@ body {
   font-size: 24px;
 }
 
+#btn-stretch {
+  display: none;
+}
+
 @media (max-width: 768px) {
   #btn-hide-controls {
     display: none;

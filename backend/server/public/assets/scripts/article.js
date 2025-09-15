@@ -21,6 +21,7 @@ const zoomSlider = document.getElementById("zoomSlider");
 
 const switchViewBtn = document.getElementById("switchViewBtn");
 let isSingleView = false;
+let isStretched = false;
 
 let dotCount = 0;
 const isMobile = detectDeviceType();
@@ -197,6 +198,7 @@ async function showFlipbook(imageUrls) {
   initView(flipBook);
   // populateThumbnails(imageUrls, flipBook);
   initZoom(flipBook);
+  initStretch(flipBook);
 }
 
 function initButtons(flipBook) {
@@ -473,17 +475,37 @@ function initView(flipBook) {
       if (!isSingleView) {
         flipContainer.style.width = "30vw";
         isSingleView = true;
-        switchViewBtn.setAttribute('aria-label', 'Double Page View');
-        switchViewBtn.querySelector('i').textContent = 'menu_book';
+        switchViewBtn.setAttribute("aria-label", "Double Page View");
+        switchViewBtn.querySelector("i").textContent = "menu_book";
         flipBook.update({ width: 768 });
       } else {
         flipContainer.style.width = "100vw";
         isSingleView = false;
-        switchViewBtn.setAttribute('aria-label', 'Single Page View');
-        switchViewBtn.querySelector('i').textContent = 'article';
+        switchViewBtn.setAttribute("aria-label", "Single Page View");
+        switchViewBtn.querySelector("i").textContent = "article";
         flipBook.update({ width: 450 });
       }
     });
   }
   initPageCounter(flipBook);
+}
+
+function initStretch(flipBook) {
+  const stretchBtn = document.getElementById("btn-stretch");
+  stretchBtn.addEventListener("click", () => {
+    if (!isStretched) {
+      console.log(`Current container width ${flipContainer.style.width}`);
+      const fullWidth = document.body.offsetWidth;
+      console.log(`Full body width ${fullWidth}`);
+      const pages = document.querySelectorAll('.page');
+      pages.forEach((page) => {
+        console.log(`Current page width ${page.style.width}`);
+        page.style.width = `${fullWidth /2}px`;
+      });
+      flipContainer.style.width = `${fullWidth}px`;
+      flipBook.update(
+        { width: 2000}
+      )
+    }
+  });
 }
