@@ -103,15 +103,28 @@ body {
 .controls-top .top-show-controls {
   flex: 9;
   display: flex;
+  flex-direction: column;
   justify-content: space-evenly;
   transition: transform 800ms ease-in-out;
-  /* background: linear-gradient(to bottom right, rgba(255,175,47,255), rgba(255,175,47,255)); */
   background-color: #e28d04;
 }
 
 .top-show-controls.hide {
   /* transform: translateX(calc(-100vw));  */
   transform: translateY(calc(-100vh));
+}
+
+.controls-row {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+
+#zoomSlider {
+  width: 80%;
+  margin: 0 9% 5px 9%;
+  display: none;
 }
 
 .controls-top button {
@@ -278,11 +291,19 @@ body {
 
   .controls-top .top-show-controls {
     margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-evenly;
+  }
+
+  .controls-row {
+    margin-top: 30px;
     display: grid;
     grid-template-columns: repeat(4, 20%);
-    grid-template-rows: repeat(2, 40%);
-    gap: 10px;
-    /* justify-content: space-evenly; */
+    /* grid-template-rows: repeat(2, 40%); */
+    gap: 5px;
+    justify-content: space-evenly;
   }
 
   .controls-top button {
@@ -910,3 +931,6 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+#zoomWrapper {
+  margin-top: 20px;
+}

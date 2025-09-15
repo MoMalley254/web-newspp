@@ -58,7 +58,9 @@
           Loading <span class="article-name"></span> content
           <span class="dots"></span>
         </h2>
-        <div id="flipContainer" data-resource-url="<%= mag.htmlPath %>"></div>
+        <div id="zoomWrapper">
+          <div id="flipContainer" data-resource-url="<%= mag.htmlPath %>"></div>
+        </div>
 
         <div
         class="offcanvas offcanvas-start text-bg-dark"
@@ -100,7 +102,8 @@
           </button>
 
           <div class="top-show-controls">
-            <button
+            <div class="controls-row">
+              <button
               id="btn-back"
               aria-label="Back to articles"
               onclick="history.back()"
@@ -130,40 +133,17 @@
               <i class="material-icons">toc</i>
             </button>
 
-            <!-- <h2 id="magazineTitle"><%= mag.title %></h2> -->
-
             <button id="btn-fullscreen" aria-label="Full Screen">
               <i class="material-icons">fullscreen</i>
             </button>
             
-
-            <!-- <button id="btn-zoom-in" aria-label="Zoom In">
+             <button id="btn-zoom-in" aria-label="Zoom In">
               <i class="material-icons">zoom_in</i>
-            </button> -->
+            </button> 
 
-            <!-- <button id="btn-zoom-slider" aria-label="Zoom Slider">
-              <i class="material-icons">tune</i>
-            </button> -->
-
-            <!-- <button id="btn-zoom-out" aria-label="Zoom Out">
+             <button id="btn-zoom-out" aria-label="Zoom Out">
               <i class="material-icons">zoom_out</i>
-            </button> -->
-
-            <!-- <button class="btn-skip-backward" aria-label="Skip Page Backward">
-              <i class="material-icons">skip_previous</i>
             </button>
-
-            <button class="btn-prev-page" aria-label="Previous Page">
-              <i class="material-icons">navigate_before</i>
-            </button>
-
-            <button class="btn-next-page" aria-label="Next Page">
-              <i class="material-icons">navigate_next</i>
-            </button>
-
-            <button class="btn-skip-forward" aria-label="Skip Page Forward">
-              <i class="material-icons">skip_next</i>
-            </button> -->
 
             <button 
               id="btn-share" 
@@ -174,7 +154,20 @@
               >
               <i class="material-icons">share</i>
             </button>
+            </div> 
+
+            
+
+            <input
+  id="zoomSlider"
+  type="range"
+  min="1"
+  max="3"
+  step="0.01"
+  value="1"
+/>
           </div>
+          
         </div>
 
         <div
