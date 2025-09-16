@@ -11,13 +11,15 @@ import { promises as fs } from 'fs';
 
 
 export const renderIndexPage = async (req: Request, res: Response) => {
+  const url = req.protocol + '://' + req.get('host')
+  const fullUrl = url + req.originalUrl;
   try {
-    return res.render("front/front");
+    return res.render("front/front", { url: url, fullUrl: fullUrl});
   } catch (renderIndexPageError: any) {
     console.error(`Render index page error ${renderIndexPageError}`);
     return res
       .status(500)
-      .json({ error: renderIndexPageError.message || "Server error" });
+      .json({ error: renderIndexPageError.message || "Server error", url: url, fullUrl: fullUrl });
   }
 };
 
@@ -38,6 +40,8 @@ export const fetchMagazines = async (req: Request, res: Response) => {
 };
 
 export const renderSingleMagazine = async (req: Request, res: Response) => {
+  const url = req.protocol + '://' + req.get('host')
+  const fullUrl = url + req.originalUrl;
   try {
     const magId: string = req.query.article as string;
     if (!magId || magId === "") {
@@ -69,14 +73,14 @@ export const renderSingleMagazine = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(200).render("front/article", { mag: magazine, status: true, tocs: tocs });
+    return res.status(200).render("front/article", { mag: magazine, status: true, tocs: tocs, url: url, fullUrl: fullUrl });
   } catch (renderSingleMagazineError: unknown) {
     const errorMessage =
       renderSingleMagazineError instanceof Error
         ? renderSingleMagazineError.message
         : "An unknown error occurred";
 
-    return res.status(500).render("front/article", { status: false, error: errorMessage });
+    return res.status(500).render("front/article", { status: false, error: errorMessage, url: url, fullUrl: fullUrl });
   }
 };
 
@@ -129,6 +133,8 @@ export const returnImageUrls = async (req: Request, res: Response) => {
 };
 
 export const renderGroupedPage = async(req: Request, res: Response) => {
+  const url = req.protocol + '://' + req.get('host')
+  const fullUrl = url + req.originalUrl;
   try {
     const tagId = req.query.tag as string;
     if (!tagId || tagId === '') {
@@ -139,13 +145,13 @@ export const renderGroupedPage = async(req: Request, res: Response) => {
 
     const getMags = await fetchSingleTagService(tagId);
     if (getMags.status) {
-      return res.render("front/grouped", { tag: getMags.tag, mags: getMags.magazines});
+      return res.render("front/grouped", { tag: getMags.tag, mags: getMags.magazines, url: url, fullUrl: fullUrl});
       // return res.render("front/grouped", { error: 'Felt like it'});
     } else {
-      return res.render("front/grouped", { error: getMags.error});
+      return res.render("front/grouped", { error: getMags.error, url: url, fullUrl: fullUrl});
     }
   } catch(renderGroupedPageError: any) {
     console.error(`Render grouped page error ${renderGroupedPageError}`);
-    return res.render("front/grouped", { error: renderGroupedPageError.message || "Server error"});
+    return res.render("front/grouped", { error: renderGroupedPageError.message || "Server error", url: url, fullUrl: fullUrl});
   }
 }
