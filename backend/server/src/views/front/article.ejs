@@ -10,6 +10,12 @@
       <meta property="og:image" content="<%= `${url}/front${mag.coverImage.replaceAll('\\', '/')}` %>" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Business Unusual Magazine" />
+
+      <meta name="twitter:card" content="<%= `${url}/front${mag.coverImage.replaceAll('\\', '/')}` %>" />
+      <meta name="twitter:title" content="<%= mag.title %> Issue <%= mag.issueNumber %>" />
+      <meta name="twitter:description" content="<%= mag.description %>" />
+      <meta name="twitter:image" content="<%= `${url}/front${mag.coverImage.replaceAll('\\', '/')}` %>" />
+      <meta name="twitter:url" content="<%= fullUrl %>" />
     <% } else { %>
       <meta property="og:title" content="Business Unusual Magazine" />
       <meta 
@@ -26,6 +32,17 @@
       <meta property="og:url" content="<%= fullUrl %>" />
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="Business Unusual Magazine" />
+
+      <meta name="twitter:title" content="Business Unusual Magazine" />
+      <meta name="twitter:description" content="BUSINESS UNUSUAL MAGAZINE
+          Aims to provide high-quality, accurate,
+          and timely business content that
+          empowers entrepreneurs, investors,
+          and policymakers with the knowledge
+          to make informed decisions, fostering
+          innovation, economic growth, and sustainable development in Kenya
+          and beyond." />
+      <meta name="twitter:url" content="<%= fullUrl %>" />
     <% } %>
     <!-- Google Material Icons -->
     <link
