@@ -108,7 +108,7 @@ export const createMagService = async (
         htmlPath: magData.htmlPath,
         credits: magData.credits,
         coverImage: hasImage ? magData.coverImage : null,
-        links: magData.links
+        links: magData.links,
       },
     });
 
@@ -207,50 +207,48 @@ export const updateMagazineService = async (
         status: true,
         data: update,
       };
-    } else if (magData.field === 'links') {
+    } else if (magData.field === "links") {
       const existing = await prisma.magazine.findUnique({
         where: { id: magData.id },
         select: { links: true },
       });
 
-      if (
-        !existing
-      ) {
+      if (!existing) {
         throw new Error("Magazine not found");
       }
 
       // Parse new link
 
-    const existingLinks = existing.links || [];
+      const existingLinks = existing.links || [];
 
-    // Prevent duplicate entries
-    if (existingLinks.includes(magData.value)) {
+      // Prevent duplicate entries
+      if (existingLinks.includes(magData.value)) {
+        return {
+          status: false,
+          error: "Link already exists",
+        };
+      }
+
+      const updatedLinks = [...existingLinks, magData.value];
+
+      const update = await prisma.magazine.update({
+        where: { id: magData.id },
+        data: {
+          links: updatedLinks,
+        },
+      });
+
+      if (!update) {
+        return {
+          status: false,
+          error: "Unable to update magazine",
+        };
+      }
+
       return {
-        status: false,
-        error: "Link already exists",
+        status: true,
+        data: update,
       };
-    }
-
-    const updatedLinks = [...existingLinks, magData.value];
-
-    const update = await prisma.magazine.update({
-      where: { id: magData.id },
-      data: {
-        links: updatedLinks,
-      },
-    });
-
-    if (!update) {
-      return {
-        status: false,
-        error: "Unable to update magazine",
-      };
-    }
-
-    return {
-      status: true,
-      data: update,
-    };
     } else {
       let valueToUse = magData.value;
 
@@ -328,6 +326,10 @@ export const deleteMagService = async (magId: string, adminId: string) => {
       };
     }
 
+    await prisma.tableOfContents.deleteMany({
+      where: { magazineId: magId },
+    });
+
     const deletedMag = await prisma.magazine.delete({
       where: { id: magId },
     });
@@ -390,18 +392,18 @@ export const addTocsService = async (
       title: (entry.title as string).trim(),
       subTitle: (entry.subTitle as string).trim(),
       pages: (entry.pages as string).trim(),
-      magazineId: mag
+      magazineId: mag,
     }));
 
     if (preparedTocs.length === 0) {
       return {
         status: false,
-        error: "No valid table of contents entries provided"
+        error: "No valid table of contents entries provided",
       };
     }
 
-     const created = await prisma.tableOfContents.createMany({
-      data: preparedTocs
+    const created = await prisma.tableOfContents.createMany({
+      data: preparedTocs,
     });
 
     if (created && !magExists.hasToc) {
@@ -411,13 +413,13 @@ export const addTocsService = async (
           hasToc: true,
         },
       });
-    // const create
-    return {
-      status: true,
-    };
+      // const create
+      return {
+        status: true,
+      };
     } else {
       return {
-        status: true
+        status: true,
       };
     }
   } catch (addTocsServiceError: any) {
@@ -429,10 +431,7 @@ export const addTocsService = async (
   }
 };
 
-export const removeAllTocsService = async (
-  admin: string,
-  mag: string,
-) => {
+export const removeAllTocsService = async (admin: string, mag: string) => {
   try {
     const magExists = await prisma.magazine.findUnique({
       where: { id: mag },
@@ -445,8 +444,8 @@ export const removeAllTocsService = async (
       };
     }
 
-     const deletedAll = await prisma.tableOfContents.deleteMany({
-      where: { magazineId: mag}
+    const deletedAll = await prisma.tableOfContents.deleteMany({
+      where: { magazineId: mag },
     });
 
     if (deletedAll && magExists.hasToc) {
@@ -456,13 +455,13 @@ export const removeAllTocsService = async (
           hasToc: false,
         },
       });
-    // const create
-    return {
-      status: true,
-    };
+      // const create
+      return {
+        status: true,
+      };
     } else {
       return {
-        status: true
+        status: true,
       };
     }
   } catch (removeAllTocsServiceError: any) {
@@ -474,111 +473,115 @@ export const removeAllTocsService = async (
   }
 };
 
-export const getMagTocsService = async(magazineId: string) => {
+export const getMagTocsService = async (magazineId: string) => {
   try {
     const allTocs = await prisma.tableOfContents.findMany({
-      where: { magazineId }
+      where: { magazineId },
     });
 
     return {
       status: true,
-      tocs: allTocs || []
-    }
-  } catch(getMagTocsServiceError: any) {
+      tocs: allTocs || [],
+    };
+  } catch (getMagTocsServiceError: any) {
     console.error(`Get mag tocs service error ${getMagTocsServiceError}`);
     return {
       status: false,
       error: getMagTocsServiceError,
     };
   }
-}
+};
 
-export const editTocService = async(id: string, field: string, value: string) => {
+export const editTocService = async (
+  id: string,
+  field: string,
+  value: string
+) => {
   try {
     const tocExists = await prisma.tableOfContents.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!tocExists) {
       return {
         status: false,
-        error: "Not found"
-      }
+        error: "Not found",
+      };
     }
 
     const update = await prisma.tableOfContents.update({
       where: { id },
-        data: {
-          [field]: value,
-        },
+      data: {
+        [field]: value,
+      },
     });
 
     if (!update) {
       return {
         status: false,
-        error: "Unable to update"
-      }
+        error: "Unable to update",
+      };
     }
 
     return {
-      status: true
+      status: true,
     };
-  } catch(editTocServiceError: any) {
+  } catch (editTocServiceError: any) {
     console.error(`Edit toc service error ${editTocServiceError}`);
     return {
       status: false,
-      error: editTocServiceError
-    }
+      error: editTocServiceError,
+    };
   }
 };
 
-export const deleteTocService = async(id: string) => {
+export const deleteTocService = async (id: string) => {
   try {
     const tocExists = await prisma.tableOfContents.findUnique({
-      where: { id}
+      where: { id },
     });
 
     if (!tocExists) {
       return {
         status: false,
-        error: "Not found"
-      }
+        error: "Not found",
+      };
     }
 
     const deletedToc = await prisma.tableOfContents.delete({
-      where: { id }
+      where: { id },
     });
 
     if (deletedToc) {
       return {
         status: true,
-      }
+      };
     } else {
       return {
         status: false,
-        error: "Unable to delete"
-      }
+        error: "Unable to delete",
+      };
     }
-  } catch(deleteTocServiceError: any) {
+  } catch (deleteTocServiceError: any) {
     console.error(`Delete toc service error ${deleteTocServiceError}`);
     return {
       status: false,
-      error: deleteTocServiceError
-    }
+      error: deleteTocServiceError,
+    };
   }
 };
 
-export const deleteLinkService = async(link: string, id: string) => {
+export const deleteLinkService = async (link: string, id: string) => {
   try {
     const magExists = await prisma.magazine.findUnique({
-      where: { id}
+      where: { id },
     });
 
     if (!magExists) {
       return {
         status: false,
-        error: "Magazine not found"
-      }
+        error: "Magazine not found",
+      };
     }
 
     const existingLinks = magExists.links || [];
@@ -591,7 +594,9 @@ export const deleteLinkService = async(link: string, id: string) => {
       };
     }
 
-    const newLinks = existingLinks.filter(existingLink => existingLink !== link);
+    const newLinks = existingLinks.filter(
+      (existingLink) => existingLink !== link
+    );
 
     const update = await prisma.magazine.update({
       where: { id },
@@ -611,11 +616,11 @@ export const deleteLinkService = async(link: string, id: string) => {
       status: true,
       data: update,
     };
-  } catch(deleteLinkServiceError: any) {
+  } catch (deleteLinkServiceError: any) {
     console.error(`Delete link service error ${deleteLinkServiceError}`);
     return {
       status: false,
-      error: deleteLinkServiceError
-    }
+      error: deleteLinkServiceError,
+    };
   }
-}
+};
