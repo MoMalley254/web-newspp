@@ -29,6 +29,12 @@ i {
 }
 
 body {
+  background: radial-gradient(
+      circle at bottom left,
+      rgba(35, 35, 112, 0.9) 100%,
+      rgba(0, 0, 0, 0.3) 40%,
+      transparent 80%
+    );
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
