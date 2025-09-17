@@ -592,6 +592,10 @@ function updateScreenSize(flipBook) {
     flipBook.update({
       width: newWidth,
       height: newHeight,
+      minWidth: 815,
+      maxWidth: 1500,
+      minHeight: 920,
+      maxHeight: 1850,
     });
   }
 }
