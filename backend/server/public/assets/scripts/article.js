@@ -23,11 +23,12 @@ const switchViewBtn = document.getElementById("switchViewBtn");
 let isSingleView = false;
 let isStretched = false;
 
-const fullScreenBtn = document.getElementById('btn-fullscreen');
-const fullScreenContent = document.querySelector('.content-body');
+const fullScreenBtn = document.getElementById("btn-fullscreen");
+const fullScreenContent = document.querySelector(".content-body");
 
 let dotCount = 0;
 const isMobile = detectDeviceType();
+const isLaptop = checkScreenSize();
 
 let index = 0;
 let pagesPerChunk = 5;
@@ -74,6 +75,11 @@ function detectDeviceType() {
   }
 
   return false;
+}
+
+function checkScreenSize() {
+  const width = window.innerWidth;
+  return width >= 1024 && width < 1920;
 }
 
 const dotsInterval = setInterval(() => {
@@ -177,8 +183,8 @@ async function prepareFlipBook() {
 
 async function showFlipbook(imageUrls) {
   const flipBook = new St.PageFlip(flipContainer, {
-    width: isMobile ? 340 : 450,
-    height: isMobile ? 700 : 650,
+    width: isMobile ? 340 : isLaptop ? 450 : 650,
+    height: isMobile ? 700 : isLaptop ? 650 : 850,
 
     size: "fixed",
     minWidth: 315,
@@ -202,6 +208,9 @@ async function showFlipbook(imageUrls) {
   // populateThumbnails(imageUrls, flipBook);
   initZoom(flipBook);
   initStretch(flipBook);
+  if (!isMobile && !isLaptop) {
+    updateScreenSize(flipBook);
+  }
 }
 
 function initButtons(flipBook) {
@@ -261,41 +270,45 @@ function initButtons(flipBook) {
     });
   });
 
-  fullScreenBtn.addEventListener('click', (e) => {
-    if (fullScreenBtn.getAttribute('aria-label') === 'Full Screen') {
-        if (fullScreenContent.requestFullscreen) {
-            fullScreenContent.requestFullscreen();
-        } else if (fullScreenContent.webkitRequestFullscreen) { // Safari
-            fullScreenContent.webkitRequestFullscreen();
-        } else if (fullScreenContent.msRequestFullscreen) { // IE11
-            fullScreenContent.msRequestFullscreen();
-        }
+  fullScreenBtn.addEventListener("click", (e) => {
+    if (fullScreenBtn.getAttribute("aria-label") === "Full Screen") {
+      if (fullScreenContent.requestFullscreen) {
+        fullScreenContent.requestFullscreen();
+      } else if (fullScreenContent.webkitRequestFullscreen) {
+        // Safari
+        fullScreenContent.webkitRequestFullscreen();
+      } else if (fullScreenContent.msRequestFullscreen) {
+        // IE11
+        fullScreenContent.msRequestFullscreen();
+      }
 
-        // enlargeContent(true, flipBook);
-        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen_exit</i>`;
-        fullScreenBtn.setAttribute('aria-label', 'Exit Full Screen');
+      // enlargeContent(true, flipBook);
+      fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen_exit</i>`;
+      fullScreenBtn.setAttribute("aria-label", "Exit Full Screen");
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { // Safari
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { // IE11
-            document.msExitFullscreen();
-        }
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        // Safari
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        // IE11
+        document.msExitFullscreen();
+      }
 
-        // enlargeContent(false, flipBook);
-        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
-        fullScreenBtn.setAttribute('aria-label', 'Full Screen');
-    }    
-});
-
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-        // enlargeContent(false, flipBook);
-        fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
-        fullScreenBtn.setAttribute('aria-label', 'Full Screen');
+      // enlargeContent(false, flipBook);
+      fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
+      fullScreenBtn.setAttribute("aria-label", "Full Screen");
     }
-});
+  });
+
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) {
+      // enlargeContent(false, flipBook);
+      fullScreenBtn.innerHTML = `<i class="material-icons">fullscreen</i>`;
+      fullScreenBtn.setAttribute("aria-label", "Full Screen");
+    }
+  });
 }
 
 function initPageCounter(flipBook) {
@@ -536,15 +549,13 @@ function initStretch(flipBook) {
       console.log(`Current container width ${flipContainer.style.width}`);
       const fullWidth = document.body.offsetWidth;
       console.log(`Full body width ${fullWidth}`);
-      const pages = document.querySelectorAll('.page');
+      const pages = document.querySelectorAll(".page");
       pages.forEach((page) => {
         console.log(`Current page width ${page.style.width}`);
-        page.style.width = `${fullWidth /2}px`;
+        page.style.width = `${fullWidth / 2}px`;
       });
       flipContainer.style.width = `${fullWidth}px`;
-      flipBook.update(
-        { width: 2000}
-      )
+      flipBook.update({ width: 2000 });
     }
   });
 }
@@ -552,14 +563,35 @@ function initStretch(flipBook) {
 // function enlargeContent(increase, flipBook) {
 //   const enlargeFactor = isMobile ? '30px' : '50px';
 //   if (increase) {
-//     flipBook.update({ 
+//     flipBook.update({
 //       width: isMobile ? 340 : 750,
-//       height: isMobile ? 700 : 950, 
+//       height: isMobile ? 700 : 950,
 //     });
 //   } else {
-//     flipBook.update({ 
+//     flipBook.update({
 //       width: isMobile ? 340 : 450,
-//       height: isMobile ? 700 : 650, 
+//       height: isMobile ? 700 : 650,
 //     });
 //   }
 // }
+
+function updateScreenSize(flipBook) {
+  const desktopWidth = window.innerWidth;
+  const desktopHeight = window.innerHeight;
+  console.log(
+    `Working on desktop with ${desktopWidth}, height ${desktopHeight}`
+  );
+
+  // Define desktop as screen width >= 1440 (adjust if needed)
+  const isDesktop = desktopWidth >= 1920;
+
+  if (isDesktop) {
+    const newWidth = Math.floor(desktopWidth * 0.7);
+    const newHeight = Math.floor(desktopHeight * 0.7);
+
+    flipBook.update({
+      width: newWidth,
+      height: newHeight,
+    });
+  }
+}
