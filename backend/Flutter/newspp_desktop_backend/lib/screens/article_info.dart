@@ -1530,27 +1530,27 @@ class _ArticleInfoState extends State<ArticleInfo> {
 
                     Navigator.of(context).pop();
 
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return const AlertDialog(
-                          content: Row(
-                            children: [
-                              CircularProgressIndicator(),
-                              SizedBox(width: 20),
-                              Expanded(child: Text('Updating... Please wait.')),
-                            ],
-                          ),
-                        );
-                      },
-                    );
+                    // showDialog(
+                    //   context: context,
+                    //   barrierDismissible: false,
+                    //   builder: (BuildContext context) {
+                    //     return const AlertDialog(
+                    //       content: Row(
+                    //         children: [
+                    //           CircularProgressIndicator(),
+                    //           SizedBox(width: 20),
+                    //           Expanded(child: Text('Updating... Please wait.')),
+                    //         ],
+                    //       ),
+                    //     );
+                    //   },
+                    // );
 
                     bool addedTocs = await magsService.addTocs(
                       article['id'],
                       cleanedTocs,
                     );
-                    Navigator.of(context).pop();
+                    // Navigator.of(context).pop();
                     if (addedTocs) {
                       setState(() {
                         hasUpdated = true;

@@ -431,6 +431,10 @@ class MagsService {
   }
 
   Future<bool> addTocs(String magId, List<Map<String, dynamic>> tocs) async {
+    toastHelper.showProcessingtoast(
+      'Updating table of contents please wait...',
+      5,
+    );
     try {
       final prefs = await SharedPreferences.getInstance();
       String adminId = prefs.getString('adminId') ?? '';
