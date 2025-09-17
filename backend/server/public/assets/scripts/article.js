@@ -162,6 +162,8 @@ async function prepareFlipBook() {
         loader.style.color = "red";
       });
 
+      
+      // if (isMobile) adjustMarginToAvoidOverlap(img);
       wrapper.appendChild(loader);
       wrapper.appendChild(img);
       pageElement.appendChild(wrapper);
@@ -599,3 +601,30 @@ function updateScreenSize(flipBook) {
     });
   }
 }
+
+function adjustMarginToAvoidOverlap(img) {
+  const elRect = img.getBoundingClientRect();
+  const controlEl = document.querySelector('.controls-bottom'); // just one element
+
+  if (!controlEl) return; // if no such element, nothing to do
+
+  const otherRect = controlEl.getBoundingClientRect();
+
+  // Check if rectangles overlap
+  const isOverlap = !(
+    otherRect.right <= elRect.left ||
+    otherRect.left >= elRect.right ||
+    otherRect.bottom <= elRect.top ||
+    otherRect.top >= elRect.bottom
+  );
+
+  if (!isOverlap) return; // no overlap, no margin adjustment
+
+  const overlapHeight = Math.max(0, Math.min(elRect.bottom, otherRect.bottom) - Math.max(elRect.top, otherRect.top));
+
+  if (overlapHeight > 0) {
+    img.style.marginTop = '-' + (overlapHeight) + 'px';
+    console.log(`Adjusted marginTop by ${overlapHeight}px`);
+  }
+}
+

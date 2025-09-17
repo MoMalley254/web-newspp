@@ -773,14 +773,6 @@ body {
   }
 }
 
-@media (min-width: 1920px) {
-  #flipContainer .page {
-    height: 100%;
-    width: 50%;
-    margin-top: 3vh;
-    /* padding: 20px 0 10px 0; */
-  }
-}
 
 .copy {
   margin-top: 10px;
@@ -1017,7 +1009,7 @@ body {
 }
 
 #btn-help-float {
-  /* display: none; */
+  display: none;
 }
 
 @media (max-width: 768px) {
