@@ -162,7 +162,6 @@ async function prepareFlipBook() {
         loader.style.color = "red";
       });
 
-      
       // if (isMobile) adjustMarginToAvoidOverlap(img);
       wrapper.appendChild(loader);
       wrapper.appendChild(img);
@@ -213,6 +212,7 @@ async function showFlipbook(imageUrls) {
   if (!isMobile && !isLaptop) {
     updateScreenSize(flipBook);
   }
+  allowMoveHelpBtn();
 }
 
 function initButtons(flipBook) {
@@ -604,7 +604,7 @@ function updateScreenSize(flipBook) {
 
 function adjustMarginToAvoidOverlap(img) {
   const elRect = img.getBoundingClientRect();
-  const controlEl = document.querySelector('.controls-bottom'); // just one element
+  const controlEl = document.querySelector(".controls-bottom"); // just one element
 
   if (!controlEl) return; // if no such element, nothing to do
 
@@ -620,11 +620,68 @@ function adjustMarginToAvoidOverlap(img) {
 
   if (!isOverlap) return; // no overlap, no margin adjustment
 
-  const overlapHeight = Math.max(0, Math.min(elRect.bottom, otherRect.bottom) - Math.max(elRect.top, otherRect.top));
+  const overlapHeight = Math.max(
+    0,
+    Math.min(elRect.bottom, otherRect.bottom) -
+      Math.max(elRect.top, otherRect.top)
+  );
 
   if (overlapHeight > 0) {
-    img.style.marginTop = '-' + (overlapHeight) + 'px';
+    img.style.marginTop = "-" + overlapHeight + "px";
     console.log(`Adjusted marginTop by ${overlapHeight}px`);
   }
 }
 
+function allowMoveHelpBtn() {
+  const button = document.getElementById("btn-help-float");
+  let offsetX = 0;
+  let offsetY = 0;
+  let isDragging = false;
+  let wasDragged = false;
+  let startX = 0;
+  let startY = 0;
+
+  button.addEventListener(
+    "touchstart",
+    function (e) {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      offsetX = touch.clientX - button.offsetLeft;
+      offsetY = touch.clientY - button.offsetTop;
+      isDragging = true;
+      wasDragged = false;
+      e.preventDefault();
+    },
+    { passive: false }
+  );
+
+  document.addEventListener(
+    "touchmove",
+    function (e) {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
+
+      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+        wasDragged = true;
+        button.style.left = `${touch.clientX - offsetX}px`;
+        button.style.top = `${touch.clientY - offsetY}px`;
+      }
+
+      e.preventDefault();
+    },
+    { passive: false }
+  );
+
+  document.addEventListener("touchend", function (e) {
+    if (!isDragging) return;
+    isDragging = false;
+
+    // If not dragged, it's a tap — simulate click
+    if (!wasDragged) {
+      button.click();
+    }
+  });
+}
