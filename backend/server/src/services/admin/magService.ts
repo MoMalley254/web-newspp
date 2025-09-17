@@ -92,6 +92,16 @@ export const createMagService = async (
       throw new Error("Invalid date format for publishDate");
     }
 
+    let linksToUse: string[] = [];
+
+    if (magData.links && typeof magData.links === "object") {
+      for (const [key, value] of Object.entries(magData.links)) {
+        if (value) {
+          linksToUse.push(`${key}--${value}`);
+        }
+      }
+    }
+
     // Create the Magazine
     const magazine = await prisma.magazine.create({
       data: {
@@ -108,7 +118,7 @@ export const createMagService = async (
         htmlPath: magData.htmlPath,
         credits: magData.credits,
         coverImage: hasImage ? magData.coverImage : null,
-        links: magData.links,
+        links: linksToUse,
       },
     });
 
