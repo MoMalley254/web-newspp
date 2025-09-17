@@ -1012,6 +1012,18 @@ body {
   display: none;
 }
 
+#btn-help-in-info-canvas {
+  position: relative;
+  background-color: transparent;
+  font-size: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 500ms ease-in-out, color 500ms ease-in-out,
+    transform 500ms ease-in-out;
+  padding: 4px 12px;
+  border: 1px dotted rgba(255, 255, 255, 0.3);
+}
+
 @media (max-width: 768px) {
   #btn-hide-controls {
     display: none;

@@ -135,7 +135,9 @@
           <h5 class="offcanvas-title" id="helpCanvasLabel">How to use</h5>
           <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">
+        <div class="offcanvas-body text-start">
+          <i>Hold on any magazine page to drag and position it how you prefer</i> <br>
+          <h4>Icons Legend</h4>
          <div class="row row-cols-1 row-cols-md-2">
             <div class="d-flex align-items-start mb-3">
               <span class="material-icons me-3">keyboard_double_arrow_up</span>
@@ -524,7 +526,17 @@
   </div>
 
   <div class="offcanvas-body bg-dark text-white">
+    <button
+              id="btn-help-in-info-canvas"
+              aria-label="Help"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#helpCanvas"
+              aria-controls="helpCanvas"
+            >
+              <i class="material-icons">help</i> <i>How to use</i>
+            </button> <br> <br>
     <div class="articleInfo articleInfoBtnInCanvas">
+      
       <button
               // class="btn-back"
               aria-label="Back to articles"

@@ -213,6 +213,7 @@ async function showFlipbook(imageUrls) {
     updateScreenSize(flipBook);
   }
   allowMoveHelpBtn();
+  makeDraggable(flipContainer);
 }
 
 function initButtons(flipBook) {
@@ -634,24 +635,39 @@ function adjustMarginToAvoidOverlap(img) {
 
 function allowMoveHelpBtn() {
   const button = document.getElementById("btn-help-float");
+  makeDraggable(button);
+}
+
+function makeDraggable(element) {
+  const holdDelay = 500;
   let offsetX = 0;
   let offsetY = 0;
   let isDragging = false;
   let wasDragged = false;
   let startX = 0;
   let startY = 0;
+  let dragTimeout = null;
+  let isHeld = false;
 
-  button.addEventListener(
+  element.addEventListener(
     "touchstart",
     function (e) {
       const touch = e.touches[0];
       startX = touch.clientX;
       startY = touch.clientY;
-      offsetX = touch.clientX - button.offsetLeft;
-      offsetY = touch.clientY - button.offsetTop;
-      isDragging = true;
+      offsetX = touch.clientX - element.offsetLeft;
+      offsetY = touch.clientY - element.offsetTop;
       wasDragged = false;
-      e.preventDefault();
+      isDragging = false;
+      isHeld = false;
+
+      // Start hold timer
+      dragTimeout = setTimeout(() => {
+        isDragging = true;
+        isHeld = true;
+      }, holdDelay);
+
+      e.preventDefault(); // Prevents scrolling when starting touch
     },
     { passive: false }
   );
@@ -659,29 +675,85 @@ function allowMoveHelpBtn() {
   document.addEventListener(
     "touchmove",
     function (e) {
-      if (!isDragging) return;
       const touch = e.touches[0];
       const dx = touch.clientX - startX;
       const dy = touch.clientY - startY;
 
-      if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      if (isHeld && isDragging) {
         wasDragged = true;
-        button.style.left = `${touch.clientX - offsetX}px`;
-        button.style.top = `${touch.clientY - offsetY}px`;
+        element.style.left = `${touch.clientX - offsetX}px`;
+        element.style.top = `${touch.clientY - offsetY}px`;
+        e.preventDefault();
+      } else {
+        // Cancel drag if user moves before holding long enough
+        if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+          clearTimeout(dragTimeout);
+        }
       }
-
-      e.preventDefault();
     },
     { passive: false }
   );
 
   document.addEventListener("touchend", function (e) {
-    if (!isDragging) return;
-    isDragging = false;
+    clearTimeout(dragTimeout);
 
-    // If not dragged, it's a tap — simulate click
-    if (!wasDragged) {
-      button.click();
+    if (!wasDragged && e.target === element) {
+    element.click();
+  }
+
+    isDragging = false;
+    isHeld = false;
+  });
+
+  element.addEventListener("mousedown", function (e) {
+    startX = e.clientX;
+    startY = e.clientY;
+    offsetX = e.clientX - element.offsetLeft;
+    offsetY = e.clientY - element.offsetTop;
+    wasDragged = false;
+    isDragging = false;
+    isHeld = false;
+
+    dragTimeout = setTimeout(() => {
+      isDragging = true;
+      isHeld = true;
+    }, holdDelay);
+
+    // Prevent text selection while dragging
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove", function (e) {
+    if (!isHeld || !isDragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    if (Math.abs(dx) > 0 || Math.abs(dy) > 0) {
+      wasDragged = true;
+      element.style.left = `${e.clientX - offsetX}px`;
+      element.style.top = `${e.clientY - offsetY}px`;
     }
   });
+
+  document.addEventListener("mousemove", function (e) {
+    if (!isDragging) {
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (Math.abs(dx) > 10 || Math.abs(dy) > 10) {
+        clearTimeout(dragTimeout);
+      }
+    }
+  });
+
+  document.addEventListener("mouseup", function (e) {
+    clearTimeout(dragTimeout);
+
+    if (!wasDragged && e.target === element) {
+      element.click();
+    }
+
+    isDragging = false;
+    isHeld = false;
+  });
 }
+
