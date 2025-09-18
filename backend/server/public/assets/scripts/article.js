@@ -34,6 +34,7 @@ let index = 0;
 let pagesPerChunk = 5;
 
 document.addEventListener("DOMContentLoaded", async function () {
+  showHelp();
   prepareFlipBook();
 });
 
@@ -87,9 +88,10 @@ const dotsInterval = setInterval(() => {
   dotsSpan.textContent = ".".repeat(dotCount);
 }, 500);
 
-// switchPageViewBtn.addEventListener('click', () => {
-
-// });
+async function showHelp() {
+  // const hasAlreadyShown = localStorage.getItem('hasShownHelp') ?? false;
+  // console.log(`Has shown help ${hasAlreadyShown}`);
+}
 
 async function prepareFlipBook() {
   try {
@@ -207,7 +209,7 @@ async function showFlipbook(imageUrls) {
   initButtons(flipBook);
   initView(flipBook);
   // populateThumbnails(imageUrls, flipBook);
-  initZoom(flipBook);
+  initZoom();
   initStretch(flipBook);
   if (!isMobile && !isLaptop) {
     updateScreenSize(flipBook);
@@ -400,7 +402,7 @@ function buildTableOfContents(flipbook) {
   }
 }
 
-function initZoom(flipBook) {
+function initZoom() {
   let currentScale = 1;
   let translateX = 0;
   let translateY = 0;
@@ -425,9 +427,6 @@ function initZoom(flipBook) {
   document.body.appendChild(overlay);
 
   function applyTransform() {
-    console.log(
-      `Flipcontainer height ${flipBookHeight}, flipcontainerwidth ${flipBookWidth}`
-    );
     zoomWrapper.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
 
     // Show overlay only when zoomed in (> 1)
@@ -446,6 +445,30 @@ function initZoom(flipBook) {
       zoomSlider.value = currentScale.toFixed(2);
     }
   }
+
+  document.addEventListener("wheel", (event) => {
+    let scrollDirection = event.deltaY > 0 ? false : true;
+
+    if (scrollDirection) {
+      //Zoom in
+      if (currentScale < maxScale) {
+        currentScale += scaleStep;
+        currentScale = Math.min(currentScale, maxScale);
+        applyTransform();
+      }
+    } else {
+      //Zoom out
+      if (currentScale > minScale) {
+        currentScale -= scaleStep;
+        currentScale = Math.max(currentScale, minScale);
+        applyTransform();
+      }
+    }
+
+    console.log("Scroll direction:", scrollDirection);
+
+    console.log("Scroll amount:", event.deltaY);
+  });
 
   // Zoom In
   zoomInBtn.addEventListener("click", () => {
@@ -698,8 +721,8 @@ function makeDraggable(element) {
     clearTimeout(dragTimeout);
 
     if (!wasDragged && e.target === element) {
-    element.click();
-  }
+      element.click();
+    }
 
     isDragging = false;
     isHeld = false;
@@ -756,4 +779,3 @@ function makeDraggable(element) {
     isHeld = false;
   });
 }
-
