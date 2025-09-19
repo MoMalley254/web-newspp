@@ -287,12 +287,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                             hintText: 'Site (e.g., YouTube)',
                             border: OutlineInputBorder(),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Site required';
-                            }
-                            return null;
-                          },
+                          
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -305,12 +300,7 @@ class _NewArticleFormState extends State<NewArticleForm> {
                                 'URL (e.g., https://www.youtube.com/v=P-dCRWeq5QU)',
                             border: OutlineInputBorder(),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'URL required';
-                            }
-                            return null;
-                          },
+                          
                         ),
                       ),
                       // const SizedBox(width: 10),
