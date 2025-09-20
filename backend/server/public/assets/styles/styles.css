@@ -679,12 +679,24 @@ body {
     overflow-x: hidden;
   }
 
+  #articlesSection .front {
+    margin-top: 13vh;
+    height: 68vh;
+    gap: 6px;
+    margin-left: -5px;
+    grid-template-columns: repeat(2, 49vw);
+  }
+
   .article-thumbnail {
     width: 100%;
     height: 20vh;
     padding: 10px;
     margin: 10px;
     margin-top: 15px;
+  }
+
+  #articlesSection .front .article-thumbnail {
+    height: 45vw;
   }
 
   #contentContainer {
@@ -772,7 +784,6 @@ body {
     /* padding: 20px 0 10px 0; */
   }
 }
-
 
 .copy {
   margin-top: 10px;
