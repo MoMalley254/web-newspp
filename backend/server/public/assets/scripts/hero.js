@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const isMobile = detectDeviceType();
+  let scrollHeight = isMobile ? 1.1 : 0.8;
   function detectDeviceType() {
     const ua = navigator.userAgent;
 
@@ -18,12 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
   scrollToArticlesBtns.forEach((scrollBtn) => {
     scrollBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      let scrollHeight = isMobile ? 1.1 : 0.8;
       window.scrollBy({
-        top: window.innerHeight * scrollHeight, 
+        top: window.innerHeight * scrollHeight,
         left: 0,
         behavior: "smooth",
       });
+
+      showBackToTopBtn();
     });
   });
 
@@ -48,6 +50,20 @@ document.addEventListener("DOMContentLoaded", () => {
     coverImages.forEach((img, index) => {
       img.classList.remove("main", "behind-1", "behind-2");
       img.classList.add(newClasses[index]);
+    });
+  }
+
+  function showBackToTopBtn() {
+    const backToTopBtn = document.getElementById("backToTopBtn");
+    backToTopBtn.style.opacity = "1";
+
+    backToTopBtn.addEventListener("click", () => {
+      window.scrollBy({
+        top: -window.innerHeight * scrollHeight,
+        left: 0,
+        behavior: "smooth",
+      });
+      backToTopBtn.style.opacity = "0";
     });
   }
 });
