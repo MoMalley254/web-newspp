@@ -1091,7 +1091,6 @@ body {
   scrollbar-width: thin;
 }
 
-
 /* Hero Section */
 .hero {
   height: 70vh;
@@ -1108,6 +1107,7 @@ body {
   flex: 2;
   margin-left: -100px;
   margin-top: -20px;
+  font-style: italic;
 }
 
 .logo-text h5:first-child {
@@ -1211,12 +1211,12 @@ body {
   height: 350px;
 }
 
- .hero-image-stack .cover {
+.hero-image-stack .cover {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
   border-radius: 6px;
   position: absolute;
   transition: transform 0.3s ease, box-shadow 0.5s ease-in-out;
-} 
+}
 
 .hero-image-stack .main {
   z-index: 3;
@@ -1233,9 +1233,100 @@ body {
 .hero-image-stack .behind-2 {
   z-index: 1;
   transform: translate(-50px, -40px) rotate(15deg);
-} 
+}
 
 /* Responsive */
 @media (max-width: 768px) {
-  
+  .hero {
+    height: 90vh;
+  }
+
+  .hero-top {
+    flex-direction: column;
+  }
+
+  .logo-text {
+    flex: 2;
+    margin-left: 10px;
+    margin-top: -30px;
+  }
+
+  .logo-text h5:first-child {
+    font-size: 50px;
+    letter-spacing: 2px;
+    font-style: italic;
+  }
+
+  .logo-text h5:last-child {
+    font-size: 25px;
+    margin-top: -23px;
+  }
+
+  .logo-text {
+    margin-bottom: 0px;
+  }
+
+  .hero-top-btns {
+    margin-bottom: 15px;
+  }
+
+  .hero-container {
+    flex-direction: column-reverse;
+  }
+
+  .hero-text {
+    width: 100vw;
+  }
+
+  .hero-text .highlight {
+    font-size: 18px;
+    margin-top: 10px;
+    margin-left: -180px;
+  }
+
+  .hero-text h1 {
+    font-size: 31px;
+    text-align: center;
+    margin: 0 0;
+    margin-left: -180px;
+    margin-top: -10px;
+    line-height: 1;
+  }
+
+  .hero-text .subtext {
+    text-align: start;
+    font-size: 1rem;
+    margin: 10px 0;
+    margin-left: -70px;
+    margin-bottom: 8px;
+  }
+
+  .subscribe-button {
+    padding: 10px 10px;
+    margin-left: 150px;
+  }
+
+  .hero-image-stack {
+    margin-bottom: 40px;
+  }
+
+  .hero-image-stack img {
+    width: 200px;
+    height: 250px;
+  }
+
+  .hero-image-stack .main {
+    transform: translate(-90px, -10px) rotate(0) scale(1.2);
+    box-shadow: 0 5px 15px rgba(248, 223, 0, 0.7);
+  }
+
+  .hero-image-stack .behind-1 {
+    z-index: 2;
+    transform: translate(-160px, -10px) rotate(-15deg);
+  }
+
+  .hero-image-stack .behind-2 {
+    z-index: 1;
+    transform: translate(-10px, -10px) rotate(15deg);
+  }
 }
