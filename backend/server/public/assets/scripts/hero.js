@@ -1,10 +1,26 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const isMobile = detectDeviceType();
+  function detectDeviceType() {
+    const ua = navigator.userAgent;
+
+    if (/tablet|ipad|playbook|silk/i.test(ua)) {
+      return false;
+    }
+
+    if (/Mobile|Android|iPhone|iPod|IEMobile|BlackBerry|Opera Mini/i.test(ua)) {
+      return true;
+    }
+
+    return false;
+  }
+
   const scrollToArticlesBtns = document.querySelectorAll(".scrollToArticles");
   scrollToArticlesBtns.forEach((scrollBtn) => {
     scrollBtn.addEventListener("click", (e) => {
       e.preventDefault();
+      let scrollHeight = isMobile ? 1.1 : 0.8;
       window.scrollBy({
-        top: window.innerHeight * 0.8, // 80vh in pixels
+        top: window.innerHeight * scrollHeight, 
         left: 0,
         behavior: "smooth",
       });
