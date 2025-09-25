@@ -1444,3 +1444,31 @@ body {
     right: 5vw;
   }
 }
+
+.blinkMe {
+    animation: blinkPulse 2.5s infinite;
+    height: 30px;
+    padding: 0px 10px;
+    border: none;
+    box-shadow: none;
+    border-radius: 14px;
+    background-color: transparent;
+  }
+
+  @keyframes blinkPulse {
+    0% {
+      filter: brightness(1); 
+      /* transform: scale(1); */
+      box-shadow: 0 0 2px rgba(248, 223, 0, 0.1);
+    }
+    50% { 
+      filter: brightness(1.2); 
+      /* transform: scale(1.1); */
+      box-shadow: 0 0 8px rgba(248, 223, 0, 0.9);
+    }
+    100% { 
+      filter: brightness(1); 
+      /* transform: scale(1); */
+      box-shadow: 0 0 2px rgba(248, 223, 0, 0.2);
+    }
+  }
