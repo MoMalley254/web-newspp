@@ -1344,8 +1344,9 @@ body {
   font-size: 24px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease, opacity 0.4s ease-in;
-  z-index: 999; 
+  transition: background-color 0.3s ease, transform 0.3s ease,
+    opacity 0.4s ease-in;
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1355,4 +1356,50 @@ body {
 #backToTopBtn:hover {
   background-color: #e6c700;
   transform: scale(1.1);
+}
+
+@media (min-width: 760px) and (max-width: 1024px) {
+  .hero {
+    height: 70vh;
+  }
+
+  .hero-container {
+    flex-direction: row;
+  }
+
+  .hero-text {
+    width: 50vw;
+    margin-top: -70px;
+  }
+
+  .hero-text .highlight {
+    font-size: 20px;
+    margin-left: -50px;
+  }
+
+  .hero-text h1 {
+    font-size: 40px;
+    margin: 0 0;
+    margin-left: -50px;
+    margin-top: -10px;
+  }
+
+  .hero-text .subtext {
+    margin: 20px 0;
+    margin-left: 0px;
+    margin-bottom: 30px;
+  }
+
+  .subscribe-button {
+    margin-left: 50px;
+  }
+
+  .hero-image-stack {
+    width: 30vw;
+  }
+
+  .hero-image-stack img {
+    width: 200px;
+    height: 250px;
+  }
 }
