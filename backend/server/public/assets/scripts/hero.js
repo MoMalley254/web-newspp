@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const backToTopBtn = document.getElementById("backToTopBtn");
   const isMobile = detectDeviceType();
   let scrollHeight = isMobile ? 1.1 : 0.8;
   function detectDeviceType() {
@@ -24,6 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
         left: 0,
         behavior: "smooth",
       });
+      backToTopBtn.classList.remove('goDown');
+      backToTopBtn.classList.add('goUp');
+      backToTopBtn.innerHTML = '<span class="material-icons">keyboard_arrow_up</span>';
     });
   });
 
@@ -51,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  const backToTopBtn = document.getElementById("backToTopBtn");
 
   backToTopBtn.addEventListener("click", () => {
     if (backToTopBtn.classList.contains("goDown")) {
