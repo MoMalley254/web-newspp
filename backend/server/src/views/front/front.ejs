@@ -72,7 +72,7 @@
         <p class="subtext">
           Subscribe now for our magazine as we help you build your business.
         </p>
-        <a href="#" class="subscribe-button">Subscribe</a>
+        <button href="#" class="subscribe-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#newsletterOffcanvas" aria-controls="newsletterOffcanvas">Subscribe</>
       </div>
 
       <!-- Right Content -->
@@ -82,6 +82,28 @@
         <img src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/025.jpg" class="cover behind-2" />
       </div>
     </div>
+
+    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="newsletterOffcanvas" aria-labelledby="newsletterOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="newsletterOffcanvasLabel">Join Our Newsletter</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <h6 class="text-center">Stay updated with our magazine!</h6>
+            <p class="text-center">Enter your email to receive our newsletter.</p>
+
+            <form id="subscribeForm">
+                <div class="input-group">
+                    <input type="email" class="form-control" id="emailInput" name="email" placeholder="Enter your email" required>
+                    <button class="btn btn-warning" type="submit" >Subscribe</button>
+                </div>
+            </form>
+        </div>
+        <div class="form-footer">
+            <small class="text-center d-block">We respect your privacy. Unsubscribe anytime.</small>
+        </div>
+    </div>
+
   </section>
 
       <div class="loading-articles">

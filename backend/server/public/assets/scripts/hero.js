@@ -66,4 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
       backToTopBtn.style.opacity = "0";
     });
   }
+
+  const subscribeForm = document.getElementById('subscribeForm');
+  subscribeForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = subscribeForm.querySelector('#emailInput').value.trim();
+    alert(`Thank you for subscribing ${email}`);
+    location.reload();
+  })
 });
