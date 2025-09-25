@@ -4,31 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta property="og:title" content="Business Unusual Magazine" />
-      <meta 
-        property="og:description" 
-        content="BUSINESS UNUSUAL MAGAZINE
+    <meta
+      property="og:description"
+      content="BUSINESS UNUSUAL MAGAZINE
           Aims to provide high-quality, accurate,
           and timely business content that
           empowers entrepreneurs, investors,
           and policymakers with the knowledge
           to make informed decisions, fostering
           innovation, economic growth, and sustainable development in Kenya
-          and beyond." 
-      />
-      <meta property="og:url" content="<%= fullUrl %>" />
-      <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="Business Unusual Magazine" />
+          and beyond."
+    />
+    <meta property="og:url" content="<%= fullUrl %>" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Business Unusual Magazine" />
 
-      <meta name="twitter:title" content="Business Unusual Magazine" />
-      <meta name="twitter:description" content="BUSINESS UNUSUAL MAGAZINE
+    <meta name="twitter:title" content="Business Unusual Magazine" />
+    <meta
+      name="twitter:description"
+      content="BUSINESS UNUSUAL MAGAZINE
           Aims to provide high-quality, accurate,
           and timely business content that
           empowers entrepreneurs, investors,
           and policymakers with the knowledge
           to make informed decisions, fostering
           innovation, economic growth, and sustainable development in Kenya
-          and beyond." />
-      <meta name="twitter:url" content="<%= fullUrl %>" />
+          and beyond."
+    />
+    <meta name="twitter:url" content="<%= fullUrl %>" />
     <!-- Google Material Icons -->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
@@ -55,56 +58,104 @@
       <section class="hero">
         <div class="hero-top">
           <div class="logo-text">
-          <h5>Business</h5>
-          <h5>Matters</h5>
+            <h5>Business</h5>
+            <h5>Matters</h5>
+          </div>
+          <div class="hero-top-btns">
+            <a href="#" class="scrollToArticles blinkMe">Articles</a>
+            <a href="#">Categories</a>
+            <a href="#">About</a>
+          </div>
         </div>
-        <div class="hero-top-btns">
-          <a href="#" class="scrollToArticles blinkMe">Articles</a>
-          <a href="#">Categories</a>
-          <a href="#">About</a>
-        </div>
-        </div>
-    <div class="hero-container">
-      <!-- Left Content -->
-      <div class="hero-text">
-        <h4><span class="highlight">Entrepreneurship <span class="text-white">|</span> Leadership  <span class="text-white">|</span> Strategy </span></h4>
-        <h1>Financial success and sustainability <br> in business venture.</h1>
-        <p class="subtext">
-          Subscribe now for our magazine as we help you build your business.
-        </p>
-        <button href="#" class="subscribe-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#newsletterOffcanvas" aria-controls="newsletterOffcanvas">Subscribe</>
-      </div>
+        <div class="hero-container">
+          <!-- Left Content -->
+          <div class="hero-text">
+            <h4>
+              <span class="highlight"
+                >Entrepreneurship <span class="text-white">|</span> Leadership
+                <span class="text-white">|</span> Strategy
+              </span>
+            </h4>
+            <h1>
+              Financial success and sustainability <br />
+              in business venture.
+            </h1>
+            <p class="subtext">
+              Subscribe now for our magazine as we help you build your business.
+            </p>
+            <button
+              href="#"
+              class="subscribe-button"
+              type="button"
+              data-bs-toggle="offcanvas"
+              data-bs-target="#newsletterOffcanvas"
+              aria-controls="newsletterOffcanvas"
+            >
+              Subscribe
+            </button>
+          </div>
 
-      <!-- Right Content -->
-      <div class="hero-image-stack">
-        <img src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/001.jpg" class="cover main scrollToArticles" />
-        <img src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/020.jpg" class="cover behind-1 scrollToArticles" />
-        <img src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/025.jpg" class="cover behind-2 scrollToArticles" />
-      </div>
-    </div>
-
-    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="newsletterOffcanvas" aria-labelledby="newsletterOffcanvasLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="newsletterOffcanvasLabel">Join Our Newsletter</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <!-- Right Content -->
+          <div class="hero-image-stack">
+            <img
+              src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/001.jpg"
+              class="cover main scrollToArticles"
+            />
+            <img
+              src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/020.jpg"
+              class="cover behind-1 scrollToArticles"
+            />
+            <img
+              src="front/view/public/magazines/17-09-2025/10/Test%2017-09_1011/pages/025.jpg"
+              class="cover behind-2 scrollToArticles"
+            />
+          </div>
         </div>
-        <div class="offcanvas-body">
+
+        <div
+          class="offcanvas offcanvas-start bg-dark text-white"
+          tabindex="-1"
+          id="newsletterOffcanvas"
+          aria-labelledby="newsletterOffcanvasLabel"
+        >
+          <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="newsletterOffcanvasLabel">
+              Join Our Newsletter
+            </h5>
+            <button
+              type="button"
+              class="btn-close text-reset"
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="offcanvas-body">
             <h6 class="text-center">Stay updated with our magazine!</h6>
-            <p class="text-center">Enter your email to receive our newsletter.</p>
+            <p class="text-center">
+              Enter your email to receive our newsletter.
+            </p>
 
             <form id="subscribeForm">
-                <div class="input-group">
-                    <input type="email" class="form-control" id="emailInput" name="email" placeholder="Enter your email" required>
-                    <button class="btn btn-warning" type="submit" >Subscribe</button>
-                </div>
+              <div class="input-group">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="emailInput"
+                  name="email"
+                  placeholder="Enter your email"
+                  required
+                />
+                <button class="btn btn-warning" type="submit">Subscribe</button>
+              </div>
             </form>
+          </div>
+          <div class="form-footer">
+            <small class="text-center d-block"
+              >We respect your privacy. Unsubscribe anytime.</small
+            >
+          </div>
         </div>
-        <div class="form-footer">
-            <small class="text-center d-block">We respect your privacy. Unsubscribe anytime.</small>
-        </div>
-    </div>
-
-  </section>
+      </section>
 
       <div class="loading-articles">
         <h2 class="loader">Loading articles<span class="dots"></span></h2>
@@ -113,27 +164,26 @@
         </p>
       </div>
       <div class="content-body no-content">
-        
-          <div class="meinAlert">
-          </div>
+        <div class="meinAlert"></div>
         <section id="articlesSection" class="content">
-          <p class="foundItems">Showing <span id="foundItems"></span> articles</p>
+          <p class="foundItems">
+            Showing <span id="foundItems"></span> articles
+          </p>
           <div id="article-thumbnails" class="front"></div>
           <div class="copy">
-            <p>Ela Creatives <br> &copy; <span id="copy"></span></p>
+            <p>
+              Ela Creatives <br />
+              &copy; <span id="copy"></span>
+            </p>
           </div>
         </section>
-        <section class="bottom">
-          
-        </section>
+        <section class="bottom"></section>
       </div>
     </section>
 
     <button type="button" id="backToTopBtn" class="btn btn-warn goDown">
       <span class="material-icons">keyboard_arrow_down</span>
     </button>
-
-    
 
     <!-- Bootstrap -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
