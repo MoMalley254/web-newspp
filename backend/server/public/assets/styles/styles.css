@@ -1351,12 +1351,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
+  opacity: 1;
+}
+
+#backToTopBtn.goDown {
+  transform: translateY(-100px);
+}
+
+#backToTopBtn.goUp {
+  transform: translateY(0);
 }
 
 #backToTopBtn:hover {
   background-color: #e6c700;
-  transform: scale(1.1);
+  /* transform: scale(1.1); */
 }
 
 @media (min-width: 760px) and (max-width: 1024px) {

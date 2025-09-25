@@ -24,8 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
         left: 0,
         behavior: "smooth",
       });
-
-      showBackToTopBtn();
     });
   });
 
@@ -53,25 +51,35 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function showBackToTopBtn() {
-    const backToTopBtn = document.getElementById("backToTopBtn");
-    backToTopBtn.style.opacity = "1";
+  const backToTopBtn = document.getElementById("backToTopBtn");
 
-    backToTopBtn.addEventListener("click", () => {
+  backToTopBtn.addEventListener("click", () => {
+    if (backToTopBtn.classList.contains("goDown")) {
+      window.scrollBy({
+        top: window.innerHeight * scrollHeight,
+        left: 0,
+        behavior: "smooth",
+      });
+      backToTopBtn.classList.remove('goDown');
+      backToTopBtn.classList.add('goUp');
+      backToTopBtn.innerHTML = '<span class="material-icons">keyboard_arrow_up</span>';
+    } else {
       window.scrollBy({
         top: -window.innerHeight * scrollHeight,
         left: 0,
         behavior: "smooth",
       });
-      backToTopBtn.style.opacity = "0";
-    });
-  }
+      backToTopBtn.classList.remove('goUp');
+      backToTopBtn.classList.add('goDown');
+      backToTopBtn.innerHTML = '<span class="material-icons">keyboard_arrow_down</span>';
+    }
+  });
 
-  const subscribeForm = document.getElementById('subscribeForm');
-  subscribeForm.addEventListener('submit', (e) => {
+  const subscribeForm = document.getElementById("subscribeForm");
+  subscribeForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const email = subscribeForm.querySelector('#emailInput').value.trim();
+    const email = subscribeForm.querySelector("#emailInput").value.trim();
     alert(`Thank you for subscribing ${email}`);
     location.reload();
-  })
+  });
 });
