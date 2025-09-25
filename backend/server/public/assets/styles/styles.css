@@ -1422,4 +1422,23 @@ body {
   #articlesSection .front .article-thumbnail {
     height: 45vw;
   }
+
+  .controls-bottom {
+    width: 100vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    justify-items: center;
+    margin: 0;
+    position: fixed;
+  }
+
+  #flipContainer {
+    margin-left: 4vw;
+  }
+
+  #btn-help-float {
+    bottom: 10vh;
+    right: 5vw;
+  }
 }
