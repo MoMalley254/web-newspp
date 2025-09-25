@@ -1165,7 +1165,7 @@ body {
 }
 
 .hero-text h1 {
-  font-size: 45px;
+  font-size: 35px;
   font-weight: 800;
   margin: 10px 0;
   margin-left: -250px;
@@ -1235,10 +1235,9 @@ body {
   transform: translate(-50px, -40px) rotate(15deg);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .hero {
-    height: 90vh;
+    height: 95vh;
   }
 
   .hero-top {
@@ -1279,13 +1278,13 @@ body {
   }
 
   .hero-text .highlight {
-    font-size: 18px;
+    font-size: 16px;
     margin-top: 10px;
     margin-left: -180px;
   }
 
   .hero-text h1 {
-    font-size: 31px;
+    font-size: 22px;
     text-align: center;
     margin: 0 0;
     margin-left: -180px;
@@ -1294,10 +1293,12 @@ body {
   }
 
   .hero-text .subtext {
+    width: 70vw;
     text-align: start;
-    font-size: 1rem;
+    font-size: 18px;
+    font-style: italic;
     margin: 10px 0;
-    margin-left: -70px;
+    margin-left: -20px;
     margin-bottom: 8px;
   }
 
@@ -1369,29 +1370,30 @@ body {
 
   .hero-text {
     width: 50vw;
-    margin-top: -70px;
+    margin-top: -120px;
   }
 
   .hero-text .highlight {
-    font-size: 20px;
+    font-size: 17px;
     margin-left: -50px;
   }
 
   .hero-text h1 {
-    font-size: 40px;
+    font-size: 23px;
     margin: 0 0;
     margin-left: -50px;
     margin-top: -10px;
   }
 
   .hero-text .subtext {
+    width: 35vw;
     margin: 20px 0;
     margin-left: 0px;
-    margin-bottom: 30px;
+    margin-bottom: -10px;
   }
 
   .subscribe-button {
-    margin-left: 50px;
+    margin-left: 200px;
   }
 
   .hero-image-stack {
