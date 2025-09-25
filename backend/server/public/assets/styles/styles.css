@@ -1324,6 +1324,7 @@ body {
 @media (max-width: 768px) {
   .hero {
     height: 95vh;
+    overflow-x: hidden;
   }
 
   .hero-top {
