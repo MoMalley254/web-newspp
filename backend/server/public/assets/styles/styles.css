@@ -1484,7 +1484,7 @@ body {
 
   #articlesSection .front {
     margin-top: 13vh;
-    height: 80vh;
+    height: 75vh;
     gap: 6px;
     margin-left: 10px;
     grid-template-columns: repeat(2, 49vw);
