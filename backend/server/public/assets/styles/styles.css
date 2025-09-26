@@ -1605,3 +1605,15 @@ body {
   grid-template-columns: repeat(2, 45vw);
 }
 }
+
+@media (min-width: 760px) and (max-width: 1024px) {
+  .foundItems {
+    margin-top: 10vh;
+  }
+  #tags-thumbnails {
+  margin-top: 15vh;
+  margin-left: 15px;
+  height: 73vh;
+  grid-template-columns: repeat(3, 31vw);
+}
+}
