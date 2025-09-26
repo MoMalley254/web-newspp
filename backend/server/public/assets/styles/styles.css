@@ -1598,5 +1598,10 @@ body {
 }
 
 @media (max-width: 768px) {
-  
+  #tags-thumbnails {
+  margin-top: 15vh;
+  margin-left: 10px;
+  height: 75vh;
+  grid-template-columns: repeat(2, 45vw);
+}
 }
