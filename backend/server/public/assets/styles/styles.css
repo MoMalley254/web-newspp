@@ -1624,6 +1624,17 @@ body {
   color: black;
 }
 
+.noItems {
+  margin: 0vh 38vw;
+  width: 30vw;
+  height: 20vh;
+  text-align: center;
+  margin-top: 10vh;
+  padding: 3vh 2vw;
+  background-color: #e6c700;
+  border-radius: 14px;
+}
+
 @media (max-width: 768px) {
   #tags-thumbnails {
     margin-top: 15vh;
@@ -1635,6 +1646,17 @@ body {
   .home-btn {
   top: 90vh;
   height: 30px;
+}
+
+.noItems {
+  margin: 0vh 10vw;
+  width: 80vw;
+  height: 20vh;
+  text-align: center;
+  margin-top: 10vh;
+  padding: 3vh 2vw;
+  background-color: #e6c700;
+  border-radius: 14px;
 }
 }
 

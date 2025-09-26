@@ -57,12 +57,13 @@
 
     <div class="content-body no-content">
       <section id="articlesSection" class="content">
-        <% if (typeof mags !== 'undefined' && mags.length > 0) { %>
+        <% if (status) { %>
           <p class="foundItems">
             Showing <span id="foundItems"><%= mags.length %></span> articles
           </p>
 
-          <div id="article-thumbnails" class="front">
+          <% if (mags.length > 0) { %>
+            <div id="article-thumbnails" class="front">
             <% mags.forEach((mag) => { 
               const imageUrl = `/front${mag.coverImage.replace(/\\/g, '/').replace(/\/+/g, '/')}`;
             %>
@@ -80,7 +81,24 @@
               </div>
             <% }); %>
           </div>
-        <% } else { %>
+          <% } else { %>
+            <div id="article-thumbnails" class="front">
+              <div class="noItems">
+                <div
+                >
+                  <div>
+                    <h5 >No articles found for this category.</h5>
+                    <p >Please click the <br> <strong>Home</strong> button to return to the main page.</p>
+                  </div>
+                  <br />
+                  <br> 
+                </div>
+              </div>
+            </div>
+          <% } %>
+        <% } else { 
+          console.log(`Mein error ${error}`)
+          %>
           <div class="center container mt-3" style="margin-top: 25vh;">
             <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
               <div>

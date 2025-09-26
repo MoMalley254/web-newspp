@@ -147,14 +147,14 @@ export const renderGroupedPage = async(req: Request, res: Response) => {
 
     const getMags = await fetchSingleTagService(tagId);
     if (getMags.status) {
-      return res.render("front/grouped", { tag: getMags.tag, mags: getMags.magazines, url: url, fullUrl: fullUrl});
+      return res.render("front/grouped", { status: true, tag: getMags.tag, mags: getMags.magazines, url: url, fullUrl: fullUrl});
       // return res.render("front/grouped", { error: 'Felt like it'});
     } else {
-      return res.render("front/grouped", { error: getMags.error, url: url, fullUrl: fullUrl});
+      return res.render("front/grouped", { status: false, error: getMags.error, url: url, fullUrl: fullUrl});
     }
   } catch(renderGroupedPageError: any) {
     console.error(`Render grouped page error ${renderGroupedPageError}`);
-    return res.render("front/grouped", { error: renderGroupedPageError.message || "Server error", url: url, fullUrl: fullUrl});
+    return res.render("front/grouped", { status: false, error: renderGroupedPageError.message || "Server error", url: url, fullUrl: fullUrl});
   }
 }
 
