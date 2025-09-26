@@ -75,7 +75,7 @@ export const createNewMag = async (
       publishDate: date,
       tags: tags,
       description: desc,
-      publisher: "Business Unusual",
+      publisher: "Business Matters",
       adminId: adminId,
       credits: credits,
       htmlPath: relativeUploadPath, // ✅ Save directory path, not HTML
