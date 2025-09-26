@@ -74,7 +74,7 @@ class _SideMenuWidgetState extends State<SideMenuWidget> {
               Icon(Icons.dashboard, color: Colors.yellow[600], size: 28),
               const SizedBox(width: 8),
               Text(
-                "Business Unusual",
+                "Business Matters",
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   color: Colors.white,
