@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:title" content="Business Matters Magazine" />
+      <meta 
+        property="og:description" 
+        content="BUSINESS MATTERS MAGAZINE
+          Aims to provide high-quality, accurate,
+          and timely business content that
+          empowers entrepreneurs, investors,
+          and policymakers with the knowledge
+          to make informed decisions, fostering
+          innovation, economic growth, and sustainable development in Kenya
+          and beyond." 
+      />
+      <meta property="og:url" content="<%= fullUrl %>" />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="Business Matters Magazine" />
+
+      <meta name="twitter:title" content="Business Matters Magazine" />
+      <meta name="twitter:description" content="BUSINESS MATTERS MAGAZINE
+          Aims to provide high-quality, accurate,
+          and timely business content that
+          empowers entrepreneurs, investors,
+          and policymakers with the knowledge
+          to make informed decisions, fostering
+          innovation, economic growth, and sustainable development in Kenya
+          and beyond." />
+      <meta name="twitter:url" content="<%= fullUrl %>" />
+    <!-- Google Material Icons -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/front/tag/public/assets/styles/styles.css" />
+    <title>Business Matters</title>
+  </head>
+  <body>
+    <section class="top">
+      <div class="titles front">
+        <!-- <h1>E-Newspp</h1> -->
+        <h1 id="magazineTitle">
+          Business Matters
+        </h1>
+      </div>
+    </section>
+
+    <div class="content-body no-content">
+      <section id="articlesSection" class="content tags">
+        <% if (status) { %>
+          <p class="foundItems">
+            Showing <span id="foundItems"><%= tags.length %></span> categories
+          </p>
+
+          <div id="tags-thumbnails">
+            <% tags.forEach((tag, index) => { 
+              const imageUrl = 'https://placehold.co/600x400?text=' + encodeURIComponent(tag.name);
+              const isOdd = index % 2 !== 0;
+            %>
+              <div
+                data-identifier="<%= tag.id %>"
+                class="tag-thumbnail"
+                style="
+                    background-image: 
+                    linear-gradient(to bottom right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.2)),
+                    url('<%= imageUrl %>');
+                "
+                >
+                <strong ><%= tag.name %></strong>
+                <span ><%= tag.magazines.length %> article<%= tag.magazines.length !== 1 ? 's' : '' %></span>
+                </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div class="center container mt-3" style="margin-top: 25vh;">
+            <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+              <div>
+                <strong>Error:</strong> <br />
+                <%= error %>
+              </div>
+              <br />
+              <div>
+                <button class="btn btn-outline-success btn-sm me-2" onclick="location.reload()">Reload</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="history.back()">Go Back</button>
+              </div>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="copy">
+          <p>
+            Ela Creatives <br />
+            &copy; <span id="copy"></span>
+          </p>
+        </div>
+      </section>
+
+      <section class="bottom"></section>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="/front/tag/public/assets/scripts/tags.js"></script>
+  </body>
+</html>

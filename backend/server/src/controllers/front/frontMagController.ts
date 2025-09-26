@@ -4,10 +4,12 @@ import {
   fetchMagazinesService,
   fetchSingleMagazineService,
   fetchSingleTagService,
-  getTocsService
+  getTocsService,
+  getAllTags
 } from "../../services/front/frontMagService";
 import path from "path";
 import { promises as fs } from 'fs';
+import { url } from "inspector";
 
 
 export const renderIndexPage = async (req: Request, res: Response) => {
@@ -153,5 +155,21 @@ export const renderGroupedPage = async(req: Request, res: Response) => {
   } catch(renderGroupedPageError: any) {
     console.error(`Render grouped page error ${renderGroupedPageError}`);
     return res.render("front/grouped", { error: renderGroupedPageError.message || "Server error", url: url, fullUrl: fullUrl});
+  }
+}
+
+export const renderTagsPage = async(req: Request, res: Response) => {
+  const url = req.protocol + '://' + req.get('host')
+  const fullUrl = url + req.originalUrl;
+  try {
+    const allTags = await getAllTags();
+    if (!allTags.status) {
+      return res.render("front/tags", { status: false, error: allTags.error, url: url, fullUrl: fullUrl})
+    } else {
+      return res.render("front/tags", { status: true, tags: allTags.tags, url: url, fullUrl: fullUrl });
+    }
+  } catch(renderTagsPageError: any) {
+    console.error(`Render tags page error ${renderTagsPageError}`);
+    return res.render("front/tags", { status: false, error: renderTagsPageError.message || "Server error", url: url, fullUrl: fullUrl});
   }
 }

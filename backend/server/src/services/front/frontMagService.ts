@@ -127,4 +127,26 @@ export const getTocsService = async(magazineId: string) => {
       error: getTocsServiceError.message || "Unable to get contents"
     }
   }
+};
+
+export const getAllTags = async() => {
+  try {
+    const allTags = await prisma.tag.findMany({
+      select: {
+        id: true,
+        name: true,
+        magazines: true
+      }
+    });
+    return {
+      status: true,
+      tags: allTags
+    }
+  } catch(getAllTagsError: any) {
+    console.error(`Get all tags error ${getAllTagsError}`);
+    return {
+      status: false,
+      error: getAllTagsError.message || "Unable to get categories"
+    };
+  }
 }
