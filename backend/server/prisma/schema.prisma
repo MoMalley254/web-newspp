@@ -98,3 +98,8 @@ model MagzineReadingSession {
   @@index([magazineId])
 }
 
+model userMails {
+  id String @id @default(uuid())
+  userMail String @unique
+}
+

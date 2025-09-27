@@ -81,10 +81,51 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const subscribeForm = document.getElementById("subscribeForm");
-  subscribeForm.addEventListener("submit", (e) => {
+
+  subscribeForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = subscribeForm.querySelector("#emailInput").value.trim();
-    alert(`Thank you for subscribing ${email}`);
-    location.reload();
+
+    const emailInput = subscribeForm.querySelector("#emailInput");
+    const submitButton = subscribeForm.querySelector("#subscribeBtn");
+    const email = emailInput.value.trim();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      alert("Please provide a valid email address.");
+      emailInput.focus();
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+    <div class="spinner-border text-primary" role="status">
+                                  <span class="visually-hidden">Loading...</span>
+                                </div>
+  `;
+
+    try {
+      const response = await fetch("front/mail/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mail: email }),
+      });
+
+      if (response.ok) {
+        alert(`✅ Thank you for subscribing, ${email}!`);
+      } else {
+        const { error } = await response.json();
+        throw new Error(error || "Failed to subscribe. Please try again.");
+      }
+    } catch (saveEmailError) {
+      alert(`❌ Error: ${saveEmailError.message}`);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = "Subsribe";
+      // subscribeForm.reset();
+      // location.reload();
+    }
   });
 });

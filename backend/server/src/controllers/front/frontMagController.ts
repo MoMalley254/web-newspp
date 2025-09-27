@@ -172,4 +172,6 @@ export const renderTagsPage = async(req: Request, res: Response) => {
     console.error(`Render tags page error ${renderTagsPageError}`);
     return res.render("front/tags", { status: false, error: renderTagsPageError.message || "Server error", url: url, fullUrl: fullUrl});
   }
-}
+};
+
+
