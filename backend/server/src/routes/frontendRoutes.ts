@@ -9,7 +9,8 @@ import {
 } from '../controllers/front/frontMagController';
 
 import {
-    saveUserMail
+    saveUserMail,
+    renderAboutPage
 } from "../controllers/front/frontUserController";
 
 const router = express.Router();
@@ -22,5 +23,7 @@ router.get('/tag', renderGroupedPage);
 router.get('/categories', renderTagsPage);
 
 router.post('/mail/create', saveUserMail);
+
+router.get('/about', renderAboutPage);
 
 export default router;
